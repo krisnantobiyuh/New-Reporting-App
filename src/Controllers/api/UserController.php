@@ -13,6 +13,10 @@ class UserController extends BaseController
 
         $getUser = $user->getAllUser();
         $countUser = count($getUser);
+        $query = [
+            'id'	=> 1,
+            'name'	=> 'nama',
+        ];
 
         if ($getUser) {
             $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
@@ -21,7 +25,7 @@ class UserController extends BaseController
 
             if ($get) {
                 $data = $this->responseDetail(200, 'Data Available', $get,
-                 $this->paginate($countUser, 5, $page, ceil($countUser/5)));
+                 $this->paginate($countUser, 5, $page, ceil($countUser/5)), $query);
             } else {
                 $data = $this->responseDetail(404, 'Error', 'Data Not Found');
             }

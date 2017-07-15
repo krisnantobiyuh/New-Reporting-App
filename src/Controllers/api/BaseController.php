@@ -27,14 +27,34 @@ abstract class BaseController
 		return $this->response->withHeader('Content-type', 'application/json')->withJson($data, $data['status']);
 	}
 // Detail ResponseWithJson API
-	public function responseDetail($status, $message, $data, array $meta = null)
+	public function responseDetail($code, $message, $data, array $meta = null, array $query = null)
 	{
-		$response = [
-			'status'	=> $status,
-			'message'	=> $message,
-			'data'		=> $data,
-			'meta'		=> $meta,
-		];
+		if ($query == null) {
+			$response = [
+				'reporting' => [
+					'status'	=>  [
+						'code'			=> $code,
+						'description'	=> $message,
+					],
+					'results'	=> $data,
+					'meta'		=> $meta,
+				]
+			];
+			
+		} else {
+			$response = [
+				'reporting' => [
+					'query'		=> $query,
+					'status'	=>  [
+						'code'			=> $status,
+						'description'	=> $message,
+					],
+					'results'	=> $data,
+					'meta'		=> $meta,
+				]
+			];
+		}
+
 		if ($meta == null) {
 			array_pop($response);
 		}
