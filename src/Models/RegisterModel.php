@@ -48,16 +48,6 @@ class RegisterModel extends BaseModel
            ->execute();
     }
 
-	public function getUserId($token)
-    {
-        $qb = $this->db->createQueryBuilder();
-        $qb->select('user_id')
-            ->from($this->table)
-            ->where('token = '. $token);
-        $query = $qb->execute();
-        return $query->fetch();
-    }
-
 }
 
 ?>

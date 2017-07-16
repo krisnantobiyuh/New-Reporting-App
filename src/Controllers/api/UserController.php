@@ -4,6 +4,7 @@ namespace App\Controllers\api;
 
 use App\Models\Users\UserModel;
 use App\Models\Users\UserToken;
+
 class UserController extends BaseController
 {
     //Get all user
@@ -267,6 +268,7 @@ class UserController extends BaseController
             $token = $request->getHeader('Authorization')[0];
 
             $userToken = new UserToken($this->db);
+            var_dump($userToken->getUserId($token));die();
             $findUser = $userToken->find('token', $token);
 
             $userToken->delete('user_id',$findUser['user_id']);
