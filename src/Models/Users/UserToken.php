@@ -57,4 +57,15 @@ class UserToken extends BaseModel
            ->execute();
     }
 
+    public function getUserId($token)
+    {
+        $qb = $this->db->createQueryBuilder();
+        $qb->select('*')
+            ->from($this->table)
+            ->setParameter(':token', $token)
+            ->where( 'token = :token');
+        $result = $qb->execute();
+        return $result->fetch()['user_id'];
+    }
+
 }
