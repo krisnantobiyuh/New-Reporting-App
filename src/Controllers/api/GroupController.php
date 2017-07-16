@@ -39,7 +39,7 @@ class GroupController extends BaseController
 	{
 		$group = new \App\Models\GroupModel($this->db);
 		$findGroup = $group->find('id', $args['id']);
-
+var_dump($findGroup);die();
 		if ($findGroup) {
 			$data = $this->responseDetail(200, 'Succes', $findGroup);
 		} else {
@@ -60,17 +60,22 @@ class GroupController extends BaseController
 			]
 		];
 
-		$this->validator->rules($rules);
-
 		$this->validator->labels([
 			'name' 			=>	'Name',
 			'description'	=>	'Description',
 			'image'			=>	'Image',
 		]);
 
+		$post = $request->getParams();
+
+		$token = $request->getHeader('Authorization')[0];
+		$userToken = new \App\Models\RegisterModel($this->db);
+		$post['creator'] = $userToken->find('token', $token)->fetch()['user_id'];
+var_dump($post['creator']);die();
+		$this->validator->rules($rules);
 		if ($this->validator->validate()) {
 			$group = new \App\Models\GroupModel($this->db);
-			$addGroup = $group->add($request->getParsedBody());
+			$addGroup = $group->add($post);
 
 			$findNewGroup = $group->find('id', $addGroup);
 
@@ -86,6 +91,8 @@ class GroupController extends BaseController
 	public function update(Request $request, Response $response, $args)
 	{
 		$group = new \App\Models\GroupModel($this->db);
+
+		$token = $request->getHeader('Authorization')[0];
 		$findGroup = $group->find('id', $args['id']);
 
 		if ($findGroup) {
@@ -271,6 +278,17 @@ class GroupController extends BaseController
 		}
 
 		return $data;
+	}
+
+	//Get All user not member
+	public function getNotMember(Request $request, Response $response, $args)
+	{
+		$userGroup = new \App\Models\UserGroupModel($this->db);
+
+		$token = $request->getHeader('Authorization')[0];
+		$page = !$request->getQueryParam('page') ? 1 :$request->getQueryParam('page');
+		$users = $userGroup->notMember($args['id'])->setPaginate($page, 10);
+		$pic = $userGroup->findUser($group_id, $args['id'], 'user_id', '$token');
 	}
 }
 

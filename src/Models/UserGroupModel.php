@@ -68,6 +68,16 @@ class UserGroupModel extends BaseModel
 		   ->execute();
 	}
 
+	//Set user in group as member
+	public function setGuardian($id)
+	{
+		$qb = $this->db->createQueryBuilder();
+		$qb->update($this->table)
+		   ->set('status', 0)
+ 	   	   ->where('id = ' . $id)
+		   ->execute();
+	}
+
 	// Get all user in group by group id
 	public function findAll($groupId)
     {
