@@ -72,12 +72,28 @@ class UserModel extends BaseModel
     public function getAllUser()
     {
         $qb = $this->db->createQueryBuilder();
-        $qb->select('*')
+        $qb->select('id', 'name', 'username', 'email', 'gender', 'phone',
+                    'image','address', 'created_at')
         ->from($this->table)
         ->where('status = 2 && deleted = 0');
 
         $query = $qb->execute();
         return $query->fetchAll();
+    }
+
+    public function getUser($column, $val)
+    {
+        $param = ':'.$column;
+
+        $qb = $this->db->createQueryBuilder();
+        $qb->select('id', 'name', 'username', 'email', 'gender', 'phone',
+                    'image','address', 'created_at')
+        ->from($this->table)
+        ->where($column.' = '. $param)
+        ->setParameter($param, $val);
+
+        $query = $qb->execute();
+        return $query->fetch();
     }
 
     public function getInActiveUser()

@@ -13,6 +13,7 @@ class UserController extends BaseController
 
         $getUser = $user->getAllUser();
         $countUser = count($getUser);
+        $query = $request->getQueryParams();
 
         if ($getUser) {
             $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
@@ -20,8 +21,8 @@ class UserController extends BaseController
             $get = $user->paginate($page, $getUser, 5);
 
             if ($get) {
-                $data = $this->responseDetail(200, 'Data Available', $get,
-                 $this->paginate($countUser, 5, $page, ceil($countUser/5)));
+                $data = $this->responseDetail(200, 'Data Available', $getUser,
+                 $this->paginate($countUser, 5, $page, ceil($countUser/5)), $query);
             } else {
                 $data = $this->responseDetail(404, 'Error', 'Data Not Found');
             }
@@ -191,6 +192,7 @@ class UserController extends BaseController
     {
         $user = new UserModel($this->db);
         $login = $user->find('username', $request->getParam('username'));
+        $user = $user->getUser('username', $request->getParam('username'));
 
         if (empty($login)) {
             $data = $this->responseDetail(401, 'Errors', 'username is not registered');
@@ -204,7 +206,7 @@ class UserController extends BaseController
                 $key = [
                 'key' => $getToken,
                 ];
-                $data = $this->responseDetail(201, 'Login Succes', $login, $key);
+                $data = $this->responseDetail(201, 'Login Succes', $user, $key);
             } else {
                 $data = $this->responseDetail(401, 'Errors', 'Wrong Password');
             }

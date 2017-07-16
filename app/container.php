@@ -52,3 +52,12 @@ $container['view'] = function ($container) {
 $container['flash'] = function ($container) {
 	return new \Slim\Flash\Messages;
 };
+
+$container['client'] = function ($container) {
+    $settings = $container->get('settings')['reporting'];
+
+    return new GuzzleHttp\Client([
+        'base_uri' => 'http://localhost/Reporting-App/public/',
+        'headers'  => $settings['headers'],
+    ]);
+};
