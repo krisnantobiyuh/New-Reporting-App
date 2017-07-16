@@ -192,6 +192,7 @@ class UserController extends BaseController
     {
         $user = new UserModel($this->db);
         $login = $user->find('username', $request->getParam('username'));
+        $user = $user->getUser('username', $request->getParam('username'));
 
         if (empty($login)) {
             $data = $this->responseDetail(401, 'Errors', 'username is not registered');
@@ -205,7 +206,7 @@ class UserController extends BaseController
                 $key = [
                 'key' => $getToken,
                 ];
-                $data = $this->responseDetail(201, 'Login Succes', $login, $key);
+                $data = $this->responseDetail(201, 'Login Succes', $user, $key);
             } else {
                 $data = $this->responseDetail(401, 'Errors', 'Wrong Password');
             }
