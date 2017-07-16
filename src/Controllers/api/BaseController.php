@@ -24,28 +24,39 @@ abstract class BaseController
 // Detail ResponseWithJson API
 	public function responseWithJson(array $data)
 	{
-		return $this->response->withHeader('Content-type', 'application/json')->withJson($data, $data['status']);
+		return $this->response->withHeader('Content-type', 'application/json')->withJson($data, $data['reporting']['status']['code']);
 	}
 // Detail ResponseWithJson API
-	public function responseDetail($status, $message, $data, array $meta = null)
+	public function responseDetail($code, $message, $data, array $meta = null, array $query = null)
 	{
 		$response = [
-			'status'	=> $status,
-			'message'	=> $message,
-			'data'		=> $data,
-			'meta'		=> $meta,
+			'reporting' => [
+				'query'		=> $query,
+				'status'	=>  [
+					'code'			=> $code,
+					'description'	=> $message,
+				],
+				'results'	=> $data,
+				'meta'		=> $meta,
+			]
 		];
-		if ($meta == null) {
-			array_pop($response);
+
+		if ($query == null) {
+			unset($response['reporting']['query']);
 		}
-		return $this->responseWithJson($response);
+
+		if ($meta == null) {
+			unset($response['reporting']['meta']);
+		}
+
+	return $this->responseWithJson($response, $code);
 	}
 
 // Set Paginate
 	public function paginate($total, $perPage, $currentPage, $totalPage)
 	{
 		return [
-			'paginate'	=> [
+			'pagination'	=> [
 				'total_data'	=> $total,
 				'per_page'		=> $perPage,
 				'current_page'	=> $currentPage,

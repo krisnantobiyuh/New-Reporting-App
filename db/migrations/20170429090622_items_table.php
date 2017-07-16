@@ -37,6 +37,7 @@ class ItemsTable extends AbstractMigration
              ->addColumn('start_date', 'date')
              ->addColumn('recurrent', 'string', ['null' => true])
              ->addColumn('status', 'integer', ['default' => '0'])
+             ->addColumn('privacy', 'integer', ['default' => '0'])
              ->addColumn('reported_at', 'timestamp', ['null' => true])
              ->addColumn('created_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
              ->addColumn('updated_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP','update' => 'CURRENT_TIMESTAMP'])

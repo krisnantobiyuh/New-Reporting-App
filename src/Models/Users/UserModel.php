@@ -72,7 +72,8 @@ class UserModel extends BaseModel
     public function getAllUser()
     {
         $qb = $this->db->createQueryBuilder();
-        $qb->select('*')
+        $qb->select('id', 'name', 'username', 'email', 'gender', 'phone',
+                    'image','address', 'created_at')
         ->from($this->table)
         ->where('status = 2 && deleted = 0');
 

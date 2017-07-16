@@ -12,8 +12,6 @@ try {
     //
 }
 
-
-
 $app = new App([
 	'settings'	=> require __DIR__. '/setting.php'
 	]);
