@@ -12,7 +12,7 @@ $app->group('/api', function() use ($app, $container) {
 
 
     $app->group('/user', function() use ($app, $container) {
-        $app->get('/all', 'App\Controllers\api\UserController:index');
+        $app->get('/', 'App\Controllers\api\UserController:index');
 
     });
 });

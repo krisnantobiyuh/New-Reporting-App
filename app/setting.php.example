@@ -33,4 +33,11 @@ return [
 			'cache'	=>	false,
 		]
 	],
+
+	'reporting' => [
+		   'base_uri' => 'http://localhost/Reporting-App/public/',
+		   'headers' => [
+			   'key' => $_ENV['REPORTING_API_KEY'],
+		   ],
+	   ],
 ];

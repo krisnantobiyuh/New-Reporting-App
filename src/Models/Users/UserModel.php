@@ -13,13 +13,13 @@ class UserModel extends BaseModel
     public function createUser(array $data, $images)
     {
         $data = [
-            'name' => $data['name'],
+            // 'name' => $data['name'],
             'email' => $data['email'],
             'username' => $data['username'],
             'password' => password_hash($data['password'], PASSWORD_BCRYPT),
-            'gender' => $data['gender'],
-            'address' => $data['address'],
-            'phone' => $data['phone'],
+            // 'gender' => $data['gender'],
+            // 'address' => $data['address'],
+            // 'phone' => $data['phone'],
             'image' => $images,
         ];
 
@@ -111,7 +111,9 @@ class UserModel extends BaseModel
     {
         $checkUsername = $this->find('username', $username);
         $checkEmail = $this->find('email', $email);
-        if ($checkUsername) {
+        if ($checkUsername && $checkEmail) {
+            return 3;
+        } elseif ($checkUsername) {
             return 1;
         } elseif ($checkEmail) {
             return 2;
