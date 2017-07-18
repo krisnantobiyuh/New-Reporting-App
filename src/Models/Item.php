@@ -155,4 +155,16 @@ class Item extends BaseModel
            $result = $qb->execute();
            return $result->fetchAll();
     }
+
+    public function getItem($column, $value)
+    {
+        $param = ':'.$column;
+        $qb = $this->db->createQueryBuilder();
+        $qb->select('*')
+            ->from($this->table)
+            ->setParameter($param, $value)
+            ->where($column . ' = '. $param);
+        $result = $qb->execute();
+        return $result->fetchAll();
+    }
 }
