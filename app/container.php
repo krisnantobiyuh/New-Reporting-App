@@ -53,11 +53,20 @@ $container['flash'] = function ($container) {
 	return new \Slim\Flash\Messages;
 };
 
-$container['client'] = function ($container) {
+$container[''] = function ($container) {
     $settings = $container->get('settings')['reporting'];
 
     return new GuzzleHttp\Client([
         'base_uri' => 'http://localhost/Reporting-App/public/',
         'headers'  => $settings['headers'],
     ]);
+};
+
+// monolog
+$container['logger'] = function ($c) {
+    $settings = $c->get('settings')['logger'];
+    $logger = new Monolog\Logger($settings['name']);
+    $logger->pushProcessor(new Monolog\Processor\UidProcessor());
+    $logger->pushHandler(new Monolog\Handler\StreamHandler($settings['path'], $settings['level']));
+    return $logger;
 };
