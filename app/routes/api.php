@@ -10,9 +10,10 @@ $app->group('/api', function() use ($app, $container) {
     //
     // })->add(new \App\Middlewares\AuthToken($container));
 
+    $app->post('/change/{id}', 'App\Controllers\api\UserController:postImage')->setname('api.user.ima');
 
     $app->group('/user', function() use ($app, $container) {
-        $app->get('/', 'App\Controllers\api\UserController:index');
+        $this->get('/', 'App\Controllers\api\UserController:index');
 
     });
 });

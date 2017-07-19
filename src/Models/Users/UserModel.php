@@ -56,7 +56,7 @@ class UserModel extends BaseModel
         $this->updateData($data, $id);
     }
 
-    public function updateUser(array $data, $id)
+    public function updateImage(array $data, $id)
     {
         $data = [
             'name' => $data['name'],

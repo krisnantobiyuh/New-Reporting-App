@@ -145,6 +145,44 @@ class UserController extends BaseController
     }
 
 
+    public function postImage($request, $response, $args)
+    {
+        $user = new UserModel($this->db);
+
+        $findUser = $user->getUser('id', $args['id']);
+
+        if (!$findUser) {
+            return $this->responseDetail(404, 'Akun tidak ditemukan');
+        }
+
+        if (!empty($request->getUploadedFiles()['image'])) {
+            $storage = new \Upload\Storage\FileSystem('assets/images');
+            $image = new \Upload\File('image',$storage);
+
+            $image->setName(uniqid('img-'.date('Ymd').'-'));
+            $image->addValidations(array(
+                new \Upload\Validation\Mimetype(array('image/png', 'image/gif',
+                'image/jpg', 'image/jpeg')),
+                new \Upload\Validation\Size('5M')
+            ));
+
+            $image->upload();
+            $data['image'] = $image->getNameWithExtension();
+
+            $user->updateData($data, $args['id']);
+            $newUser = $user->getUser('id', $args['id']);
+
+            return  $this->responseDetail(200, 'Foto berhasil diunggah', [
+                'result' => $newUser
+            ]);
+
+        } else {
+            return $this->responseDetail(400, 'File foto belum dipilih');
+
+        }
+
+    }
+
     //Delete user account by id
     public function deleteUser($request, $response, $args)
     {
