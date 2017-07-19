@@ -22,4 +22,10 @@ $app->group('/group', function() use ($app, $container) {
     $app->get('/delete/{id}', 'App\Controllers\api\GroupController:delete');
     $app->post('/add/user', 'App\Controllers\api\GroupController:setUserGroup')->setName('api.user.add.group');
     $app->put('/set/guardian/{group}/{id}', 'App\Controllers\api\GroupController:setAsGuardian')->setName('api.user.set.guardian');
+    $app->get('/detail', 'App\Controllers\api\GroupController:getGroup');
+    $app->get('/{id}/del', 'App\Controllers\api\GroupController:delGroup');
+    $app->get('/{id}/leave', 'App\Controllers\api\GroupController:leaveGroup');
+    $app->get('/join/{id}', 'App\Controllers\api\GroupController:joinGroup');
+    $app->post('/search', 'App\Controllers\api\GroupController:searchGroup');
+
 });

@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 namespace App\Controllers\web;
 
@@ -568,14 +568,13 @@ class GroupController extends BaseController
 
 			$leaveGroup = $userGroup->hardDelete($group[0]['id']);
 
-			$this->flash->addMessage('succes', 'Anda telah meninggalkan grup');
+			$data = $this->responseDetail(200, 'Succes', 'Anda telah meninggalkan grup');
 		} else {
-			$this->flash->addMessage('error', 'Anda tidak tergabung di grup ini!');
+			$this->flash->addMessage(400, 'Error', 'Anda tidak tergabung di grup ini!');
 
 		}
 
-		return $response->withRedirect($this->router
-		->pathFor('user.group'));
+		return $data;
 	}
 
 }
