@@ -4,77 +4,89 @@ namespace App\Controllers\api;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
-use App\Models\Item;
+use App\Models\Item as Item;
 use App\Models\UserItem;
 
 class ItemController extends BaseController
 {
     //Get all items
-    public function all(Request $request, Response $response)
+    public function all($request, $response)
     {
-        $item = new \App\Models\Item($this->db);
+        $item = new Item($this->db);
         $getItems = $item->getAll();
         $countItems = count($getItems);
         $query = $request->getQueryParams();
 
         if ($getItems) {
             $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+
             $get = $item->paginate($page, $getItems, 5);
+            $pagination = $this->paginate($countItems, 5, $page, ceil($countItems/5));
+
             if ($get){
-                $data = $this->responseDetail(200, 'Data Available', $getItems,
-                $this->paginate($countItems, 5, $page, ceil($countItems/5)), $query);
+                $data = $this->responseDetail(200, 'Data Tersedia', ['query'  => $query,
+                 'result' => $getItems,
+                 'meta'   => $pagination
+                ]);
             } else {
-                $data = $this->responseDetail(404, 'Error', 'Data Not Found');
+                $data = $this->responseDetail(404, 'Data Tidak Ditemukan', ['query' => $query]);
             }
 
         } else {
-            $data = $this->responseDetail(204, 'Success', 'No Content');
+            $data = $this->responseDetail(204, 'Berhasil', [
+                'result'  => 'Konten tidak tersedia',
+                'query'   => $query
+            ]);
         }
 
         return $data;
     }
 
     //Get item  by  id
-    public function getItemDetail(Request $request, Response $response, $args)
+    public function getItemDetail($request, $response, $args)
     {
         $item = new Item($this->db);
 
         $findItem = $item->find('id', $args['id']);
 
         if ($findItem) {
-            $data = $this->responseDetail(200, 'Data Available', $findItem);
+            $data = $this->responseDetail(200, 'Data Tersedia', ['result' => $findItem]);
         } else {
-            $data = $this->responseDetail(400, 'Error', 'User item not found');
+            $data = $this->responseDetail(400, 'Item tidak ditemukan');
         }
 
         return $data;
     }
 
     //Get group item
-    public function getGroupItem(Request $request, Response $response, $args)
+    public function getGroupItem($request, $response, $args)
     {
         $item     = new Item($this->db);
-        $findItem  = $item->getItem('group_id', $args['group']);
-        $countItem = count($findItem);
-        $query = $request->getQueryParams();
+
+        $groupId  = $args['group'];
+        $findItem   = $item->getItem('group_id', $groupId);
+        $countItem  = count($findItem);
+        $query      = $request->getQueryParams();
 
         if ($findItem) {
             $page = !$request->getQueryParam('page') ?  1 : $request->getQueryParam('page');
-            $get = $item->paginate($page, $findItem, 5);
-            if ($get) {
-                $data = $this->responseDetail(200, 'Data available', $findItem, $this->paginate($countItem, 5, $page, ceil($countItem/5)), $query);
-            } else {
-                $data = $this->responseDetail(404, 'Error', 'Data Not Found');
-            }
+            $pagination = $this->paginate($countItem, 5, $page, ceil($countItem/5));
+
+            $data = $this->responseDetail(200, 'Data tersedia', [
+                'query'  => $query,
+                'result' => $findItem,
+                'meta'   => $pagination
+            ]);
 
         } else {
-            $data = $this->responseDetail(204, 'Success', 'No Content');
+            $data = $this->responseDetail(404, 'Data tidak ditemukan');
+            // var_dump($data); die();
         }
 
         return $data;
     }
     //Get user item (unreported)
-    public function getUserItem(Request $request, Response $response, $args)
+    public function getUnreportedItem($request, $response, $args)
     {
         $item     = new Item($this->db);
 
@@ -90,7 +102,7 @@ class ItemController extends BaseController
     }
 
     //Set item status
-    public function setItemStatus(Request $request, Response $response, $args)
+    public function setItemStatus($request, $response, $args)
     {
         $userItem = new UserItem($this->db);
 
@@ -108,7 +120,7 @@ class ItemController extends BaseController
     }
 
     //Create item
-    public function createItem(Request $request, Response $response)
+    public function createItem($request, $response)
     {
         $rules = [
             'required' => [
@@ -116,8 +128,9 @@ class ItemController extends BaseController
                 ['recurrent'],
                 ['description'],
                 ['start_date'],
-                ['end_date'],
+                ['user_id'],
                 ['group_id'],
+                ['creator'],
             ],
 
         ];
@@ -129,27 +142,30 @@ class ItemController extends BaseController
             'recurrent'   => 'Recurrent',
             'description' => 'Description',
             'start_date'  => 'Start date',
-            'end_date'    => 'End date',
-            'group_id'    => 'Group id'
+            'user_id'     => 'User id',
+            'group_id'    => 'Group id',
+            'creator '    => 'Creator'
         ]);
+        // var_dump($this->validator);
+        // die();
 
         if ($this->validator->validate()) {
             $item = new Item($this->db);
             $newItem = $item->create($request->getParsedBody());
             $recentItem = $item->find('id', $newItem);
 
-            $data = $this->responseDetail(201, 'New item successfully added', $recentItem);
+            $data = $this->responseDetail(201, 'Item baru telah berhasil ditambahkan', ['result' => $recentItem]);
 
         } else {
 
-            $data = $this->responseDetail(400, 'Error occured', $this->validator->errors());
+            $data = $this->responseDetail(400, 'Error', ['result' => $this->validator->errors()]);
         }
 
         return $data;
     }
 
     //Edit item
-    public function updateItem(Request $request, Response $response, $args)
+    public function updateItem( $request, $response, $args)
     {
         $item     = new Item($this->db);
         $findItem = $item->find('id', $args['id']);
@@ -161,7 +177,6 @@ class ItemController extends BaseController
                     ['recurrent'],
                     ['description'],
                     ['start_date'],
-                    ['end_date'],
                     ['group_id'],
                 ],
 
@@ -174,7 +189,6 @@ class ItemController extends BaseController
                 'recurrent'   => 'Recurrent',
                 'description' => 'Description',
                 'start_date'  => 'Start date',
-                'end_date'    => 'End date',
                 'group_id'    => 'Group id'
             ]);
 
@@ -184,11 +198,11 @@ class ItemController extends BaseController
                 $updateItem = $item->update($request->getParsedBody(), $args['id']);
                 $recentItemUpdated = $item->find('id', $args['id']);
 
-                $data = $this->responseDetail(200, 'Item successfully updated', $recentItemUpdated);
+                $data = $this->responseDetail(200, 'Item berhasil diperbarui', ['result' => $recentItemUpdated]);
 
             } else {
 
-                $data = $this->responseDetail(400, 'Error occured', $this->validator->errors());
+                $data = $this->responseDetail(400, 'Error occured', ['result' => $this->validator->errors()]);
             }
         } else {
             $data = $this->responseDetail(400, 'Item not found', null);
@@ -198,7 +212,7 @@ class ItemController extends BaseController
     }
 
     //Delete item
-    public function deleteItem(Request $request, Response $response, $args)
+    public function deleteItem( $request, $response, $args)
     {
         $item = new Item($this->db);
 
@@ -208,11 +222,11 @@ class ItemController extends BaseController
 
             $item->hardDelete($args['id']);
             $data['status']= 200;
-            $data['message']= 'Item deleted';
+            $data['message']= 'Item berhasil dihapus';
 
         } else {
             $data['status']= 400;
-            $data['message']= 'Item not found';
+            $data['message']= 'Item tidak ditemukan';
         }
 
         return $this->responsewithJson($data);
