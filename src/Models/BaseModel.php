@@ -144,35 +144,35 @@ abstract class BaseModel
     }
 
     // Paginate
-    public function paginate($page, $query, $limit)
-    {
-        $qb = $this->db->createQueryBuilder();
-        $getRows = $qb->select('COUNT(id) as rows')
-                      ->from($this->table)
-                      ->execute()
-                      ->fetch();
-        $perpage = $limit;
-        $total = $getRows['rows'];
-        $pages = (int) ceil($total / $perpage);
-        $data = array(
-            'options' => array(
-            'default'   => 1,
-            'min_range' => 1,
-            'max_range' => $pages
-            )
-        );
-
-        $number = (int) $page;
-        $range = $perpage * ($number - 1);
-
-        $qb = $this->db->createQueryBuilder();
-        $test = $qb->select($this->column)
-                   ->from($this->table)
-                   ->setFirstResult($range)
-                   ->setMaxResults($limit)
-                   ->execute();
-        return $test->fetchAll();
-    }
+    // public function paginate($page, $query, $limit)
+    // {
+    //     $qb = $this->db->createQueryBuilder();
+    //     $getRows = $qb->select('COUNT(id) as rows')
+    //                   ->from($this->table)
+    //                   ->execute()
+    //                   ->fetch();
+    //     $perpage = $limit;
+    //     $total = $getRows['rows'];
+    //     $pages = (int) ceil($total / $perpage);
+    //     $data = array(
+    //         'options' => array(
+    //         'default'   => 1,
+    //         'min_range' => 1,
+    //         'max_range' => $pages
+    //         )
+    //     );
+    //
+    //     $number = (int) $page;
+    //     $range = $perpage * ($number - 1);
+    //
+    //     $qb = $this->db->createQueryBuilder();
+    //     $test = $qb->select($this->column)
+    //                ->from($this->table)
+    //                ->setFirstResult($range)
+    //                ->setMaxResults($limit)
+    //                ->execute();
+    //     return $test->fetchAll();
+    // }
 
     public function setPaginate(int $page, int $limit)
     {
@@ -185,12 +185,14 @@ abstract class BaseModel
         $data = $this->query->setFirstResult($range)->setMaxResults($limit);
         $data = $this->fetchAll();
         $result = [
-            'total_data'=> $total,
-            'perpage'   => $limit,
-            'current'   => $page,
-            'total_page'=> $pages,
-            'first_page'=> 1,
-            'data'      => $data,
+            'data'        => $data,
+            'pagination'  =>[
+                'total_data'=> $total,
+                'perpage'   => $limit,
+                'current'   => $page,
+                'total_page'=> $pages,
+                'first_page'=> 1,
+            ]
         ];
         return $result;
     }
@@ -218,5 +220,23 @@ abstract class BaseModel
         $result = $qb->execute();
         return $result->fetchAll();
     }
+
+    public function getUserByToken($token)
+    {
+        $qb = $this->db->createQueryBuilder();
+        $qb->select('user_id')
+            ->from('tokens')
+            ->setParameter(':token', $token)
+            ->where( 'token = :token');
+        $result = $qb->execute();
+
+        $qb1 = $this->db->createQueryBuilder();
+        $qb1->select('id', 'username','email', 'name', 'image' )
+             ->from('users')
+             ->where('id = '. $result->fetch()['user_id']);
+         $result1 = $qb1->execute();
+         return $result1->fetch();
+     }
+
 
 }
