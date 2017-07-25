@@ -22,6 +22,7 @@ class GroupController extends BaseController
 			$get = $group->paginate($page, $getGroup, 10);
 			$pagination = $this->paginate($countGroups, 10, $page, ceil($countGroups/10));
 			if ($get) {
+		// var_dump($get);die();
 				$data = $this->responseDetail(200, 'Data tersedia', [
 						'query' 	=> 	$query,
 						'result'	=>	$getGroup,
@@ -80,22 +81,43 @@ class GroupController extends BaseController
 			'image'			=>	'Image',
 		]);
 
-		$post = $request->getParams();
-
-		$token = $request->getHeader('Authorization')[0];
-		$userToken = new \App\Models\Users\UserToken($this->db);
-		$post['creator'] = $userToken->getUserId($token);
-
 		$this->validator->rules($rules);
 		if ($this->validator->validate()) {
+            if (!empty($request->getUploadedFiles()['image'])) {
+                $storage = new \Upload\Storage\FileSystem('assets/images');
+                $image = new \Upload\File('image',$storage);
+
+                $image->setName(uniqid('img-'.date('Ymd').'-'));
+                $image->addValidations(array(
+                new \Upload\Validation\Mimetype(array('image/png', 'image/gif',
+                'image/jpg', 'image/jpeg')),
+                new \Upload\Validation\Size('5M')
+                ));
+
+                $image->upload();
+                $imageName = $image->getNameWithExtension();
+
+            } else {
+                $imageName = '';
+            }
+
+			$post = $request->getParams();
+
+			$token = $request->getHeader('Authorization')[0];
+			$userToken = new \App\Models\Users\UserToken($this->db);
+			$post['creator'] = $userToken->getUserId($token);
+			$query = $request->getQueryParams();
 			$group = new \App\Models\GroupModel($this->db);
-			$addGroup = $group->add($post);
+			$addGroup = $group->add($post, $imageName);
 
 			$findNewGroup = $group->find('id', $addGroup);
 
-			$data = $this->responseDetail(201, 'Group succefully added', $findNewGroup);
+			$data = $this->responseDetail(201, 'Berhasil ditambahkan', [
+					'query'		=>	$query,
+					'result'	=>	$findNewGroup
+				]);
 		} else {
-			$data = $this->responseDetail(400, 'Errors', $this->validator->errors());
+			$data = $this->responseDetail(400, $this->validator->errors());
 		}
 
 		return $data;
@@ -108,14 +130,18 @@ class GroupController extends BaseController
 
 		$token = $request->getHeader('Authorization')[0];
 		$findGroup = $group->find('id', $args['id']);
+		$query = $request->getQueryParams();
 
 		if ($findGroup) {
 			$group->updateData($request->getParsedBody(), $args['id']);
 			$afterUpdate = $group->find('id', $args['id']);
 
-			$data = $this->responseDetail(200, 'Group data has been updated successfully', $afterUpdate);
+			$data = $this->responseDetail(200, 'Data group berhasil di perbaharui', [
+					'query'		=>	$query,
+					'result'	=>	$afterUpdate
+				]);
 		} else {
-			$data = $this->responseDetail(404, 'Error', 'Data Not Found');
+			$data = $this->responseDetail(404, 'Data tidak ditemukan');
 		}
 
 		return $data;
@@ -126,12 +152,13 @@ class GroupController extends BaseController
 	{
 		$group = new \App\Models\GroupModel($this->db);
 		$findGroup = $group->find('id', $args['id']);
+		$query = $request->getQueryParams();
 
 		if ($findGroup) {
 			$group->hardDelete($args['id']);
-			$data = $this->responseDetail(200, 'Succes', 'Group successfully deleted');
+			$data = $this->responseDetail(200, 'Sukses menghapus group');
 		} else {
-			$data = $this->responseDetail(404, 'Error', 'Data Not Found');
+			$data = $this->responseDetail(404, 'Error', 'Data tidak ditemukan');
 		}
 
 		return $data;
@@ -157,12 +184,16 @@ class GroupController extends BaseController
 		if ($this->validator->validate()) {
 			$userGroup = new \App\Models\UserGroupModel($this->db);
 			$adduserGroup = $userGroup->add($request->getParsedBody());
+			$query = $request->getQueryParams();
 
 			$findNewGroup = $userGroup->find('id', $adduserGroup);
 
-			$data = $this->responseDetail(201, 'User successfully added to group', $findNewGroup);
+			$data = $this->responseDetail(201, 'User berhasil ditambahkan kedalam group', [
+					'query'		=>	$query,
+					'result'	=>	$findNewGroup
+				]);
 		} else {
-			$data = $this->responseDetail(400, 'Errors', $this->validator->errors());
+			$data = $this->responseDetail(400, $this->validator->errors());
 		}
 
 		return $data;
@@ -180,6 +211,7 @@ class GroupController extends BaseController
 		$findUser = $userToken->find('token', $token);
 		$group = $userGroup->findUser('user_id', $findUser['user_id'], 'group_id', $args['group']);
 		$user = $users->find('id', $findUser['user_id']);
+		$query = $request->getQueryParams();
 
 		if ($group) {
 			if ($finduserGroup || $user['status'] == 1) {
@@ -187,12 +219,19 @@ class GroupController extends BaseController
 
 				$findAll = $userGroup->findAll($args['group'])->setPaginate($page, 10);
 
-				$data = $this->responseDetail(200, 'Success', $findAll);
+				$data = $this->responseDetail(200, 'Berhasil', [
+					'query'		=>	$query,
+					'result'	=>	$findAll
+				]);
 			} else {
-				$data = $this->responseDetail(404, 'Error', 'User not found in group');
+				$data = $this->responseDetail(404, 'User tidak ditemukan didalam group', [
+					'query'		=>	$query
+				]);
 			}
 		} else {
-			$data = $this->responseDetail(404, 'Error', 'You are not registered in this group');
+			$data = $this->responseDetail(404, 'Kamu tidak terdaftar didalam group', [
+					'query'		=>	$query
+				]);
 		}
 
 		return $data;
@@ -211,15 +250,23 @@ class GroupController extends BaseController
 		$group = $userGroup->findUser('user_id', $findUser['user_id'], 'group_id', $args['group']);
 		$user = $users->find('id', $findUser['user_id']);
 		$getUser = $userGroup->getUser($args['group'], $args['id']);
+		$query = $request->getQueryParams();
 
 		if ($group) {
 			if ($finduserGroup) {
-				$data = $this->responseDetail(200, 'Success', $getUser);
+				$data = $this->responseDetail(200, 'Berhasil', [
+					'query'		=>	$query,
+					'result'	=>	$getUser
+				]);
 			} else {
-				$data = $this->responseDetail(404, 'Error', 'User not found in group');
+				$data = $this->responseDetail(404, 'User tidak ditemukan didalam group', [
+					'query'		=>	$query
+				]);
 			}
 		} else {
-			$data = $this->responseDetail(404, 'Error', 'You are not registered in this group');
+			$data = $this->responseDetail(404, 'Kamu tidak terdaftar didalam group', [
+					'query'		=>	$query
+				]);
 		}
 
 		return $data;
@@ -231,13 +278,19 @@ class GroupController extends BaseController
 		$userGroup = new \App\Models\UserGroupModel($this->db);
 		$finduserGroup = $userGroup->findUser('user_id', $args['id'], 'group_id', $args['group']);
 		$finduserGroup = $userGroup->find('user_id', $args['id']);
+		$query = $request->getQueryParams();
 
 		if ($finduserGroup) {
 			$userGroup->hardDelete($finduserGroup['id']);
 
-			$data = $this->responseDetail(200, 'Success', 'User has been deleted from group');
+			$data = $this->responseDetail(200, 'User berhasil dihapus dari group', [
+					'query'		=>	$query,
+					'result'	=>	$userGroup
+				]);
 		} else {
-			$data = $this->responseDetail(404, 'Error', 'Data Not Found');
+			$data = $this->responseDetail(404, 'Data tidak ditemukan', [
+					'query'		=>	$query
+				]);
 		}
 
 		return $data;
@@ -248,13 +301,19 @@ class GroupController extends BaseController
 	{
 		$userGroup = new \App\Models\UserGroupModel($this->db);
 		$finduserGroup = $userGroup->findUser('user_id', $args['id'], 'group_id', $args['group']);
+		$query = $request->getQueryParams();
 
 		if ($finduserGroup) {
 			$userGroup->setUser($finduserGroup['id']);
 
-			$data = $this->responseDetail(200, 'Success', 'User successfully set as member');
+			$data = $this->responseDetail(200, 'User berhasil dijadikan member',  [
+					'query'		=>	$query,
+					'result'	=>	$userGroup
+				]);
 		} else {
-			$data = $this->responseDetail(404, 'Error', 'User not found in group');
+			$data = $this->responseDetail(404, 'User not found in group', [
+					'query'		=>	$query
+				]);
 		}
 
 		return $data;
@@ -265,13 +324,19 @@ class GroupController extends BaseController
 	{
 		$userGroup = new \App\Models\UserGroupModel($this->db);
 		$finduserGroup = $userGroup->findUser('user_id', $args['id'], 'group_id', $args['group']);
+		$query = $request->getQueryParams();
 
 		if ($finduserGroup) {
 			$userGroup->setPic($finduserGroup['id']);
 
-			$data = $this->responseDetail(200, 'Success', 'User successfully set as PIC');
+			$data = $this->responseDetail(200, 'User berhasil dijadikan PIC', [
+					'query'		=>	$query,
+					'result'	=>	$userGroup
+				]);
 		} else {
-			$data = $this->responseDetail(404, 'Error', 'User not found in group');
+			$data = $this->responseDetail(404, 'User Tidak ditemukan di dalam group', [
+					'query'		=>	$query,
+				]);
 		}
 
 		return $data;
@@ -282,13 +347,19 @@ class GroupController extends BaseController
 	{
 		$userGroup = new \App\Models\UserGroupModel($this->db);
 		$finduserGroup = $userGroup->findUser('user_id', $args['id'], 'group_id', $args['group']);
+		$query = $request->getQueryParams();
 
 		if ($finduserGroup) {
 			$userGroup->setGuardian($finduserGroup['id']);
 
-			$data = $this->responseDetail(200, 'Success', 'User berhasil dijadikan guardian');
+			$data = $this->responseDetail(200, 'User berhasil dijadikan Guardian', [
+					'query'		=>	$query,
+					'result'	=>	$result
+				]);
 		} else {
-			$data = $this->responseDetail(404, 'Error', 'User tidak ditemukan di dalam group');
+			$data = $this->responseDetail(404, 'User tidak ditemukan di dalam group', [
+					'query'		=>	$query
+				]);
 		}
 
 		return $data;
@@ -302,14 +373,22 @@ class GroupController extends BaseController
 		$token = $request->getHeader('Authorization')[0];
 		$userToken = new \App\Models\Users\UserToken($this->db);
 		$userId = $userToken->getUserId($token);
+		$query = $request->getQueryParams();
 		// var_dump($userId);die();
 		
 		if ($group) {
 			$getGroup = $group->findAllGroup($userId);
+			$page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+			$get = $group->paginate($page, $getGroup, 10);
+			$pagination = $this->paginate($countGroups, 10, $page, ceil($countGroups/10));
 
-			$data = $this->responseDetail(200, 'Succes', 'Gagal menampilkan group');
+			$data = $this->responseDetail(200, 'Gagal menampilkan group', [
+					'query'		=>	$query,
+					'result'	=>	$getGroup,
+					'meta'		=>	$pagination
+				]);
 		}else {
-			$data = $this->responseDetail(404, 'Error', 'Group tidak ditemukan');
+			$data = $this->responseDetail(404, 'Group tidak ditemukan');
 		}
 
 		return $data;
@@ -326,17 +405,15 @@ class GroupController extends BaseController
 
 		$findGroup = $group->find('id', $args['id']);
 		$finduserGroup = $userGroup->findUsers('group_id', $args['id']);
-		$pic = $userGroup->finds('group_id', $args['id'], 'user_id', $userId);
+		$pic = $userGroup->finds2('group_id', $args['id'], 'user_id', $userId);
 		$query = $request->getQueryParams();
 		// var_dump($userId);die();
 
-		var_dump($pic);die();
-		if ($userId == 1 || $pic['status'] == 1) {
+		// var_dump($pic);die();
+		if ($userId == 1 || $pic[0]['status'] == 1) {
 			$delete = $group->hardDelete($args['id']);
 
-			$data = $this->responseDetail(200, 'Group telah berhasil di hapus', [
-					'result'	=>	$delete
-				]);
+			$data = $this->responseDetail(200, 'Group telah berhasil di hapus');
 		} else {
 			$data = $this->responseDetail(400, 'Ada masalah saat menghapus Group', [
 					'query'		=>	$query
@@ -352,6 +429,7 @@ class GroupController extends BaseController
 		$token = $request->getHeader('Authorization')[0];
 		$userToken = new \App\Models\Users\UserToken($this->db);
 		$userId = $userToken->getUserId($token);
+		$query = $request->getQueryParams();
 
 		$findUser = $userGroup->finds('user_id', $userId, 'group_id', $args['id']);
 
@@ -361,11 +439,14 @@ class GroupController extends BaseController
 		];
 
 		if ($findUser[0]) {
-			$data = $this->responseDetail(400, 'Error', 'Anda sudah tergabung ke grup!');
+			$data = $this->responseDetail(400, 'Anda sudah tergabung ke grup');
 		} else {
 			$addMember = $userGroup->createData($data);
 
-			$data = $this->responseDetail(200, 'Succes', 'Anda berhasil bergabung dengan grup');
+			$data = $this->responseDetail(200, 'Anda berhasil bergabung dengan grup',  [
+					'query'		=>	$query,
+					'result'	=>	$data
+				]);
 		}
 
 		return $data;
@@ -379,6 +460,7 @@ class GroupController extends BaseController
 		$token = $request->getHeader('Authorization')[0];
 		$userToken = new \App\Models\Users\UserToken($this->db);
 		$userId = $userToken->getUserId($token);
+		$query = $request->getQueryParams();
 
 		$group = $userGroup->finds('user_id', $userId, 'group_id', $args['id']);
 		$findPost = $posts->finds('creator', $userId, 'group_id', $args['id']);
@@ -393,9 +475,9 @@ class GroupController extends BaseController
 
 			$leaveGroup = $userGroup->hardDelete($group[0]['id']);
 
-			$data = $this->responseDetail(200, 'Succes', 'Anda telah meninggalkan grup');
+			$data = $this->responseDetail(200, 'Anda telah meninggalkan grup');
 		} else {
-			$data = $this->responseDetail(400, 'Error', 'Anda tidak tergabung di grup ini!');
+			$data = $this->responseDetail(400, 'Anda tidak tergabung di grup ini');
 
 		}
 
@@ -409,6 +491,7 @@ class GroupController extends BaseController
         $token = $request->getHeader('Authorization')[0];
 		$userToken = new \App\Models\Users\UserToken($this->db);
 		$userId = $userToken->getUserId($token);
+		$query = $request->getQueryParams();
 
         $search = $request->getParams()['search'];
 
@@ -418,13 +501,50 @@ class GroupController extends BaseController
         // var_dump($data);die();
         // $_SESSION['search'] = $data;
         if ($data['count']) {
-        	$data = $this->responseDetail(200, 'Succes', 'Berhasil menampilkan data search');
+        	$data = $this->responseDetail(200, 'Berhasil menampilkan data search', [
+        			'query'		=>	$query,
+        			'result'	=>	$data
+        		]);
         }else {
-        	$data = $this->responseDetail(404, 'Error', 'Data not found');
+        	$data = $this->responseDetail(404, 'Data tidak ditemukan');
         }
 
         return $data;
     }
-}
 
-?>
+    public function postImage($request, $response, $args)
+    {
+        $group = new GroupModel($this->db);
+
+        $findGroup = $group->find('id', $args['id']);
+// var_dump($findGroup);die();
+        if (!$findGroup) {
+            return $this->responseDetail(404, 'Group tidak ditemukan');
+        }
+
+        if (!empty($request->getUploadedFiles()['image'])) {
+            $storage = new \Upload\Storage\FileSystem('assets/images');
+            $image = new \Upload\File('image', $storage);
+
+            $image->setName(uniqid('img-'.date('Ymd').'-'));
+            $image->addValidations(array(
+                new \Upload\Validation\Mimetype(array('image/png', 'image/gif',
+                'image/jpg', 'image/jpeg')),
+                new \Upload\Validation\Size('5M')
+            ));
+
+            $image->upload();
+            $data['image'] = $image->getNameWithExtension();
+
+            $group->updateData($data, $args['id']);
+            $newGroup = $group->find('id', $args['id']);
+
+            return  $this->responseDetail(200, 'Foto berhasil diunggah', [
+                'result' => $newGroup
+            ]);
+
+        } else {
+            return $this->responseDetail(400, 'File foto belum dipilih');
+        }
+    }
+}

@@ -28,5 +28,5 @@ $app->group('/group', function() use ($app, $container) {
     $app->get('/{id}/leave', 'App\Controllers\api\GroupController:leaveGroup');
     $app->get('/join/{id}', 'App\Controllers\api\GroupController:joinGroup');
     $app->post('/search', 'App\Controllers\api\GroupController:searchGroup');
-
+    $app->post('/change/photo/{id}', 'App\Controllers\api\GroupController:postImage');
 });
