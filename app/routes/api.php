@@ -12,10 +12,16 @@ $app->group('/api', function() use ($app, $container) {
     $app->put('/items/{id}', 'App\Controllers\api\ItemController:updateItem')->setname('api.item.update');
     $app->post('/items', 'App\Controllers\api\ItemController:createItem')->setname('api.item.create');
     $app->get('/items/group/{group}', 'App\Controllers\api\ItemController:getGroupItem')->setname('api.group.item');
-    $app->get('/items/user/{user}', 'App\Controllers\api\ItemController:getUserItem')->setname('api.user.item');
+    $app->get('/items/group/{group}/reported', 'App\Controllers\api\ItemController:getReportedGroupItem')->setname('api.reported.group.item');
+    $app->get('/items/{user}/unreported', 'App\Controllers\api\ItemController:getUnreportedItem')->setname('api.unreported.item');
+    $app->get('/items/{user}/reported', 'App\Controllers\api\ItemController:getReportedUserItem')->setname('api.reported.user.item');
     //
-    // $app->group('/user', function() use ($app, $container) {
-    //     $app->get('/', 'App\Controllers\api\UserController:index');
-
     // })->add(new \App\Middlewares\AuthToken($container));
+
+    $app->post('/change/{id}', 'App\Controllers\api\UserController:postImage')->setname('api.user.ima');
+
+    $app->group('/user', function() use ($app, $container) {
+        $this->get('/', 'App\Controllers\api\UserController:index');
+
+    });
 });

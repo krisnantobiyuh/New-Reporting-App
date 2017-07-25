@@ -58,13 +58,40 @@ class ItemController extends BaseController
         return $data;
     }
 
-    //Get group item
+    //Get group item unreported
     public function getGroupItem($request, $response, $args)
     {
         $item     = new Item($this->db);
 
-        $groupId  = $args['group'];
-        $findItem   = $item->getItem('group_id', $groupId);
+        $groupId    = $args['group'];
+        $findItem   = $item->getItem('group_id', $groupId, 'status', 0);
+        $countItem  = count($findItem);
+        $query      = $request->getQueryParams();
+
+        if ($findItem) {
+            $page = !$request->getQueryParam('page') ?  1 : $request->getQueryParam('page');
+            $pagination = $this->paginate($countItem, 5, $page, ceil($countItem/5));
+
+            $data = $this->responseDetail(200, 'Data tersedia', [
+                'query'  => $query,
+                'result' => $findItem,
+                'meta'   => $pagination
+            ]);
+
+        } else {
+            $data = $this->responseDetail(404, 'Data tidak ditemukan');
+            // var_dump($data); die();
+        }
+
+        return $data;
+    }
+    //Get group item reported
+    public function getReportedGroupItem($request, $response, $args)
+    {
+        $item     = new Item($this->db);
+
+        $groupId    = $args['group'];
+        $findItem   = $item->getItem('group_id', $groupId, 'status', 1);
         $countItem  = count($findItem);
         $query      = $request->getQueryParams();
 
@@ -89,13 +116,39 @@ class ItemController extends BaseController
     public function getUnreportedItem($request, $response, $args)
     {
         $item     = new Item($this->db);
+        $groupId    = $args['group'];
+        $findItem   = $item->getGroupItem($args['user']);
+        $countItem  = count($findItem);
+        $query      = $request->getQueryParams();
 
-        $findItem  = $item->getItem('user_id', $args['user']);
+        // var_dump($findItem); die();
         if ($findItem) {
             $page = !$request->getQueryParam('page') ?  1 : $request->getQueryParam('page');
-            $data = $this->responseDetail(200, 'Data available', $findItem);
+            $pagination = $this->paginate($countItem, 5, $page, ceil($countItem/5));
+            $data = $this->responseDetail(200, 'Data Tersedia', ['result'  => $findItem, 'meta' => $pagination]);
         } else {
-            $data = $this->responseDetail(400, 'Error', 'User item not found');
+            $data = $this->responseDetail(400, 'Data tidak ditemukan');
+        }
+
+        return $data;
+    }
+    //get all user item (reported)
+    public function getReportedUserItem($request, $response, $args)
+    {
+        $item       = new Item($this->db);
+        $groupId    = $args['group'];
+        $findItem   = $item->getItem('user_id',
+            $args['user'], 'status', 1);
+        $countItem  = count($findItem);
+        $query      = $request->getQueryParams();
+
+        // var_dump($findItem); die();
+        if ($findItem) {
+            $page = !$request->getQueryParam('page') ?  1 : $request->getQueryParam('page');
+            $pagination = $this->paginate($countItem, 5, $page, ceil($countItem/5));
+            $data = $this->responseDetail(200, 'Data Tersedia', ['result'  => $findItem, 'meta' => $pagination]);
+        } else {
+            $data = $this->responseDetail(400, 'Data tidak ditemukan');
         }
 
         return $data;
@@ -131,6 +184,7 @@ class ItemController extends BaseController
                 ['user_id'],
                 ['group_id'],
                 ['creator'],
+                ['public'],
             ],
 
         ];
@@ -144,7 +198,8 @@ class ItemController extends BaseController
             'start_date'  => 'Start date',
             'user_id'     => 'User id',
             'group_id'    => 'Group id',
-            'creator '    => 'Creator'
+            'creator '    => 'Creator',
+            'public'      => 'Public'
         ]);
         // var_dump($this->validator);
         // die();
@@ -202,10 +257,10 @@ class ItemController extends BaseController
 
             } else {
 
-                $data = $this->responseDetail(400, 'Error occured', ['result' => $this->validator->errors()]);
+                $data = $this->responseDetail(400, 'Error', ['result' => $this->validator->errors()]);
             }
         } else {
-            $data = $this->responseDetail(400, 'Item not found', null);
+            $data = $this->responseDetail(400, 'Item tidak ditemukan', null);
         }
 
         return $data;
@@ -219,7 +274,6 @@ class ItemController extends BaseController
         $findItem = $item->find('id', $args['id']);
 
         if ($findItem) {
-
             $item->hardDelete($args['id']);
             $data['status']= 200;
             $data['message']= 'Item berhasil dihapus';

@@ -18,6 +18,7 @@ class Item extends BaseModel
             'user_id'     => $data['user_id'],
             'image'       => $data['image'],
             'creator'     => $data['creator'],
+            'public'      => $data['public'],
             'updated_at'  => $date
         ];
         $this->createData($data);
@@ -33,7 +34,7 @@ class Item extends BaseModel
             'recurrent'   => $data['recurrent'],
             'start_date'  => $data['start_date'],
             'group_id'    => $data['group_id'],
-            'updated_at'  => $date
+reXm.                   'updated_at'  => $date
         ];
         $this->updateData($data, $id);
     }
@@ -99,16 +100,28 @@ class Item extends BaseModel
     }
 
 
-    public function getGroupItem($id)
+    public function getGroupItem($userId)
     {
         $qb = $this->db->createQueryBuilder();
-        $qb->select('u.name as names', 'it.*')
-           ->from($this->table, 'it')
-           ->where('it.group_id = '. $id)
-           ->andWhere('it.deleted = 0')
-           ->join('it', 'users', 'u', 'u.id = it.creator');
-           $result = $qb->execute();
-           return $result->fetchAll();
+        $query = $qb->select('group_id')
+        ->from('user_group')
+        ->where('user_id =' . $userId)
+        ->execute();
+        //    $result = $query1->execute();
+        //    $result1 = $result->fetchAll();
+        //    var_dump($result1); die()
+        $qb1 = $this->db->createQueryBuilder();
+        $query1 = $qb1->select('i.*')
+            ->from($this->table, 'i')
+            ->where('i.status = 0')
+            ->join('i', 'user_group', 'ug', $qb1->expr()->in('i.group_id',$query))
+            ->execute();
+
+
+            $result2  = array_map("unserialize", array_unique(array_map("serialize", $query1->fetchAll())));
+
+            return $result2;
+
     }
 
     public function getUserItemInGroup($userId)
@@ -130,14 +143,14 @@ class Item extends BaseModel
             $this->query = $qb1->select('i.*')
             ->from($this->table, 'i')
             ->join('i', 'reported_item', 'r', $qb1->expr()->notIn('i.id', $query1))
-            ->where('i.user_id is NULL')
+            ->where('i.user_id ='.$userId)
             ->andWhere('i.deleted = 0')
             ->groupBy('i.id');
         } else {
             $this->query = $qb1->select('i.*')
             ->from($this->table, 'i')
             ->join('i', 'user_group', 'ug', $qb1->expr()->in('i.group_id', $query2))
-            ->where('i.user_id is NULL')
+            ->where('i.user_id ='.$userId)
             ->andWhere('i.deleted = 0');
         }
 
@@ -150,21 +163,25 @@ class Item extends BaseModel
         $qb->select('*')
            ->from($this->table)
            ->where('user_id = '. $userId)
-           ->andWhere('deleted = 0');
+           ->andWhere('status = 0');
 
            $result = $qb->execute();
            return $result->fetchAll();
     }
 
-    public function getItem($column, $value)
+    public function getItem($column1, $value1, $column2, $value2)
     {
-        $param = ':'.$column;
+        $param1 = ':'.$column1;
+        $param2 = ':'.$column2;
         $qb = $this->db->createQueryBuilder();
         $qb->select('*')
             ->from($this->table)
-            ->setParameter($param, $value)
-            ->where($column . ' = '. $param);
+            ->setParameter($param1, $value1)
+            ->setParameter($param2, $value2)
+            ->where($column1 . ' = '. $param1. '&&' . $column2 . ' = '. $param2);
         $result = $qb->execute();
         return $result->fetchAll();
     }
+
+
 }
