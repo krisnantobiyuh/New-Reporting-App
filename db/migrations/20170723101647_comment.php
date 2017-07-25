@@ -2,7 +2,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class ArticlesTable extends AbstractMigration
+class Comment extends AbstractMigration
 {
     /**
      * Change Method.
@@ -27,15 +27,14 @@ class ArticlesTable extends AbstractMigration
      */
     public function change()
     {
-        $articles = $this->table('articles');
-        $articles->addColumn('title', 'string')
-             ->addColumn('content', 'text')
-             ->addColumn('image', 'string', ['null' => true])
-             ->addColumn('group_id', 'string', ['null' => true])
-             ->addColumn('updated_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP','update' => 'CURRENT_TIMESTAMP'])
+        $commments = $this->table('commments');
+        $commments->addColumn('commment', 'string')
+             ->addColumn('item_id', 'integer')
+             ->addColumn('creator', 'integer')
              ->addColumn('created_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
-             ->addColumn('deleted', 'integer', ['default' => '0'])
-             ->addForeignKey('group_id', 'groups', 'id', ['delete' => 'CASCADE', 'update' => 'NO_ACTION'])
+             ->addColumn('updated_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP','update' => 'CURRENT_TIMESTAMP'])
+             ->addForeignKey('item_id', 'items', 'id', ['delete' => 'CASCADE', 'update' => 'NO_ACTION'])
+             ->addForeignKey('creator', 'users', 'id', ['delete' => 'CASCADE', 'update' => 'NO_ACTION'])
              ->create();
     }
 }
