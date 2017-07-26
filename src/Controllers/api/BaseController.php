@@ -29,6 +29,19 @@ abstract class BaseController
 // Detail ResponseWithJson API
 	public function responseDetail($code, $message, array $data = null)
 	{
+
+		if (!isset($data['query'])) {
+			$data['query'] = 0;
+		}
+
+		if (!isset($data['meta'])) {
+			$data['meta'] = 0;
+		}
+
+		if (!isset($data['result'])) {
+			$data['result'] = 0;
+		}
+
 		$response = [
 			'reporting' => [
 				'query'		=> $data['query'],

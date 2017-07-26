@@ -16,4 +16,15 @@ $app->group('/api', function() use ($app, $container) {
         $this->get('/', 'App\Controllers\api\UserController:index');
 
     });
+
+       $app->group('/article', function() use ($app, $container) {
+             $app->get('/list', 'App\Controllers\api\ArticleController:index');
+
+        $app->post('/create', 'App\Controllers\api\ArticleController:create');
+
+        $app->put('/update/{id}', 'App\Controllers\api\ArticleController:update');
+
+        $app->delete('/delete/{id}', 'App\Controllers\api\ArticleController:delete');
+        $app->get('/find/{id}', 'App\Controllers\api\ArticleController:find');
+    });
 });
