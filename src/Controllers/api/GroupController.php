@@ -13,20 +13,18 @@ class GroupController extends BaseController
 	function index(Request $request, Response $response)
 	{
 		$group = new \App\Models\GroupModel($this->db);
-		$getGroup = $group->getAll();
-		$countGroups = count($getGroup);
+		$get = $group->getAll();
+		$countGroups = count($get);
 		$query = $request->getQueryParams();
-
-		if ($getGroup) {
+		if ($get) {
 			$page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
-			$get = $group->paginate($page, $getGroup, 10);
-			$pagination = $this->paginate($countGroups, 10, $page, ceil($countGroups/10));
-			if ($get) {
-		// var_dump($get);die();
+			$getGroup = $group->getAllGroup()->setPaginate($page, 5);
+
+			if ($getGroup) {
 				$data = $this->responseDetail(200, 'Data tersedia', [
 						'query' 	=> 	$query,
-						'result'	=>	$getGroup,
-						'meta'		=>	$pagination, 
+						'result'	=>	$getGroup['data'],
+						'meta'		=>	$getGroup['pagination'], 
 					]);
 			} else {
 				$data = $this->responseDetail(404, 'Data tidak ditemukan', [
@@ -36,7 +34,7 @@ class GroupController extends BaseController
 		} else {
 			$data = $this->responseDetail(204, 'Tidak ada konten', [
 					'query'		=>	$query,
-					'result'	=>	$getGroup
+					'result'	=>	$getGroup['data']
 				]);
 		}
 
@@ -83,24 +81,7 @@ class GroupController extends BaseController
 
 		$this->validator->rules($rules);
 		if ($this->validator->validate()) {
-            if (!empty($request->getUploadedFiles()['image'])) {
-                $storage = new \Upload\Storage\FileSystem('assets/images');
-                $image = new \Upload\File('image',$storage);
-
-                $image->setName(uniqid('img-'.date('Ymd').'-'));
-                $image->addValidations(array(
-                new \Upload\Validation\Mimetype(array('image/png', 'image/gif',
-                'image/jpg', 'image/jpeg')),
-                new \Upload\Validation\Size('5M')
-                ));
-
-                $image->upload();
-                $imageName = $image->getNameWithExtension();
-
-            } else {
-                $imageName = '';
-            }
-
+           
 			$post = $request->getParams();
 
 			$token = $request->getHeader('Authorization')[0];
@@ -136,7 +117,7 @@ class GroupController extends BaseController
 			$group->updateData($request->getParsedBody(), $args['id']);
 			$afterUpdate = $group->find('id', $args['id']);
 
-			$data = $this->responseDetail(200, 'Data group berhasil di perbaharui', [
+			$data = $this->responseDetail(200, 'Data berhasil di perbaharui', [
 					'query'		=>	$query,
 					'result'	=>	$afterUpdate
 				]);
@@ -156,7 +137,7 @@ class GroupController extends BaseController
 
 		if ($findGroup) {
 			$group->hardDelete($args['id']);
-			$data = $this->responseDetail(200, 'Sukses menghapus group');
+			$data = $this->responseDetail(200, 'Berhasil menghapus data');
 		} else {
 			$data = $this->responseDetail(404, 'Error', 'Data tidak ditemukan');
 		}
@@ -171,6 +152,7 @@ class GroupController extends BaseController
 			'required' => [
 				['group_id'],
 				['user_id'],
+				['status']
 			]
 		];
 
@@ -311,7 +293,7 @@ class GroupController extends BaseController
 					'result'	=>	$userGroup
 				]);
 		} else {
-			$data = $this->responseDetail(404, 'User not found in group', [
+			$data = $this->responseDetail(404, 'User tidak ditemukan didalam group', [
 					'query'		=>	$query
 				]);
 		}
@@ -374,21 +356,19 @@ class GroupController extends BaseController
 		$userToken = new \App\Models\Users\UserToken($this->db);
 		$userId = $userToken->getUserId($token);
 		$query = $request->getQueryParams();
-		// var_dump($userId);die();
 		
 		if ($group) {
-			$getGroup = $group->findAllGroup($userId);
+			$getGroup = $userGroup->findAllGroup($userId);
 			$page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
-			$get = $group->paginate($page, $getGroup, 10);
-			$pagination = $this->paginate($countGroups, 10, $page, ceil($countGroups/10));
+			$get = $group->getAllGroup()->setPaginate($page, 5);
 
-			$data = $this->responseDetail(200, 'Gagal menampilkan group', [
+			$data = $this->responseDetail(200, 'Berhasil menampilkan data', [
 					'query'		=>	$query,
-					'result'	=>	$getGroup,
-					'meta'		=>	$pagination
+					'result'	=>	$get['data'],
+					'meta'		=>	$get['pagination']
 				]);
 		}else {
-			$data = $this->responseDetail(404, 'Group tidak ditemukan');
+			$data = $this->responseDetail(404, 'Data tidak ditemukan');
 		}
 
 		return $data;
@@ -407,15 +387,13 @@ class GroupController extends BaseController
 		$finduserGroup = $userGroup->findUsers('group_id', $args['id']);
 		$pic = $userGroup->finds2('group_id', $args['id'], 'user_id', $userId);
 		$query = $request->getQueryParams();
-		// var_dump($userId);die();
 
-		// var_dump($pic);die();
 		if ($userId == 1 || $pic[0]['status'] == 1) {
 			$delete = $group->hardDelete($args['id']);
 
-			$data = $this->responseDetail(200, 'Group telah berhasil di hapus');
+			$data = $this->responseDetail(200, 'Data berhasil di hapus');
 		} else {
-			$data = $this->responseDetail(400, 'Ada masalah saat menghapus Group', [
+			$data = $this->responseDetail(400, 'Ada masalah saat menghapus data', [
 					'query'		=>	$query
 				]);
 		}
@@ -517,9 +495,8 @@ class GroupController extends BaseController
         $group = new GroupModel($this->db);
 
         $findGroup = $group->find('id', $args['id']);
-// var_dump($findGroup);die();
         if (!$findGroup) {
-            return $this->responseDetail(404, 'Group tidak ditemukan');
+            return $this->responseDetail(404, 'Data tidak ditemukan');
         }
 
         if (!empty($request->getUploadedFiles()['image'])) {
@@ -547,4 +524,291 @@ class GroupController extends BaseController
             return $this->responseDetail(400, 'File foto belum dipilih');
         }
     }
+
+    public function inActive($request, $response)
+    {
+    	$group = new GroupModel($this->db);
+
+    	$getGroup = $group->getInActive();
+    	$countGroups = count($getGroup);
+    	$query = $request->getQueryParams();
+    	$page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+		$get = $group->getAllGroupNonActive()->setPaginate($page, 5);
+
+    	if ($countGroups == 0) {
+    		return $this->responseDetail(404, 'Data tidak ditemukan');
+    	} else {
+    		return $this->responseDetail(200, 'Berhasil menampilkan data', [
+    			'query'			=>	$query,	
+    			'result' 		=> 	$get['data'],
+    			'pagination'	=>	$get['pagination'] 
+    		]);
+    	}
+    }
+
+    public function getPicGroup($request, $response)
+	{
+		$userGroup = new \App\Models\UserGroupModel($this->db);
+
+		$token = $request->getHeader('Authorization')[0];
+		$userToken = new \App\Models\Users\UserToken($this->db);
+		$userId = $userToken->getUserId($token);
+
+		$getGroup = $userGroup->picGroup($userId);
+		$query = $request->getQueryParams();
+
+		$page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+		$get = $getGroup->setPaginate($page, 5);
+
+		if ($getGroup == 0) {
+			return $this->responseDetail(404, 'Data tidak ditemukan');
+		} else {
+			return $this->responseDetail(200, 'Berhasil menampilkan data', [
+				'query'			=>	$query,
+				'result'		=>	$get['data'],
+				'pagination'	=>	$get['pagination']
+			]);
+		}
+	}
+
+    public function setInActive(Request $request, Response $response, $args)
+    {
+		$group = new GroupModel($this->db);
+		$findGroup = $group->find('id', $args['id']); 
+
+    	if (!$findGroup) {
+    		return $this->responseDetail(400, 'Ada masalah saat menghapus data');
+    	} else {
+    		$group->softDelete($args['id']);
+    		return $this->responseDetail(200, 'Berhasil menghapus data');
+    	}
+    }
+
+    //Set restore group
+	public function restore(Request $request, Response $response, $args)
+	{
+		$group = new GroupModel($this->db);
+		$findGroup = $group->find('id', $args['id']);
+		$query = $request->getQueryParams();
+
+		if (!$findGroup) {
+			return $this->responseDetail(400, 'Ada masalah saat mengembalikan data');
+		} else {
+			$group->restore($args['id']);
+			$get = $group->find('id', $args['id']);
+
+			return $this->responseDetail(200, 'Berhasil mengembalikan data', [
+				'query'		=>	$query,
+				'result'	=>	$get
+			]);
+		}
+	}
+
+	public function getPic($request, $response, $args)
+	{
+		$userGroup = new \App\Models\UserGroupModel($this->db);
+
+		$token = $request->getHeader('Authorization')[0];
+		$userToken = new \App\Models\Users\UserToken($this->db);
+		$userId = $userToken->getUserId($token);
+
+		$getGroup = $userGroup->findAllUser($userId);
+		$query = $request->getQueryParams();
+
+	// var_dump($userId);die();
+		if ($getGroup) {
+			return $this->responseDetail(200, 'Berhasil menampilkan data', [
+				'query'		=>	$query,
+				'result'	=>	$getGroup
+			]);
+		} else {
+			return $this->responseDetail(400, 'Ada kesalahan saat menampilkan data');
+		}
+	}
+
+	//Get all user in group
+	public function getMemberGroup($request, $response, $args)
+	{
+		$userGroup = new UserGroupModel($this->db);
+		$groups = new GroupModel($this->db);
+		$users = new \App\Models\Users\UserModel($this->db);
+
+		$token = $request->getHeader('Authorization')[0];
+		$userToken = new \App\Models\Users\UserToken($this->db);
+		$userId = $userToken->getUserId($token);
+
+		$pic = $userGroup->finds('group_id', $args['id'], 'user_id', $userId);
+		$member = $userGroup->getMember($args['id']);
+		$group = $groups->find('id', $args['id']);
+		$query = $request->getQueryParams();
+
+		if ($userId == 1 || $pic[0]['status'] == 1) {
+			return $this->responseDetail(200, 'Berhasil menampilkan data', [
+				'query' 			=> $query,
+				'result'			=> $member,
+			]);
+		} else {
+			return $this->responseDetail(400, 'Anda tidak memiliki akses ke user ini!');
+		}
+	}
+
+	//Get all user in group
+	public function getNotMember($request, $response, $args)
+	{
+		$userGroup = new UserGroupModel($this->db);
+
+		$token = $request->getHeader('Authorization')[0];
+		$userToken = new \App\Models\Users\UserToken($this->db);
+		$userId = $userToken->getUserId($token);
+
+		$page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+		$users = $userGroup->notMember($args['id'])->setPaginate($page, 5);
+		$pic = $userGroup->findUser('group_id', $args['id'], 'user_id', $userId);
+		$query = $request->getQueryParams();
+		// ->setPaginate($page, 5)
+		// var_dump($users);die();
+
+		if ($userId == 1 || $pic['status'] == 1) {
+			return $this->responseDetail(200, 'Berhasil menampilkan data', [
+				'query'			=>	$query,
+				'result' 		=> 	$users,
+				// 'pagination'	=> 	$pic['pagination']
+			]);
+		} else {
+			return $this->responseDetail(400, 'Anda tidak memiliki akses ke user ini!');
+		}
+	}
+
+	//Post create group
+	public function createByUser($request, $response)
+	{
+		$rules = ['required' => [['name'], ['description']] ];
+		$this->validator->rules($rules);
+
+		$this->validator->labels([
+			'name' 			=>	'Name',
+			'description'	=>	'Description',
+			'image'			=>	'Image',
+		]);
+
+		$token = $request->getHeader('Authorization')[0];
+		$userToken = new \App\Models\Users\UserToken($this->db);
+		$userId = $userToken->getUserId($token);
+
+		if ($this->validator->validate()) {
+			$dataGroup = [
+				'name' 			=>	$request->getParams()['name'],
+				'description'	=>	$request->getParams()['description'],
+				'image'			=>	$request->getParams()['image'],
+				'creator'       =>  $userId
+			];
+
+			$group = new GroupModel($this->db);
+			$userGroup = new \App\Models\UserGroupModel($this->db);
+
+			$addGroup = $group->add($dataGroup);
+
+			$data = [
+				'group_id' 	=> 	$addGroup,
+				'user_id'	=>	$userId,
+				'status'	=>	1,
+			];
+
+			$addUserGroup = $userGroup->add($data);
+			$newUserGroup = $userGroup->find('id', $addUserGroup);
+
+			$query = $request->getQueryParams();
+			return $this->responseDetail(201, 'Berhasil Membuat group', [
+				'query'		=>	$query,
+				'result'	=>	$newUserGroup
+			]);
+
+		} else {
+			return $this->responseDetail(401, 'Ada kesalahan saat membuat group');
+		}
+	}
+
+	//Set user as member of group
+	public function setMemberGroup($request, $response, $args)
+	{
+		$userGroups = new UserGroupModel($this->db);
+
+		$token = $request->getHeader('Authorization')[0];
+		$userToken = new \App\Models\Users\UserToken($this->db);
+		$user = $userToken->getUserId($token);
+
+		$userId = $request->getParams()['user_id'];
+		$groupId = $request->getParams()['group_id'];
+		// $pic = $userGroups->finds('group_id', $groupId, 'user_id', $user);
+		$userGroup = $userGroups->finds('group_id', $groupId, 'user_id', $userId);
+
+		if (!$userGroup) {
+			if ($user == 1 || $pic[0]['status'] == 1) {
+				$data = [
+					'group_id' 	=> 	$groupId,
+					'user_id'	=>	$userId,
+					'status'	=>	0
+				];
+
+				$addMember = $userGroups->createData($data);
+				$findMember = $userGroups->finds('user_id', $userId, 'group_id', $groupId);
+
+				return $this->responseDetail(201, 'Anda berhasil menambahkan user kedalam group !', [
+					'result'	=>	$findMember
+				]);
+			} else {
+				return $this->responseDetail(400, 'Anda tidak memiliki akses !');
+			}
+
+		}else {
+			return $this->responseDetail(400, 'Member sudah tergabung!');
+		}
+
+	// 	if ($user == 2 && $pic[0]['status'] == 1) {
+	// 		return $response->withRedirect($this->router
+	// 		->pathFor('pic.member.group.get', ['id' => $groupId]));
+
+	// 	} else {
+	// 		return $response->withRedirect($this->router
+	// 		->pathFor('user.group.get', ['id' => $groupId]));
+	// 	}
+	}
+
+	//Set user as member or PIC of group
+	public function setUserGroup($request, $response)
+	{
+		$userGroup = new UserGroupModel($this->db);
+		$groupId = $request->getParams()['id'];
+		$pic = $userGroup->findUser('group_id', $groupId, 'user_id', $_SESSION['login']['id']);
+// var_dump($request->getParam('user'));die();
+		if ($_SESSION['login']['status'] == 1 || $pic['status'] == 1) {
+			if (!empty($request->getParams()['pic'])) {
+				foreach ($request->getParam('user') as $key => $value) {
+					$finduserGroup = $userGroup->findUser('user_id', $value, 'group_id', $groupId);
+					$userGroup->setPic($finduserGroup['id']);
+				}
+			} elseif (!empty($request->getParams()['member'])) {
+				foreach ($request->getParam('user') as $key => $value) {
+					$finduserGroup = $userGroup->findUser('user_id', $value, 'group_id', $groupId);
+					$userGroup->setUser($finduserGroup['id']);
+				}
+			} elseif (!empty($request->getParams()['delete'])) {
+				foreach ($request->getParam('user') as $key => $value) {
+					$finduserGroup = $userGroup->findUser('user_id', $value, 'group_id', $groupId);
+					$userGroup->hardDelete($finduserGroup['id']);
+				}
+			}
+
+			if ($_SESSION['login']['status'] == 2 && $pic['status'] == 1) {
+				return $response->withRedirect($this->router->pathFor('pic.member.group.get', ['id' => $groupId]));
+			}
+
+			return $response->withRedirect($this->router->pathFor('user.group.get', ['id' => $groupId]));
+
+		} else {
+			$this->flash->addMessage('error', 'Anda tidak memiliki akses ke user ini!');
+			return $response->withRedirect($this->router
+			->pathFor('home'));
+		}
+	}
 }

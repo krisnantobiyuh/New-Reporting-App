@@ -202,14 +202,14 @@ class UserGroupModel extends BaseModel
 	{
 		$qb = $this->db->createQueryBuilder();
 
-		$qb->select('groups.*', 'user_group.status')
+		$this->query = $qb->select('groups.*', 'user_group.status')
 			 ->from($this->table, 'user_group')
 			 ->join('user_group', 'groups', 'groups', ' user_group.group_id = groups.id')
 			 ->where('user_group.user_id = :id')
 			 ->setParameter(':id', $userId);
 
-			 $result = $qb->execute();
-			return $result->fetchAll();
+			 // $result = $qb->execute();
+			return $this;
 	}
 
 	public function findAllPic($groupId)
@@ -240,6 +240,17 @@ class UserGroupModel extends BaseModel
 
 			 $result = $qb->execute();
 			return $result->fetchAll();
+	}
+
+	public function getAllGroup()
+	{
+		$qb = $this->db->createQueryBuilder();
+
+		$this->query = $qb->select('id', 'name', 'description', 'image', 'creator')
+							->from($this->table)
+							->where('deleted = 0');
+
+		return $this;
 	}
 }
 

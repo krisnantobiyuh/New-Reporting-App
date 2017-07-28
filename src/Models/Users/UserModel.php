@@ -90,7 +90,7 @@ class UserModel extends BaseModel
         //
         // return $query->fetchAll();
     }
-
+ 
     public function getUser($column, $val)
     {
         $param = ':'.$column;

@@ -15,7 +15,7 @@ $app->group('', function() use ($app, $container) {
     $app->get('/profile', 'App\Controllers\web\UserController:viewProfile')->setName('user.profile');
     $app->get('/setting', 'App\Controllers\web\UserController:getSettingAccount')->setName('user.setting');
     $app->post('/setting', 'App\Controllers\web\UserController:settingAccount');
-
+ 
     $app->group('/admin', function() use ($app, $container) {
 
         $app->group('/group', function(){

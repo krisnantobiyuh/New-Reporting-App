@@ -70,3 +70,11 @@ $container['logger'] = function ($c) {
     $logger->pushHandler(new Monolog\Handler\StreamHandler($settings['path'], $settings['level']));
     return $logger;
 };
+
+$container['fs'] = function ($c) {
+	$setting = $c->get('settings')['flysystem'];
+// $flysystem = __DIR__ . 'public/assets/images';
+    $adapter = new \League\Flysystem\Adapter\Local($setting['path']);
+    $filesystem = new \League\Flysystem\Filesystem($adapter);
+    return $filesystem;
+};
