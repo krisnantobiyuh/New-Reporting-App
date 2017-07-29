@@ -30,6 +30,16 @@ abstract class BaseController
 // Detail ResponseWithJson API
 	public function responseDetail($code, $message, array $data = null)
 	{
+		if (!isset($data['query'])) {
+			$data['query'] = 0;
+		}			
+		if (!isset($data['meta'])) {
+			$data['meta'] = 0;
+		}
+		if (!isset($data['result'])) {
+			$data['result'] = 0;
+		}
+
 		$response = [
 			'reporting' => [
 				'query'		=> $data['query'],
@@ -42,11 +52,12 @@ abstract class BaseController
 			]
 		];
 
-		if ($data['query'] == null) {
+
+		if ($data['query'] == 0) {
 			unset($response['reporting']['query']);
 		}
 
-		if ($data['meta'] == null) {
+		if ($data['meta'] == 0) {
 			unset($response['reporting']['meta']);
 		}
 
@@ -70,5 +81,4 @@ abstract class BaseController
     {
         
     }
-
 }
