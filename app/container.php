@@ -70,3 +70,12 @@ $container['logger'] = function ($c) {
     $logger->pushHandler(new Monolog\Handler\StreamHandler($settings['path'], $settings['level']));
     return $logger;
 };
+
+$container['client'] = function ($container) {
+   $settings = $container->get('settings')['reporting'];
+
+   return new GuzzleHttp\Client([
+       'base_uri' => 'http://localhost/Reporting-App/public/api/',
+       'headers'  => $settings['headers']
+   ]);
+};

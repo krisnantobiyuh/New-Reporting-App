@@ -11,20 +11,25 @@ class UserController extends BaseController
      */
     public function getAllUser($request, $response)
     {
-        $query = $request->getQueryParams();
+//         $query = $request->getQueryParams();
 
-        // var_dump($query['page']);die();
-        try {
-            $response = $this->client->request('GET', 'user?'.$request->getUri()->getQuery());
-        } catch (GuzzleException $e) {
-            $response = $e->getResponse();
-        }
+//         // var_dump($query['page']);die();
+//         try {
+//             $response = $this->client->request('GET', 'user?'.$request->getUri()->getQuery());
+//         } catch (GuzzleException $e) {
+//             $response = $e->getResponse();
+//         }
 
-        $data = json_decode($response->getBody()->getContents());
-// foreach ($data->reporting->results as $key => $val) {
-//     echo $val->name;
-// }
-        var_dump($data->reporting->status);
+//         $data = json_decode($response->getBody()->getContents());
+// // foreach ($data->reporting->results as $key => $val) {
+// //     echo $val->name;
+// // }
+//         var_dump($data->reporting->status);
+        $client = $this->client->request('GET',
+                  $this->router->pathFor('api.user.list'));
+        $content = json_decode($client->getBody()->getContents());
+
+        var_dump($content);die();
     }
 
     public function getLogin($request, $response)

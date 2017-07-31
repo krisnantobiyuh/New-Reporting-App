@@ -192,4 +192,4 @@ $app->group('', function() use ($app, $container) {
         $this->post('/user/search', 'App\Controllers\web\UserController:searchUser')->setName('post.user.search');
     });
     // ->add(new \App\Middlewares\web\GuardMiddleware($container));
-})->add(new \App\Middlewares\web\AuthMiddleware($container));
+});
