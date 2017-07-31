@@ -39,30 +39,29 @@
     <!-- Top content -->
     <!-- <header id="header"> -->
     {% include 'templates/partials/header-nav.twig' %}
-    {% include 'templates/partials/header.twig' %}
+    {# {% include 'templates/partials/header.twig' %} #}
 
     <section id="breadcrumb">
-      <div class="container">
-        <ol class="breadcrumb">
-          <li class="active"> {% block current %} {% endblock %}</li>
-        </ol>
-      </div>
+        <div style="margin-top:25px; padding-bottom:0px;" dir=""class="container">
+            <ol class="breadcrumb">
+                <li class="active"> {% block current %} {% endblock %}</li>
+
+            </ol>
+        </div>
     </section>
 
-    <section id="main"  class="content">
-      <div class="container">
-          {% include 'templates/partials/flash.twig' %}
-
-        <div class="row">
-            <div class="hidden-xs col-md-3">
-                {% include 'templates/partials/sidebar-nav.twig' %}
+    <section id="main" class="content">
+        <div style="padding-left:0px; padding-top:0px;" class="container">
+            {% include 'templates/partials/flash.twig' %}
+            <div class="row">
+                <div style="padding-left:25px;" class="hidden-xs col-md-3">
+                    {% include 'templates/partials/sidebar-nav.twig' %}
+                </div>
+                <div style="padding:0px;" class="col-md-9">
+                    {% block content %} {% endblock %}
+                </div>
             </div>
-
-          <div class="col-md-9">
-                  {% block content %} {% endblock %}
-          </div>
         </div>
-      </div>
     </section>
 
     <footer style="color:white; width:100%; padding:17px;"id="footer">

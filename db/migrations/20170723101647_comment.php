@@ -27,8 +27,8 @@ class Comment extends AbstractMigration
      */
     public function change()
     {
-        $commments = $this->table('commments');
-        $commments->addColumn('commment', 'string')
+        $comments = $this->table('comments');
+        $comments->addColumn('comment', 'string')
              ->addColumn('item_id', 'integer')
              ->addColumn('creator', 'integer')
              ->addColumn('created_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])

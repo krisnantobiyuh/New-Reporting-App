@@ -1,40 +1,59 @@
-<?php 
+<?php
 
 namespace App\Controllers\web;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
-use App\Models\GroupModel;
+use GuzzleHttp\Exception\BadResponseException as GuzzleException;
 use App\Models\UserGroupModel;
+use App\Models\GroupModel;
+use GuzzleHttp;
+use GuzzleHttp\Subscriber\Oauth\Oauth1;
 
 class GroupController extends BaseController
 {
-	//Get active Group  
-	function index($request, $response)
+	//Get active Group
+	public function index($request, $response)
 	{
-		$group = new GroupModel($this->db);
-		$article = new \App\Models\ArticleModel($this->db);
-		$user = new \App\Models\Users\UserModel($this->db);
-		$item = new \App\Models\Item($this->db);
+		$query = $request->getQueryParams();
 
-		$getGroup = $group->getAll();
+        try {
+            $result = $this->client->request('GET', 'group/list'.$request->getUri()->getQuery());
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
 
-		$countGroup = count($getGroup);
-		$countArticle = count($article->getAll());
-		$countUser = count($user->getAll());
-		$countItem = count($item->getAll());
+        $data = json_decode($result->getBody()->getContents());
 
-		$data = $this->view->render($response, 'admin/group/index.twig', [
-			'groups' => $getGroup,
-			'counts'=> [
-				'group' => $countGroup,
-				'article' => $countArticle,
-				'user' => $countUser,
-				'item' => $countItem,
-			]
+		// var_dump($data->reporting->results);die();
+		return $this->view->render($response, 'users/group-list.twig', [
+			'groups'		=> $data->reporting->results,
+			'pagination'	=> $data->reporting->meta,
 		]);
 
-		return $data;
+	}
+
+	public function enter($request, $response, $args)
+	{
+		$query = $request->getQueryParams();
+
+        try {
+            $result = $this->client->request('GET', 'group/'.$args['id'].'/member'.
+			$request->getUri()->getQuery());
+			// $result->addHeader('Authorization', '7e505da11dd87b99ba9a4ed644a20ba4');
+
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+
+        $data = json_decode($result->getBody()->getContents());
+
+		// var_dump($data->reporting->results);die();
+		return $this->view->render($response, 'pic/group-timeline.twig', [
+			'members'	=> $data->reporting->results,
+			'pagination'	=> $data->reporting->meta,
+		]);
+
 	}
 
 	//Get inactive group

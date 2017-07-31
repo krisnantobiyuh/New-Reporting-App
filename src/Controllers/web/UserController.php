@@ -13,18 +13,19 @@ class UserController extends BaseController
     {
         $query = $request->getQueryParams();
 
-        // var_dump($query['page']);die();
+        // var_dump($request->getUri()->getQuery());die();
         try {
-            $response = $this->client->request('GET', 'user?'.$request->getUri()->getQuery());
+            $result = $this->client->request('GET', 'user?'.$request->getUri()->getQuery());
         } catch (GuzzleException $e) {
-            $response = $e->getResponse();
+            $result = $e->getResponse();
         }
 
-        $data = json_decode($response->getBody()->getContents());
+        $data = json_decode($result->getBody()->getContents());
+
 // foreach ($data->reporting->results as $key => $val) {
 //     echo $val->name;
 // }
-        var_dump($data->reporting->status);
+        var_dump((array)$data->reporting->results);
     }
 
     public function getLogin($request, $response)
@@ -67,6 +68,18 @@ class UserController extends BaseController
                 $this->flash->addMessage('warning', 'Password salah!');
                 return $response->withRedirect($this->router->pathFor('login'));
             }
+        }
+    }
+
+    public function logout($request, $response)
+    {
+        if ($_SESSION['login']['status'] == 2) {
+            session_destroy();
+            return $response->withRedirect($this->router->pathFor('login'));
+
+        } elseif ($_SESSION['login']['status'] == 1) {
+            session_destroy();
+            return $response->withRedirect($this->router->pathFor('login.admin'));
         }
     }
 }
