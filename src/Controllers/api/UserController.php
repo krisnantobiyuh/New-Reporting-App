@@ -23,7 +23,7 @@ class UserController extends BaseController
             ]);
 
         } else {
-            $data = $this->responseDetail(200, false, 'Berhasil');
+            $data = $this->responseDetail(200, false, 'Data kosong');
         }
 
         return $data;
@@ -121,7 +121,7 @@ class UserController extends BaseController
         } else {
             $errors = $this->validator->errors();
 
-            return  $this->responseDetail(422, $errors);
+            return  $this->responseDetail(400, true, $errors);
         }
 
     }
@@ -166,7 +166,7 @@ class UserController extends BaseController
         } else {
             $errors = $this->validator->errors();
 
-            return  $this->responseDetail(422, $errors);
+            return  $this->responseDetail(400, $errors);
         }
 
     }
