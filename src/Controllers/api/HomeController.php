@@ -8,6 +8,7 @@ class HomeController extends BaseController
         {
         	$data = $this->view->render($response, 'users/home.twig');
 
-       		return $data;
+       		// return $data;
+       		return 'test api';
         }
 }

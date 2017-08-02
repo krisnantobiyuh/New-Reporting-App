@@ -18,8 +18,9 @@
 
             <form id="loginform" class="form-vertical" action="{{path_for('post.login')}}"
              method="post">
-				 <div class="control-group normal_text"> <h3>
-                     <img src="{{ base_url() }}/assets/images/logo.jpg" alt="Logo" /></h3></div>
+				 <div class="control-group normal_text">
+                     <h3><img src="{{ base_url() }}/assets/images/logo.jpg" alt="Reporting App" /></h3>
+                 </div>
                 <div class="control-group">
                     <div class="controls">
                         <div class="main_input_box">
@@ -43,13 +44,11 @@
                     <span class="pull-right">
                         <button type="submit" class="btn btn-success">
                             <i class="fa fa-login"></i>Masuk</button>
-                        <!-- <a type="submit" href="index.html" class="btn btn-success" />
-                         Login</a></span> -->
                 </div>
             </form>
             <form id="recoverform" action="#" class="form-vertical">
-				<p class="normal_text">Silakan masukkan email anda dan kami akan
-                     mengirimi anda instruksi untuk menyetel ulang password.</p>
+				<p class="normal_text">Silakan masukkan email anda. Kami akan
+                     mengirimi anda instruksi untuk menyetel ulang kata sandi.</p>
 
                     <div class="controls">
                         <div class="main_input_box">
@@ -60,7 +59,7 @@
 
                 <div class="form-actions">
                     <span class="pull-left"><a href="#" class="flip-link btn btn-success" id="to-login">
-                        &laquo; Kembali ke login</a></span>
+                        &laquo; Kembali login</a></span>
                     <span class="pull-right"><a class="btn btn-info"/>Setel ulang</a></span>
                 </div>
             </form>

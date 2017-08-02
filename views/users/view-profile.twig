@@ -1,0 +1,51 @@
+{% extends 'templates/default.twig' %}
+
+{% block title %} My profile {% endblock %}
+{% block current %} My Profile {% endblock %}
+{% block content %}
+
+<div class="row-fluid">
+    <div class="span12">
+        <div class="widget-box" style="margin-top:0px;">
+            <a class="list-group-item active main-color-bg">
+              <span align="center" aria-hidden="true"><i class="icon-file"></i></span><i class="fa fa-address-book-o"></i>&nbsp; My Profile
+            </a>
+              <div class="box box-info">
+                <div class="box-header">
+                <!-- <button class="btn btn-info pull-left btn1">View Profile</button> -->
+                <center>
+                <div class="btn-group" role="group">
+                <button type="button" style="width:250px" class="btn btn-primary btn1">View Profile</button>
+                <button style="width:250px" type="button" class="btn btn-primary">My Item</button>
+                <button style="width:250px" type="button" class="btn btn-primary">My Group</button>
+                </div>
+                </center><hr>
+                
+                <div id="panel1">
+                <div class="col-lg-4">
+            {% if login %}
+                <p class="text-center"><b>Photo</b><br>
+                <img style="width:300px" class="img-thumbnail"
+                 src="{{ base_url() }}/assets/images/avatar.png" alt="">
+            </div>
+              <div class="col-lg-4">
+                <br>
+                <p class="text-left"><b><span class="col1">Nama </span>:  </b> {{login.name}}<br><br>
+                <b><span class="col1">Username </span>:  </b> {{login.username}}<br><br>
+                <b><span class="col1">Email </span>:  </b> {{login.email}}<br><br>
+                <b><span class="col1">Jenis Kelamin </span>:  </b> {{login.gender}}<br><br>
+                <b><span class="col1">Alamat </span>:  </b> {{login.address}}<br><br>
+                <b><span class="col1">No.Telepon </span>:  </b> {{login.phone}}<br><br>
+                <b><span class="col1">Mulai Bergabung</span>:  </b>{{login.created_at | date("F jS Y ")}}</p>
+              </div>
+        </div>
+    {% endif %}
+
+    </div>
+    <!-- <a href="{{path_for('user.setting')}}"><button type="submit"
+         class="btn btn-social-button btn-github">
+         <i class="fa fa-cogs"></i> Setting profile</button></a>
+                </ul> -->
+             
+
+{% endblock %}

@@ -68,4 +68,6 @@ class UserToken extends BaseModel
         return $result->fetch()['user_id'];
     }
 
+    // public function geFindImage($)
+
 }

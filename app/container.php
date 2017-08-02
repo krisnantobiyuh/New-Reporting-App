@@ -53,15 +53,6 @@ $container['flash'] = function ($container) {
 	return new \Slim\Flash\Messages;
 };
 
-$container['client'] = function ($container) {
-    $settings = $container->get('settings')['reporting'];
-
-    return new GuzzleHttp\Client([
-        'base_uri' => 'http://localhost/Reporting-App/public/api/',
-        'headers'  => $settings['headers']
-    ]);
-};
-
 // monolog
 $container['logger'] = function ($c) {
     $settings = $c->get('settings')['logger'];
@@ -78,4 +69,10 @@ $container['client'] = function ($container) {
        'base_uri' => 'http://localhost/Reporting-App/public/api/',
        'headers'  => $settings['headers']
    ]);
+};
+$container['fs'] = function ($c) {
+	$setting = $c->get('settings')['flysystem'];
+    $adapter = new \League\Flysystem\Adapter\Local($setting['path']);
+    $filesystem = new \League\Flysystem\Filesystem($adapter);
+    return $filesystem;
 };

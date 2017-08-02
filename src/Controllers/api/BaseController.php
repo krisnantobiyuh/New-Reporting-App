@@ -27,6 +27,7 @@ abstract class BaseController
 		return $this->response->withHeader('Content-type', 'application/json')
 				->withJson($data, $data['reporting']['status']['code']);
 	}
+
 // Detail ResponseWithJson API
 	public function responseDetail($code, $message, array $data = null)
 	{
@@ -55,6 +56,7 @@ abstract class BaseController
 			]
 		];
 
+
 		if ($data['query'] == null) {
 			unset($response['reporting']['query']);
 		}
@@ -78,10 +80,5 @@ abstract class BaseController
 			],
 		];
 	}
-
-	public function getUser($token)
-    {
-        
-    }
 
 }
