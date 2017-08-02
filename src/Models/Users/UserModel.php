@@ -13,13 +13,9 @@ class UserModel extends BaseModel
     public function createUser(array $data, $images)
     {
         $data = [
-            // 'name' => $data['name'],
             'email' => $data['email'],
             'username' => $data['username'],
             'password' => password_hash($data['password'], PASSWORD_BCRYPT),
-            // 'gender' => $data['gender'],
-            // 'address' => $data['address'],
-            // 'phone' => $data['phone'],
             'image' => $images,
         ];
 
@@ -80,15 +76,6 @@ class UserModel extends BaseModel
                         ->where('status = 2 && deleted = 0');
 
         return $this;
-        // $qb = $this->db->createQueryBuilder();
-        // $this->query =    $qb->select('id', 'name', 'username', 'email', 'gender', 'phone',
-        // 'image','address', 'created_at')
-        // ->from($this->table)
-        // ->where('status = 2 && deleted = 0');
-        //
-        // $query = $qb->execute();
-        //
-        // return $query->fetchAll();
     }
 
     public function getUser($column, $val)

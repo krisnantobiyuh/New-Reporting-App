@@ -76,5 +76,27 @@ class GroupModel extends BaseModel
 
 		return $result->fetchAll();
 	}
+
+	public function getAllGroup()
+	{
+		$qb = $this->db->createQueryBuilder();
+
+		$this->query = $qb->select('id', 'name', 'description', 'image', 'creator')
+							->from($this->table)
+							->where('deleted = 0');
+
+		return $this;
+	}
+
+	public function getAllGroupNonActive()
+	{
+		$qb = $this->db->createQueryBuilder();
+
+		$this->query = $qb->select('id', 'name', 'description', 'image', 'creator')
+							->from($this->table)
+							->where('deleted = 1');
+
+		return $this;
+	}	
 }
 ?>

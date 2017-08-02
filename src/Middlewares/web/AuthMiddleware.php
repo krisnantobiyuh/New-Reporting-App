@@ -15,7 +15,7 @@ class AuthMiddleware extends BaseMiddleware
 
             return $response;
         } else {
-            $this->container->flash->addMessage('warning', 'You must login to access this page!');
+            $this->container->flash->addMessage('warning', 'Anda harus login untuk mengakses halaman ini!');
 
             return $response->withRedirect($this->container->router->pathFor('login'));
         }
