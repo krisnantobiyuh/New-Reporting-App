@@ -17,8 +17,11 @@ class Item extends BaseModel
             'group_id'    => $data['group_id'],
             'user_id'     => $data['user_id'],
             'image'       => $data['image'],
+            'image'       => $data['image'],
             'creator'     => $data['creator'],
             'public'      => $data['public'],
+            'status'      => $data['status'],
+            'reported_at' => $data['reported_at'],
             'updated_at'  => $date
         ];
         $this->createData($data);
@@ -34,21 +37,23 @@ class Item extends BaseModel
             'recurrent'   => $data['recurrent'],
             'start_date'  => $data['start_date'],
             'group_id'    => $data['group_id'],
-reXm.                   'updated_at'  => $date
+            'user_id'     => $data['user_id'],
+            'public'      => $data['public'],
+            'updated_at'  => $date
         ];
         $this->updateData($data, $id);
     }
 
-    public function getAllItem()
-    {
-        $qb = $this->db->createQueryBuilder();
-        $qb->select('gr.name as groups', 'it.*')
-           ->from($this->table, 'it')
-           ->join('it', $this->joinTable, 'gr', 'gr.id = it.group_id')
-           ->where('it.deleted = 0');
-           $result = $qb->execute();
-           return $result->fetchAll();
-    }
+    // public function getAllItem()
+    // {
+    //     $qb = $this->db->createQueryBuilder();
+    //     $qb->select('gr.name as groups', 'it.*')
+    //        ->from($this->table, 'it')
+    //        ->join('it', $this->joinTable, 'gr', 'gr.id = it.group_id')
+    //        ->where('it.deleted = 0');
+    //        $result = $qb->execute();
+    //        return $result->fetchAll();
+    // }
 
     public function getAllDeleted()
     {
@@ -174,13 +179,28 @@ reXm.                   'updated_at'  => $date
         $param1 = ':'.$column1;
         $param2 = ':'.$column2;
         $qb = $this->db->createQueryBuilder();
-        $qb->select('*')
+        $this->query = $qb->select('*')
             ->from($this->table)
             ->setParameter($param1, $value1)
             ->setParameter($param2, $value2)
             ->where($column1 . ' = '. $param1. '&&' . $column2 . ' = '. $param2);
-        $result = $qb->execute();
-        return $result->fetchAll();
+            // ->execute();
+        return $this;
+        // $result = $qb->execute();
+        // return $result->fetchAll();
+    }
+
+    public function getAllItem()
+    {
+        $qb = $this->db->createQueryBuilder();
+
+        $this->query = $qb->select('*')
+            ->from($this->table)
+            ->where('deleted = 0');
+            // ->execute();
+
+            // print_r($this); die();
+            return $this;
     }
 
 
