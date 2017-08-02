@@ -201,7 +201,7 @@ abstract class BaseModel
         $result = $qb->execute();
 
         $qb1 = $this->db->createQueryBuilder();
-        $qb1->select('id', 'username','email', 'name', 'image' )
+        $qb1->select('id', 'username','email', 'name', 'image', 'status' )
              ->from('users')
              ->where('id = '. $result->fetch()['user_id']);
          $result1 = $qb1->execute();
