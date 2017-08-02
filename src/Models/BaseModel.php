@@ -143,37 +143,7 @@ abstract class BaseModel
             ->execute();
     }
 
-    // Paginate
-    // public function paginate($page, $query, $limit)
-    // {
-    //     $qb = $this->db->createQueryBuilder();
-    //     $getRows = $qb->select('COUNT(id) as rows')
-    //                   ->from($this->table)
-    //                   ->execute()
-    //                   ->fetch();
-    //     $perpage = $limit;
-    //     $total = $getRows['rows'];
-    //     $pages = (int) ceil($total / $perpage);
-    //     $data = array(
-    //         'options' => array(
-    //         'default'   => 1,
-    //         'min_range' => 1,
-    //         'max_range' => $pages
-    //         )
-    //     );
-    //
-    //     $number = (int) $page;
-    //     $range = $perpage * ($number - 1);
-    //
-    //     $qb = $this->db->createQueryBuilder();
-    //     $test = $qb->select($this->column)
-    //                ->from($this->table)
-    //                ->setFirstResult($range)
-    //                ->setMaxResults($limit)
-    //                ->execute();
-    //     return $test->fetchAll();
-    // }
-
+    //Pagination
     public function setPaginate(int $page, int $limit)
     {
         //count total custom query
@@ -237,6 +207,4 @@ abstract class BaseModel
          $result1 = $qb1->execute();
          return $result1->fetch();
      }
-
-
 }

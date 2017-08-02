@@ -11,23 +11,19 @@ class UserController extends BaseController
     public function index($request, $response)
     {
         $user = new UserModel($this->db);
-        $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
-        $getUser = $user->getAllUser()->setPaginate($page, 5);
 
-        $countUser = count($getUser);
-        $query = $request->getQueryParams();
+        $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+        $perPage = $request->getParsedBody()['perpage'];
+        $getUser = $user->getAllUser()->setPaginate($page, 2);
+
         if ($getUser) {
-            $data = $this->responseDetail(200, 'Data tersedia', [
-                'query' => $query,
-                'result'  => $getUser['data'],
-                'meta' => $getUser['pagination']
+            $data = $this->responseDetail(200, false, 'Data tersedia', [
+                'data' => $getUser['data'],
+                'pagination' => $getUser['pagination']
             ]);
 
         } else {
-            $data = $this->responseDetail(204, 'Berhasil', [
-                'result' => 'Konten tidak tersedia',
-                'query'  => $query
-            ]);
+            $data = $this->responseDetail(200, false, 'Berhasil');
         }
 
         return $data;
@@ -56,6 +52,9 @@ class UserController extends BaseController
         $this->validator->rule('lengthMin', ['username','password'], 5);
 
         if ($this->validator->validate()) {
+
+            $base = $request->getUri()->getBaseUrl();
+
             if (!empty($request->getUploadedFiles()['image'])) {
                 $storage = new \Upload\Storage\FileSystem('assets/images');
                 $image = new \Upload\File('image',$storage);
@@ -68,26 +67,23 @@ class UserController extends BaseController
                 ));
 
                 $image->upload();
-                $imageName = $image->getNameWithExtension();
+                $imageName = $base.'/assets/images'.$image->getNameWithExtension();
 
             } else {
-                $imageName = '';
+                $imageName = $base.'/assets/images/avatar.png';
             }
 
             $register = $user->checkDuplicate($request->getParsedBody()['username'],
             $request->getParsedBody()['email']);
 
             if ($register == 3) {
-                return $this->responseDetail(409, [
-                'username'  => 'Username sudah terpakai!',
-                'email'     => 'Email sudah terpakai!'
-                ]);
+                return $this->responseDetail(409, true, 'Email & username sudah digunakan');
 
             } elseif ($register == 1) {
-                return $this->responseDetail(409, 'Username sudah digunakan!');
+                return $this->responseDetail(409, true, 'Username sudah digunakan');
 
             } elseif ($register == 2) {
-                return $this->responseDetail(409, 'Email sudah digunakan!');
+                return $this->responseDetail(409, true, 'Email sudah digunakan');
 
             } else {
                 $userId = $user->createUser($request->getParsedBody(), $imageName);
@@ -97,10 +93,9 @@ class UserController extends BaseController
                 $tokenId = $registers->setToken($userId, $token);
                 $userToken = $registers->find('id', $tokenId);
 
-                $base = $request->getUri()->getBaseUrl();
                 $keyToken = $userToken['token'];
 
-                $activateUrl = '<a href ='.$base ."/api/activateaccount/".$keyToken.'>
+                $activateUrl = '<a href ='.$base ."/activateaccount/".$keyToken.'>
                 <h3>AKTIFKAN AKUN</h3></a>';
                 $content = "Terima kasih telah mendaftar di Reporting App.
                 Untuk mengaktifkan akun Anda, silakan klik link di bawah ini.
@@ -120,10 +115,8 @@ class UserController extends BaseController
 
                 $mailer->send($mail);
 
-                return  $this->responseDetail(200, 'Pendaftaran berhasil.
-                Silakan cek email anda untuk mengaktifkan akun', [
-                'result' => $newUser,
-                ]);
+                return  $this->responseDetail(201, false, 'Pendaftaran berhasil.
+                silakan cek email anda untuk mengaktifkan akun');
             }
         } else {
             $errors = $this->validator->errors();
@@ -141,33 +134,39 @@ class UserController extends BaseController
         $findUser = $user->getUser('id', $args['id']);
 
         if (!$findUser) {
-            return $this->responseDetail(404, 'Akun tidak ditemukan');
+            return $this->responseDetail(404, true, 'Akun tidak ditemukan');
         }
+        if ($this->validator->validate()) {
 
-        if (!empty($request->getUploadedFiles()['image'])) {
-            $storage = new \Upload\Storage\FileSystem('assets/images');
-            $image = new \Upload\File('image',$storage);
+            if (!empty($request->getUploadedFiles()['image'])) {
+                $storage = new \Upload\Storage\FileSystem('assets/images');
+                $image = new \Upload\File('image',$storage);
 
-            $image->setName(uniqid('img-'.date('Ymd').'-'));
-            $image->addValidations(array(
-            new \Upload\Validation\Mimetype(array('image/png', 'image/gif',
-            'image/jpg', 'image/jpeg')),
-            new \Upload\Validation\Size('5M')
-            ));
+                $image->setName(uniqid('img-'.date('Ymd').'-'));
+                $image->addValidations(array(
+                    new \Upload\Validation\Mimetype(array('image/png', 'image/gif',
+                    'image/jpg', 'image/jpeg')),
+                    new \Upload\Validation\Size('5M')
+                ));
 
-            $image->upload();
-            $data['image'] = $image->getNameWithExtension();
+                $image->upload();
+                $data['image'] = $image->getNameWithExtension();
 
-            $user->updateData($data, $args['id']);
-            $newUser = $user->getUser('id', $args['id']);
+                $user->updateData($data, $args['id']);
+                $newUser = $user->getUser('id', $args['id']);
 
-            return  $this->responseDetail(200, 'Foto berhasil diunggah', [
-            'result' => $newUser
-            ]);
+                return  $this->responseDetail(200, false, 'Foto berhasil diunggah', [
+                    'result' => $newUser
+                ]);
 
+            } else {
+                return $this->responseDetail(400, true, 'File foto belum dipilih');
+
+            }
         } else {
-            return $this->responseDetail(400, 'File foto belum dipilih');
+            $errors = $this->validator->errors();
 
+            return  $this->responseDetail(422, $errors);
         }
 
     }
@@ -182,9 +181,9 @@ class UserController extends BaseController
         if ($findUser) {
             $user->hardDelete($args['id']);
             $data['id'] = $args['id'];
-            $data = $this->responseDetail(200, 'Akun berhasil dihapus');
+            $data = $this->responseDetail(200, false, 'Akun berhasil dihapus');
         } else {
-            $data = $this->responseDetail(400, 'Akun tidak ditemukan');
+            $data = $this->responseDetail(400, true, 'Akun tidak ditemukan');
         }
 
         return $data;
@@ -204,9 +203,9 @@ class UserController extends BaseController
         if ($user) {
             $users->hardDelete($user['id']);
             $data['id'] = $user['id'];
-            $data = $this->responseDetail(200, 'Akun berhasil dihapus');
+            $data = $this->responseDetail(200, false, 'Akun berhasil dihapus');
         } else {
-            $data = $this->responseDetail(400, 'Akun tidak ditemukan');
+            $data = $this->responseDetail(400, true, 'Akun tidak ditemukan');
         }
         return $data;
     }
@@ -230,17 +229,14 @@ class UserController extends BaseController
                 $user->updateData($request->getParsedBody(), $args['id']);
                 $data['update data'] = $request->getParsedBody();
 
-                $data = $this->responseDetail(200, 'Data berhasil diperbarui', [
-                'result'  => $data,
-                'query' => $request->getParsedBody()
+                $data = $this->responseDetail(200, false, 'Data berhasil diperbarui', [
+                    'data'  => $data,
                 ]);
             } else {
-                $data = $this->responseDetail(400, $this->validator->errors(), [
-                'query' => $request->getParsedBody()
-                ]);
+                $data = $this->responseDetail(400, true, $this->validator->errors());
             }
         } else {
-            $data = $this->responseDetail(404, 'Akun tidak ditemukan');
+            $data = $this->responseDetail(404, true, 'Akun tidak ditemukan');
         }
         return $data;
     }
@@ -267,12 +263,14 @@ class UserController extends BaseController
                 $users->updateData($request->getParsedBody(), $user['user_id']);
                 $data['update data'] = $request->getParsedBody();
 
-                $data = $this->responseDetail(200, 'Succes', 'Update Data Succes', $data);
+                $data = $this->responseDetail(200, false, 'Data berhasil diupdate', [
+                    'data'  => $data
+                    ]);
             } else {
-                $data = $this->responseDetail(400, 'Errors', $this->validator->errors());
+                $data = $this->responseDetail(400, true, $this->validator->errors());
             }
         } else {
-            $data = $this->responseDetail(400, 'Errors', 'Data Not Found');
+            $data = $this->responseDetail(400, true, 'Data tidak ditemukan');
         }
         return $data;
     }
@@ -284,11 +282,11 @@ class UserController extends BaseController
         $findUser = $user->find('id', $args['id']);
 
         if ($findUser) {
-            $data = $this->responseDetail(200, 'Data tersedia', [
-            'result'    => $findUser,
+            $data = $this->responseDetail(200, false, 'Data tersedia', [
+            'data'    => $findUser,
             ]);
         } else {
-            $data = $this->responseDetail(400, 'Akun tidak ditemukan');
+            $data = $this->responseDetail(400, true, 'Akun tidak ditemukan');
         }
 
         return $data;
@@ -305,9 +303,11 @@ class UserController extends BaseController
         $findUser = $users->find('id', $user['user_id']);
 
         if ($findUser) {
-            $data = $this->responseDetail(200, 'Succes', 'Data available', $findUser);
+            $data = $this->responseDetail(200, false, 'Data tersedia', [
+                'data'  => $findUser
+                ]);
         } else {
-            $data = $this->responseDetail(400, 'Errors', 'Data Not Found');
+            $data = $this->responseDetail(400, true, 'Data tidak ditemukan');
         }
 
         return $data;
@@ -321,7 +321,7 @@ class UserController extends BaseController
         $user = $user->getUser('username', $request->getParam('username'));
 
         if (empty($login)) {
-            $data = $this->responseDetail(401, 'Username tidak terdaftar');
+            $data = $this->responseDetail(401, true, 'Username tidak terdaftar');
         } else {
             $check = password_verify($request->getParam('password'), $login['password']);
             if ($check) {
@@ -332,65 +332,64 @@ class UserController extends BaseController
                 $key = [
                 'key_token' => $getToken['token'],
                 ];
-                $data = $this->responseDetail(200, 'Login berhasil', [
-                'result'   => $user,
-                'query'    => null,
+                $data = $this->responseDetail(200, false, 'Login berhasil', [
+                'data'   => $user,
                 'meta'     => $key
                 ]);
             } else {
-                $data = $this->responseDetail(401, 'Password salah');
+                $data = $this->responseDetail(401, true, 'Password salah');
             }
         }
         return $data;
     }
 
     //Set item to user in group
-    public function setItemUser($request, $response, $args)
-    {
-        $user = new UserModel($this->db);
-        $findUser = $user->find('id', $request->getParsedBody()['user_id']);
-        $group = new \App\Models\GroupModel($this->db);
-        $findGroup = $group->find('id', $args['group']);
-
-        $token = $request->getHeader('Authorization')[0];
-
-        $userToken = new \App\Models\Users\UserToken($this->db);
-
-        if ($findUser && $findGroup) {
-            $data['user_id'] = $findUser['id'];
-            $item = new \App\Models\UserItem($this->db);
-            // $findUserGroup = $item->findUser('user_id', $args['id'], 'group_id', $args['group']);
-
-            $this->validator->rule('required', ['item_id', 'user_id']);
-            $this->validator->rule('integer', ['id']);
-
-            if ($this->validator->validate()) {
-                $item->setItem($request->getParsedBody(), $args['group']);
-                $data = $request->getParsedBody();
-
-
-                $data = $this->responseDetail(201, 'Succes managed to select the item', $data, $findUser);
-            } else {
-                // $data['status_code'] = 400;
-                // $data['status_message'] = "Error";
-                // $data['data'] = $this->validator->errors();
-
-                $data = $this->responseDetail(400, $this->validator->errors());
-            }
-
-            return $data;
-
-            $items = $user->find('id', $args['id']);
-            $item = $request->getParsedBody();
-
-            $data = $this->responseDetail(201, 'user Succes Purchased', $items, $item);
-        } else {
-            $data = $this->responseDetail(404, 'user Not Found');
-        }
-
-        return $data;
-
-    }
+    // public function setItemUser($request, $response, $args)
+    // {
+    //     $user = new UserModel($this->db);
+    //     $findUser = $user->find('id', $request->getParsedBody()['user_id']);
+    //     $group = new \App\Models\GroupModel($this->db);
+    //     $findGroup = $group->find('id', $args['group']);
+    //
+    //     $token = $request->getHeader('Authorization')[0];
+    //
+    //     $userToken = new \App\Models\Users\UserToken($this->db);
+    //
+    //     if ($findUser && $findGroup) {
+    //         $data['user_id'] = $findUser['id'];
+    //         $item = new \App\Models\UserItem($this->db);
+    //         // $findUserGroup = $item->findUser('user_id', $args['id'], 'group_id', $args['group']);
+    //
+    //         $this->validator->rule('required', ['item_id', 'user_id']);
+    //         $this->validator->rule('integer', ['id']);
+    //
+    //         if ($this->validator->validate()) {
+    //             $item->setItem($request->getParsedBody(), $args['group']);
+    //             $data = $request->getParsedBody();
+    //
+    //
+    //             $data = $this->responseDetail(201, false, 'Succes managed to select the item', $data, $findUser);
+    //         } else {
+    //             // $data['status_code'] = 400;
+    //             // $data['status_message'] = "Error";
+    //             // $data['data'] = $this->validator->errors();
+    //
+    //             $data = $this->responseDetail(400, true, $this->validator->errors());
+    //         }
+    //
+    //         return $data;
+    //
+    //         $items = $user->find('id', $args['id']);
+    //         $item = $request->getParsedBody();
+    //
+    //         $data = $this->responseDetail(201, false, 'user Succes Purchased', $items, $item);
+    //     } else {
+    //         $data = $this->responseDetail(404, true, 'user Not Found');
+    //     }
+    //
+    //     return $data;
+    //
+    // }
 
     public function activateAccount($request, $response, $args)
     {
@@ -406,15 +405,23 @@ class UserController extends BaseController
             $user = $users->setActive($userToken['user_id']);
             $registers->hardDelete($userToken['id']);
 
-            return $this->responseDetail(200, 'Akun anda telah berhasil diaktifkan');
+            return  $this->view->render($response, 'response/activation.twig', [
+                'message' => 'Akun telah berhasil diaktivasi'
+            ]);
 
         } elseif ($userToken['expired_date'] > $now) {
 
-            return $this->responseDetail(400, 'Token telah kadaluarsa');
+            return  $this->view->render($response, 'response/activation.twig', [
+                'message' => 'Token telah kadaluarsa'
+            ]);
+            // return $this->responseDetail(400, true, 'Token telah kadaluarsa');
 
         } else{
 
-            return $this->responseDetail(400, 'Anda belum mendaftar');
+            return  $this->view->render($response, 'response/activation.twig', [
+                'message' => 'Token salah atau anda belum mendaftar'
+            ]);
+            // return $this->responseDetail(400, true, 'Anda belum mendaftar');
         }
 
     }
@@ -424,11 +431,10 @@ class UserController extends BaseController
         $token = $request->getHeader('Authorization')[0];
 
         $userToken = new UserToken($this->db);
-        // var_dump($userToken->getUserId($token));die();
         $findUser = $userToken->find('token', $token);
 
         $userToken->delete('user_id', $findUser['user_id']);
-        return $this->responseDetail(200, 'Logout berhasil');
+        return $this->responseDetail(200, false, 'Logout berhasil');
     }
 
     public function forgotPassword($request, $response)
@@ -443,7 +449,7 @@ class UserController extends BaseController
         $tokenSet = $registers->find('token', $token);
 
         if (!$findUser) {
-            return $this->responseDetail(200, 'Email tidak terdaftar');
+            return $this->responseDetail(404, true, 'Email tidak terdaftar');
 
         } elseif ($findUser && $tokenSet) {
             $base = $request->getUri()->getBaseUrl();
@@ -474,7 +480,7 @@ class UserController extends BaseController
 
             $mailer->send($mail);
 
-            return $this->responseDetail(200, 'Silakan cek email anda untuk mengubah password anda');
+            return $this->responseDetail(200, false, 'Silakan cek email anda untuk mengubah password');
         }
 
     }
@@ -502,12 +508,14 @@ class UserController extends BaseController
                 $users->updateData($newData, $findUser['id']);
                 $data['result'] = $findUser;
 
-                $data = $this->responseDetail(200, 'Update Data Succes', $data);
+                $data = $this->responseDetail(200, false, 'Update Data Succes', [
+                    'data'  => $data
+                    ]);
             } else {
-                $data = $this->responseDetail(400, $this->validator->errors());
+                $data = $this->responseDetail(400, true, $this->validator->errors());
             }
         } else {
-            $data = $this->responseDetail(404, 'Data Not Found');
+            $data = $this->responseDetail(404, true, 'Data Not Found');
         }
         return $data;
     }

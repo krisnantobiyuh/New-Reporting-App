@@ -1,20 +1,22 @@
 <?php
 
-$app->get('/register', 'App\Controllers\web\UserController:getRegister')->setName('register');
-$app->post('/register', 'App\Controllers\web\UserController:postRegister');
-$app->get('/activateaccount/{token}', 'App\Controllers\web\UserController:activateAccount')->setName('register');
+$app->get('/signup', 'App\Controllers\web\UserController:getSignUp')->setName('signup');
+$app->post('/signup', 'App\Controllers\web\UserController:signUp')->setName('post.signup');
+
+// $app->get('/activateaccount/{token}', 'App\Controllers\web\UserController:activateAccount')->setName('register');
+
 $app->get('/admin', 'App\Controllers\web\UserController:getLoginAsAdmin')->setName('login.admin');
 $app->post('/admin', 'App\Controllers\web\UserController:loginAsAdmin');
 $app->get('/user', 'App\Controllers\web\UserController:getAllUser');
 $app->get('/', 'App\Controllers\web\UserController:getLogin')->setName('login');
 
+$app->get('/item/{id}', 'App\Controllers\web\HomeController:showItem');
 $app->post('/', 'App\Controllers\web\UserController:login')->setName('post.login');
-
-$app->get('/user/profile', 'App\Controllers\web\UserController:viewProfile')->setName('user.view.profile');
 
 $app->group('', function() use ($app, $container) {
     $app->get('/home', 'App\Controllers\web\HomeController:index')->setName('home');
     $app->get('/logout', 'App\Controllers\web\UserController:logout')->setName('logout');
+    $app->get('/profile', 'App\Controllers\web\UserController:viewProfile')->setName('user.profile');
     $app->get('/setting', 'App\Controllers\web\UserController:getSettingAccount')->setName('user.setting');
     $app->post('/setting', 'App\Controllers\web\UserController:settingAccount');
     $app->get('/group', 'App\Controllers\web\GroupController:index')->setName('group');

@@ -4,7 +4,6 @@ namespace App\Controllers\api;
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
-
 use Slim\Container;
 
 abstract class BaseController
@@ -25,49 +24,38 @@ abstract class BaseController
 	public function responseWithJson(array $data)
 	{
 		return $this->response->withHeader('Content-type', 'application/json')
-				->withJson($data, $data['reporting']['status']['code']);
+				->withJson($data, $data['code']);
 	}
 
 // Detail ResponseWithJson API
-	public function responseDetail($code, $message, array $data = null)
+	public function responseDetail($code, $error, $message, array $data = null)
 	{
-
-		if (!isset($data['query'])) {
-			$data['query'] = 0;
+		if (empty($data['pagination'])) {
+			$data['pagination'] = null;
 		}
-
-		if (!isset($data['meta'])) {
-			$data['meta'] = 0;
+		if (empty($data['data'])) {
+			$data['data'] = null;
 		}
-
-		if (!isset($data['result'])) {
-			$data['result'] = 0;
+		if (empty($data['key'])) {
+			$data['key'] = null;
 		}
-
 		$response = [
-			'reporting' => [
-				'query'		=> $data['query'],
-				'status'	=>  [
-					'code'			=> $code,
-					'description'	=> $message,
-				],
-				'results'	=> $data['result'],
-				'meta'		=> $data['meta'],
-			]
+			'code'		=> $code,
+			'error'		=> $error,
+			'message'	=> $message,
+			'data'		=> $data['data'],
+			'pagination'=> $data['pagination'],
+			'key'		=> $data['key']
 		];
-
-
-		if ($data['query'] == null) {
-			unset($response['reporting']['query']);
+		if ($data['pagination'] == null) {
+			unset($response['pagination']);
 		}
-
-		if ($data['meta'] == null) {
-			unset($response['reporting']['meta']);
+		if ($data['key'] == null) {
+			unset($response['key']);
 		}
-
 	return $this->responseWithJson($response, $code);
 	}
-
+	
 // Set Paginate
 	public function paginate($total, $perPage, $currentPage, $totalPage)
 	{
@@ -80,5 +68,4 @@ abstract class BaseController
 			],
 		];
 	}
-
 }
