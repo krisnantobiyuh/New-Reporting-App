@@ -12,14 +12,15 @@
       </span> Reporting App <small></small></h3>
     </div>
     <div id="navbar" class="collapse navbar-collapse">
-      <ul style="color:#fff; margin-top:10px;"class="nav navbar-nav hidden-lg">
-        <li class="active"><a href="index.html">Dashboard</a></li>
-        <li><a href="pages.html">Pages</a></li>
+      <ul style="background:#d5dfe7;" class="nav navbar-nav hidden-lg">
+          <li><a href="index.html">Profil</a></li>
+        <li><a href="{{ base_url() }}/home">Beranda</a></li>
         <li><a href="posts.html">Posts</a></li>
         <li><a href="users.html">Users</a></li>
+        <li><a href="index.html">Logout</a></li>
       </ul>
-      <ul style="margin-top:10px;" class="nav navbar-nav navbar-right">
-        <li><a style="color:#fff;" href="#"> {{ login.name}}</a></li>
+      <ul style="margin-top:10px;" class="nav navbar-nav navbar-right hidden-xs">
+        <li><a  style="color:#fff;" href="#"> {{ login.name}}</a></li>
         <li class="dropdown user user-menu">
             <a href="#" class="dropdown-toggle hidden-xs" data-toggle="dropdown">
                 <img src="{{ base_url() }}/assets/images/{{ login.image }}" class="user-image" alt="User Image">

@@ -52,4 +52,11 @@ class HomeController extends BaseController
 
         return $data;
     }
+
+    public function showItem($request, $response, $args)
+    {
+        $item = new \App\Models\Item($this->db);
+        $findItem = $item->find('id', $args['id']);
+        return $this->view->render($response, 'users/show-item.twig', ['items' => $findItem]);
+    }
 }
