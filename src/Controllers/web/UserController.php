@@ -40,7 +40,7 @@ class UserController extends BaseController
 
         $data = json_decode($result->getBody()->getContents(), true);
 
-        // var_dump($data);die();
+        var_dump($data);die();
         if ($data['code'] == 200) {
             $_SESSION['login'] = $data['data'];
             $_SESSION['key'] = $data['key'];

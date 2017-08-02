@@ -21,21 +21,15 @@ class GroupController extends BaseController
 			$getGroup = $group->getAllGroup()->setPaginate($page, 5);
 
 			if ($getGroup) {
-				$data = $this->responseDetail(200, 'Data tersedia', [
-						'query' 	=> 	$query,
-						'result'	=>	$getGroup['data'],
-						'meta'		=>	$getGroup['pagination'],
+				$data = $this->responseDetail(200, false,  'Data tersedia', [
+						'data'			=>	$getGroup['data'],
+						'pagination'	=>	$getGroup['pagination'],
 					]);
 			} else {
-				$data = $this->responseDetail(404, 'Data tidak ditemukan', [
-						'query'		=>	$query
-					]);
+				$data = $this->responseDetail(404, true, 'Data tidak ditemukan');
 			}
 		} else {
-			$data = $this->responseDetail(204, 'Tidak ada konten', [
-					'query'		=>	$query,
-					'result'	=>	$getGroup['data']
-				]);
+			$data = $this->responseDetail(204, false, 'Tidak ada konten');
 		}
 
 		return $data;
@@ -49,14 +43,11 @@ class GroupController extends BaseController
 		$query = $request->getQueryParams();
 
 		if ($findGroup) {
-			$data = $this->responseDetail(200, 'Data tersedia', [
-					'query'		=>	$query,
-					'result'	=>	$findGroup
+			$data = $this->responseDetail(200, false, 'Data tersedia', [
+					'data'	=>	$findGroup
 				]);
 		} else {
-			$data = $this->responseDetail(404, 'Data tidak ditemukan', [
-					'query'		=>	$query
-				]);
+			$data = $this->responseDetail(404, true 'Data tidak ditemukan');
 		}
 
 		return $data;
@@ -93,12 +84,11 @@ class GroupController extends BaseController
 
 			$findNewGroup = $group->find('id', $addGroup);
 
-			$data = $this->responseDetail(201, 'Berhasil ditambahkan', [
-					'query'		=>	$query,
-					'result'	=>	$findNewGroup
+			$data = $this->responseDetail(201, false, 'Berhasil ditambahkan', [
+					'data'	=>	$findNewGroup
 				]);
 		} else {
-			$data = $this->responseDetail(400, $this->validator->errors());
+			$data = $this->responseDetail(400, true, $this->validator->errors());
 		}
 
 		return $data;
@@ -117,12 +107,11 @@ class GroupController extends BaseController
 			$group->updateData($request->getParsedBody(), $args['id']);
 			$afterUpdate = $group->find('id', $args['id']);
 
-			$data = $this->responseDetail(200, 'Data berhasil di perbaharui', [
-					'query'		=>	$query,
-					'result'	=>	$afterUpdate
+			$data = $this->responseDetail(200, false, 'Data berhasil di perbaharui', [
+					'data'	=>	$afterUpdate
 				]);
 		} else {
-			$data = $this->responseDetail(404, 'Data tidak ditemukan');
+			$data = $this->responseDetail(404, true, 'Data tidak ditemukan');
 		}
 
 		return $data;
@@ -137,9 +126,9 @@ class GroupController extends BaseController
 
 		if ($findGroup) {
 			$group->hardDelete($args['id']);
-			$data = $this->responseDetail(200, 'Berhasil menghapus data');
+			$data = $this->responseDetail(200, false, 'Berhasil menghapus data');
 		} else {
-			$data = $this->responseDetail(404, 'Error', 'Data tidak ditemukan');
+			$data = $this->responseDetail(404, true, 'Data tidak ditemukan');
 		}
 
 		return $data;
@@ -170,12 +159,11 @@ class GroupController extends BaseController
 
 			$findNewGroup = $userGroup->find('id', $adduserGroup);
 
-			$data = $this->responseDetail(201, 'User berhasil ditambahkan kedalam group', [
-					'query'		=>	$query,
+			$data = $this->responseDetail(201, false, 'User berhasil ditambahkan kedalam group', [
 					'result'	=>	$findNewGroup
 				]);
 		} else {
-			$data = $this->responseDetail(400, $this->validator->errors());
+			$data = $this->responseDetail(400, true, $this->validator->errors());
 		}
 
 		return $data;
@@ -201,20 +189,15 @@ class GroupController extends BaseController
 
 				$findAll = $userGroup->findAll($args['id'])->setPaginate($page, 10);
 
-				$data = $this->responseDetail(200, 'Berhasil', [
-					'query'		=>	$query,
-					'result'	=>	$findAll['data'],
-					'meta'		=>	$findAll['pagination']
+				$data = $this->responseDetail(200, false, 'Berhasil', [
+					'data'			=>	$findAll['data'],
+					'pagination'	=>	$findAll['pagination']
 				]);
 			} else {
-				$data = $this->responseDetail(404, 'User tidak ditemukan di dalam group', [
-					'query'		=>	$query
-				]);
+				$data = $this->responseDetail(404, true, 'User tidak ditemukan di dalam group');
 			}
 		} else {
-			$data = $this->responseDetail(403, 'Kamu tidak terdaftar di dalam group', [
-					'query'		=>	$query
-				]);
+			$data = $this->responseDetail(403, true, 'Kamu tidak terdaftar di dalam group');
 		}
 		return $data;
 	}
@@ -236,19 +219,14 @@ class GroupController extends BaseController
 
 		if ($group) {
 			if ($finduserGroup) {
-				$data = $this->responseDetail(200, 'Berhasil', [
-					'query'		=>	$query,
-					'result'	=>	$getUser
+				$data = $this->responseDetail(200, false, 'Berhasil', [
+					'data'	=>	$getUser
 				]);
 			} else {
-				$data = $this->responseDetail(404, 'User tidak ditemukan didalam group', [
-					'query'		=>	$query
-				]);
+				$data = $this->responseDetail(404, true, 'User tidak ditemukan didalam group');
 			}
 		} else {
-			$data = $this->responseDetail(404, 'Kamu tidak terdaftar didalam group', [
-					'query'		=>	$query
-				]);
+			$data = $this->responseDetail(404, true, 'Kamu tidak terdaftar didalam group');
 		}
 
 		return $data;
@@ -265,14 +243,11 @@ class GroupController extends BaseController
 		if ($finduserGroup) {
 			$userGroup->hardDelete($finduserGroup['id']);
 
-			$data = $this->responseDetail(200, 'User berhasil dihapus dari group', [
-					'query'		=>	$query,
-					'result'	=>	$userGroup
+			$data = $this->responseDetail(200, false, 'User berhasil dihapus dari group', [
+					'data'	=>	$userGroup
 				]);
 		} else {
-			$data = $this->responseDetail(404, 'Data tidak ditemukan', [
-					'query'		=>	$query
-				]);
+			$data = $this->responseDetail(404, true, 'Data tidak ditemukan');
 		}
 
 		return $data;
@@ -288,14 +263,11 @@ class GroupController extends BaseController
 		if ($finduserGroup) {
 			$userGroup->setUser($finduserGroup['id']);
 
-			$data = $this->responseDetail(200, 'User berhasil dijadikan member',  [
-					'query'		=>	$query,
-					'result'	=>	$userGroup
+			$data = $this->responseDetail(200, false, 'User berhasil dijadikan member',  [
+					'data'	=>	$userGroup
 				]);
 		} else {
-			$data = $this->responseDetail(404, 'User tidak ditemukan didalam group', [
-					'query'		=>	$query
-				]);
+			$data = $this->responseDetail(404, true, 'User tidak ditemukan didalam group');
 		}
 
 		return $data;
@@ -311,14 +283,11 @@ class GroupController extends BaseController
 		if ($finduserGroup) {
 			$userGroup->setPic($finduserGroup['id']);
 
-			$data = $this->responseDetail(200, 'User berhasil dijadikan PIC', [
-					'query'		=>	$query,
-					'result'	=>	$userGroup
+			$data = $this->responseDetail(200, false, 'User berhasil dijadikan PIC', [
+					'data'	=>	$userGroup
 				]);
 		} else {
-			$data = $this->responseDetail(404, 'User Tidak ditemukan di dalam group', [
-					'query'		=>	$query,
-				]);
+			$data = $this->responseDetail(404, true, 'User Tidak ditemukan di dalam group');
 		}
 
 		return $data;
@@ -334,14 +303,11 @@ class GroupController extends BaseController
 		if ($finduserGroup) {
 			$userGroup->setGuardian($finduserGroup['id']);
 
-			$data = $this->responseDetail(200, 'User berhasil dijadikan Guardian', [
-					'query'		=>	$query,
-					'result'	=>	$result
+			$data = $this->responseDetail(200, false, 'User berhasil dijadikan Guardian', [
+					'data'	=>	$finduserGroup
 				]);
 		} else {
-			$data = $this->responseDetail(404, 'User tidak ditemukan di dalam group', [
-					'query'		=>	$query
-				]);
+			$data = $this->responseDetail(404, true, 'User tidak ditemukan di dalam group');
 		}
 
 		return $data;
@@ -362,13 +328,12 @@ class GroupController extends BaseController
 			$page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
 			$get = $group->getAllGroup()->setPaginate($page, 5);
 
-			$data = $this->responseDetail(200, 'Berhasil menampilkan data', [
-					'query'		=>	$query,
-					'result'	=>	$get['data'],
-					'meta'		=>	$get['pagination']
+			$data = $this->responseDetail(200, false, 'Berhasil menampilkan data', [
+					'data'			=>	$get['data'],
+					'pagination'	=>	$get['pagination']
 				]);
 		}else {
-			$data = $this->responseDetail(404, 'Data tidak ditemukan');
+			$data = $this->responseDetail(404, true, 'Data tidak ditemukan');
 		}
 
 		return $data;
@@ -391,11 +356,9 @@ class GroupController extends BaseController
 		if ($userId == 1 || $pic[0]['status'] == 1) {
 			$delete = $group->hardDelete($args['id']);
 
-			$data = $this->responseDetail(200, 'Data berhasil di hapus');
+			$data = $this->responseDetail(200, false, 'Data berhasil di hapus');
 		} else {
-			$data = $this->responseDetail(400, 'Ada masalah saat menghapus data', [
-					'query'		=>	$query
-				]);
+			$data = $this->responseDetail(400, true, 'Ada masalah saat menghapus data');
 		}
 
 		return $data;
@@ -417,13 +380,12 @@ class GroupController extends BaseController
 		];
 
 		if ($findUser[0]) {
-			$data = $this->responseDetail(400, 'Anda sudah tergabung ke grup');
+			$data = $this->responseDetail(400, true, 'Anda sudah tergabung ke grup');
 		} else {
 			$addMember = $userGroup->createData($data);
 
-			$data = $this->responseDetail(200, 'Anda berhasil bergabung dengan grup',  [
-					'query'		=>	$query,
-					'result'	=>	$data
+			$data = $this->responseDetail(200, false, 'Anda berhasil bergabung dengan grup',  [
+					'data'	=>	$data
 				]);
 		}
 
@@ -453,9 +415,9 @@ class GroupController extends BaseController
 
 			$leaveGroup = $userGroup->hardDelete($group[0]['id']);
 
-			$data = $this->responseDetail(200, 'Anda telah meninggalkan grup');
+			$data = $this->responseDetail(200, false, 'Anda telah meninggalkan grup');
 		} else {
-			$data = $this->responseDetail(400, 'Anda tidak tergabung di grup ini');
+			$data = $this->responseDetail(400, true, 'Anda tidak tergabung di grup ini');
 
 		}
 
@@ -479,12 +441,12 @@ class GroupController extends BaseController
         // var_dump($data);die();
         // $_SESSION['search'] = $data;
         if ($data['count']) {
-        	$data = $this->responseDetail(200, 'Berhasil menampilkan data search', [
+        	$data = $this->responseDetail(200, false, 'Berhasil menampilkan data search', [
         			'query'		=>	$query,
         			'result'	=>	$data
         		]);
         }else {
-        	$data = $this->responseDetail(404, 'Data tidak ditemukan');
+        	$data = $this->responseDetail(404, true, 'Data tidak ditemukan');
         }
 
         return $data;
@@ -516,12 +478,12 @@ class GroupController extends BaseController
             $group->updateData($data, $args['id']);
             $newGroup = $group->find('id', $args['id']);
 
-            return  $this->responseDetail(200, 'Foto berhasil diunggah', [
+            return  $this->responseDetail(200, false, 'Foto berhasil diunggah', [
                 'result' => $newGroup
             ]);
 
         } else {
-            return $this->responseDetail(400, 'File foto belum dipilih');
+            return $this->responseDetail(400, true, 'File foto belum dipilih');
         }
     }
 
@@ -536,11 +498,10 @@ class GroupController extends BaseController
 		$get = $group->getAllGroupNonActive()->setPaginate($page, 5);
 
     	if ($countGroups == 0) {
-    		return $this->responseDetail(404, 'Data tidak ditemukan');
+    		return $this->responseDetail(404, true, 'Data tidak ditemukan');
     	} else {
-    		return $this->responseDetail(200, 'Berhasil menampilkan data', [
-    			'query'			=>	$query,
-    			'result' 		=> 	$get['data'],
+    		return $this->responseDetail(200, false, 'Berhasil menampilkan data', [
+    			'data' 			=> 	$get['data'],
     			'pagination'	=>	$get['pagination']
     		]);
     	}
@@ -561,11 +522,10 @@ class GroupController extends BaseController
 		$get = $getGroup->setPaginate($page, 5);
 
 		if ($getGroup == 0) {
-			return $this->responseDetail(404, 'Data tidak ditemukan');
+			return $this->responseDetail(404, true, 'Data tidak ditemukan');
 		} else {
-			return $this->responseDetail(200, 'Berhasil menampilkan data', [
-				'query'			=>	$query,
-				'result'		=>	$get['data'],
+			return $this->responseDetail(200, false, 'Berhasil menampilkan data', [
+				'data'			=>	$get['data'],
 				'pagination'	=>	$get['pagination']
 			]);
 		}
@@ -577,10 +537,10 @@ class GroupController extends BaseController
 		$findGroup = $group->find('id', $args['id']);
 
     	if (!$findGroup) {
-    		return $this->responseDetail(400, 'Ada masalah saat menghapus data');
+    		return $this->responseDetail(400, true, 'Ada masalah saat menghapus data');
     	} else {
     		$group->softDelete($args['id']);
-    		return $this->responseDetail(200, 'Berhasil menghapus data');
+    		return $this->responseDetail(200, false, 'Berhasil menghapus data');
     	}
     }
 
@@ -592,14 +552,13 @@ class GroupController extends BaseController
 		$query = $request->getQueryParams();
 
 		if (!$findGroup) {
-			return $this->responseDetail(400, 'Ada masalah saat mengembalikan data');
+			return $this->responseDetail(400, true, 'Ada masalah saat mengembalikan data');
 		} else {
 			$group->restore($args['id']);
 			$get = $group->find('id', $args['id']);
 
-			return $this->responseDetail(200, 'Berhasil mengembalikan data', [
-				'query'		=>	$query,
-				'result'	=>	$get
+			return $this->responseDetail(200, false, 'Berhasil mengembalikan data', [
+				'data'	=>	$get
 			]);
 		}
 	}
@@ -617,12 +576,11 @@ class GroupController extends BaseController
 
 	// var_dump($userId);die();
 		if ($getGroup) {
-			return $this->responseDetail(200, 'Berhasil menampilkan data', [
-				'query'		=>	$query,
-				'result'	=>	$getGroup
+			return $this->responseDetail(200, false, 'Berhasil menampilkan data', [
+				'data'	=>	$getGroup
 			]);
 		} else {
-			return $this->responseDetail(400, 'Ada kesalahan saat menampilkan data');
+			return $this->responseDetail(400, true, 'Ada kesalahan saat menampilkan data');
 		}
 	}
 
@@ -643,12 +601,11 @@ class GroupController extends BaseController
 		$query = $request->getQueryParams();
 
 		if ($userId == 1 || $pic[0]['status'] == 1) {
-			return $this->responseDetail(200, 'Berhasil menampilkan data', [
-				'query' 			=> $query,
-				'result'			=> $member,
+			return $this->responseDetail(200, false, 'Berhasil menampilkan data', [
+				'data'			=> $member,
 			]);
 		} else {
-			return $this->responseDetail(400, 'Anda tidak memiliki akses ke user ini!');
+			return $this->responseDetail(400, true, 'Anda tidak memiliki akses ke user ini!');
 		}
 	}
 
@@ -669,13 +626,12 @@ class GroupController extends BaseController
 		// var_dump($users);die();
 
 		if ($userId == 1 || $pic['status'] == 1) {
-			return $this->responseDetail(200, 'Berhasil menampilkan data', [
-				'query'			=>	$query,
-				'result' 		=> 	$users,
-				// 'pagination'	=> 	$pic['pagination']
+			return $this->responseDetail(200, false, 'Berhasil menampilkan data', [
+				'data' 			=> 	$users,
+				'pagination'	=> 	$pic['pagination']
 			]);
 		} else {
-			return $this->responseDetail(400, 'Anda tidak memiliki akses ke user ini!');
+			return $this->responseDetail(400, true, 'Anda tidak memiliki akses ke user ini!');
 		}
 	}
 
@@ -718,13 +674,12 @@ class GroupController extends BaseController
 			$newUserGroup = $userGroup->find('id', $addUserGroup);
 
 			$query = $request->getQueryParams();
-			return $this->responseDetail(201, 'Berhasil Membuat group', [
-				'query'		=>	$query,
-				'result'	=>	$newUserGroup
+			return $this->responseDetail(201, false, 'Berhasil Membuat group', [
+				'data'	=>	$newUserGroup
 			]);
 
 		} else {
-			return $this->responseDetail(401, 'Ada kesalahan saat membuat group');
+			return $this->responseDetail(401, true, 'Ada kesalahan saat membuat group');
 		}
 	}
 
@@ -753,15 +708,15 @@ class GroupController extends BaseController
 				$addMember = $userGroups->createData($data);
 				$findMember = $userGroups->finds('user_id', $userId, 'group_id', $groupId);
 
-				return $this->responseDetail(201, 'Anda berhasil menambahkan user kedalam group !', [
-					'result'	=>	$findMember
+				return $this->responseDetail(201, false, 'Anda berhasil menambahkan user kedalam group !', [
+					'data'	=>	$findMember
 				]);
 			} else {
-				return $this->responseDetail(400, 'Anda tidak memiliki akses !');
+				return $this->responseDetail(400, true, 'Anda tidak memiliki akses !');
 			}
 
 		}else {
-			return $this->responseDetail(400, 'Member sudah tergabung!');
+			return $this->responseDetail(400, true, 'Member sudah tergabung!');
 		}
 
 	}
