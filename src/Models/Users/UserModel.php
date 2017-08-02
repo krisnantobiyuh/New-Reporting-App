@@ -84,7 +84,7 @@ class UserModel extends BaseModel
 
         $qb = $this->db->createQueryBuilder();
         $qb->select('id', 'name', 'username', 'email', 'gender', 'phone',
-                    'image','address', 'created_at')
+                    'status', 'image','address', 'created_at')
         ->from($this->table)
         ->where($column.' = '. $param)
         ->setParameter($param, $val);

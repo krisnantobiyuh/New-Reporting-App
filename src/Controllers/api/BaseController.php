@@ -25,31 +25,38 @@ abstract class BaseController
 	public function responseWithJson(array $data)
 	{
 		return $this->response->withHeader('Content-type', 'application/json')
-				->withJson($data, $data['reporting']['status']['code']);
+				->withJson($data, $data['code']);
 	}
 
 // Detail ResponseWithJson API
-	public function responseDetail($code, $message, array $data = null)
+	public function responseDetail($code, $error, $message, array $data = null)
 	{
+		if (empty($data['pagination'])) {
+			$data['pagination'] = null;
+		}
+		if (empty($data['data'])) {
+			$data['data'] = null;
+		}
+		if (empty($data['key'])) {
+			$data['key'] = null;
+		}
+
 		$response = [
-			'reporting' => [
-				'query'		=> $data['query'],
-				'status'	=>  [
-					'code'			=> $code,
-					'description'	=> $message,
-				],
-				'results'	=> $data['result'],
-				'meta'		=> $data['meta'],
-			]
+			'code'		=> $code,
+			'error'		=> $error,
+			'message'	=> $message,
+			'data'		=> $data['data'],
+			'pagination'=> $data['pagination'],
+			'key'		=> $data['key']
 		];
 
 
-		if ($data['query'] == null) {
-			unset($response['reporting']['query']);
+		if ($data['pagination'] == null) {
+			unset($response['pagination']);
 		}
 
-		if ($data['meta'] == null) {
-			unset($response['reporting']['meta']);
+		if ($data['key'] == null) {
+			unset($response['key']);
 		}
 
 	return $this->responseWithJson($response, $code);

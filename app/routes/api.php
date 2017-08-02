@@ -1,11 +1,11 @@
 <?php
 
+$app->get('/activateaccount/{token}', 'App\Controllers\api\UserController:activateAccount')->setName('api.activate');
 $app->group('/api', function() use ($app, $container) {
     $app->get('/', 'App\Controllers\api\UserController:index');
     $app->post('/login', 'App\Controllers\api\UserController:login')->setname('api.user.login');
     $app->get('/logout', 'App\Controllers\api\UserController:logout')->setname('api.logout');
     $app->post('/register', 'App\Controllers\api\UserController:register')->setname('api.register');
-    $app->get('/activateaccount/{token}', 'App\Controllers\api\UserController:activateAccount')->setName('api.activate');
     $app->post('/forgot-password', 'App\Controllers\api\UserController:recovery')->setName('api.recovery');
     $app->get('/reset', 'App\Controllers\api\UserController:forgotPassword')->setName('api.reset');
     $app->post('/reset/{token}', 'App\Controllers\api\UserController:reset')->setName('api.recovery');

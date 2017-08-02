@@ -1,47 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
 
-{% extends 'templates/default.twig' %}
+<head>
+        <title>Daftar</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="css/bootstrap.min.css" />
+		<link rel="stylesheet" href="css/bootstrap-responsive.min.css" />
+        <link rel="stylesheet" href="css/matrix-login.css" />
+        <link href="font-awesome/css/font-awesome.css" rel="stylesheet" />
+		<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,800'
+         rel='stylesheet' type='text/css'>
 
-{% block title %} {{ item.name }} {% endblock %}
+    </head>
+    <body>
+        {% include 'templates/partials/flash.twig' %}
+        <div id="loginbox">
+            <form id="loginform" class="form-vertical" action="{{path_for('post.signup')}}"
+             method="post">
+				 <div class="control-group normal_text">
+                     <h3><img src="{{ base_url() }}/assets/images/logo.jpg" alt="Reporting App" /></h3>
+                 </div>
+                <div class="control-group  {{ errors.username ? 'has-error' : '' }}">
+                    <div class="controls">
+                        <div class="main_input_box">
+                            <span class="add-on bg_lg"><i class="icon-user"> </i></span>
+                            <input name="username" type="text"
+                            value="{{ old.username}}" placeholder="Username" />
+                            {% if errors.username %}
+                            <span style="color:red;" class="help-inline">{{errors.username | first}}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group {{ errors.email ? 'has-error' : '' }}">
+                    <div class="controls">
+                        <div class="main_input_box">
+                            <span class="add-on bg_lo"><i class="icon-envelope"></i></span>
+                            <input name="email" type="email"
+                            value="{{ old.email}}" placeholder="Email" />
+                            {% if errors.email %}
+                            <span style="color:red;" class="help-inline">{{errors.email | first}}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group  {{ errors.password ? 'has-error' : '' }}">
+                    <div class="controls">
+                        <div class="main_input_box">
+                            <span class="add-on bg_ly"><i class="icon-lock"></i></span>
+                            <input name="password" type="password"
+                            value="{{ old.password}}" placeholder="Password" />
+                            {% if errors.password %}
+                            <span style="color:red;" class="help-inline">{{errors.password | first}}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <span class="pull-left">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa fa-login"></i>Buat akun</button></span>
+                    <span style="color:#fff;"class="pull-right">
+                        Sudah punya akun? &nbsp&nbsp
+                        <a href="{{path_for('home')}}" class="flip-link btn btn-info" id="to-recover">
+                            Login</a></span>
 
-{% block current %} Beranda > Item {% endblock %}
+                </div>
+            </form>
+        </div>
 
- {% block content %}
- <div class="container-fluid">
-     <div class="row-fluid">
-         <div style="padding:10px; background:#fff;"class="span12">
-             <div class="widget-title"> <span class="icon"> <i class="icon-file"></i> </span>
-                <br>
-             </div>
-             <ul class="recent-posts">
+        <script src="js/jquery.min.js"></script>
+        <script src="js/matrix.login.js"></script>
+    </body>
 
-                 <li>
-                     {% if item.image != null %}
-                     <div class="user-thumb"> <img width="40" height="40" alt="User"
-                         src="{{ base_url() }}/assets/images/{{ item.image }}">
-                     </div>
-                     {% else %}
-                     <div class="user-thumb"> <img width="40" height="40" alt="User"
-                         src="{{ base_url() }}/assets/images/avatar.png">
-                     </div>
-                     {% endif %}
-                     <div class="article-post">
-                         <span class="user-info"> <b> {{ item.name }} </b> <br>
-                              {{ item.created_at }}
-                         </span><br><br>
-                         <p> {{ item.description }} </p>
-                     </div>
-                 </li>
-             </ul>
-             <br>
-             <div class="chat-message well">
-                 <span class="input-box">
-                     <input type="text" name="msg-box" style="width:80%" id="msg-box" />
-                     <button class="btn btn-success">Kirim komentar</button>
-                 </span>
-             </div>
-         </div>
-     </div>
- </div>
-
-
- {% endblock %}
+</html>
