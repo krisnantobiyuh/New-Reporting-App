@@ -20,19 +20,13 @@ class ItemController extends BaseController
 
         if ($getItems['data']) {
 
-                $data = $this->responseDetail(200, 'Data Tersedia', ['query'  => $query,
-                 'result' => $getItems['data'],
-                 'meta'   => $getItems['pagination']
+                $data = $this->responseDetail(200, false, 'Data tersedia', [
+                    'data'        => $getItems['data'],
+                    'pagination'  => $getItems['pagination']
                 ]);
 
         } else {
-            $data = $this->response->withHeader('Content-type', 'application/json')->withJson([
-                'reporting' => [
-                    'status'	=>  [
-                        'code'			=> 200,
-                        'description'	=> 'Data tidak tersedia',
-                    ]
-            ]]);
+            $data = $data = $this->responseDetail(200, false, 'Data kosong');
         }
 
         return $data;
@@ -46,9 +40,11 @@ class ItemController extends BaseController
         $findItem = $item->find('id', $args['id']);
 
         if ($findItem) {
-            $data = $this->responseDetail(200, 'Data Tersedia', ['result' => $findItem]);
+            $data = $this->responseDetail(200, false, 'Data Tersedia', [
+                'data' => $findItem
+            ]);
         } else {
-            $data = $this->responseDetail(200, 'Item tidak ditemukan');
+            $data = $this->responseDetail(200, false, 'Item tidak ditemukan');
         }
 
         return $data;
@@ -62,23 +58,17 @@ class ItemController extends BaseController
         $groupId    = $args['group'];
         $page = !$request->getQueryParam('page') ?  1 : $request->getQueryParam('page');
         $findItem   = $item->getItem('group_id', $groupId, 'status', 0)->setPaginate($page,5);
-        $countItem  = count($findItem);
+        // $countItem  = count($findItem);
         $query      = $request->getQueryParams();
         if ($findItem['data']) {
-            $data = $this->responseDetail(200, 'Data tersedia', [
-                'query'  => $query,
-                'result' => $findItem['data'],
-                'meta'   => $findItem['pagination']
+            $data = $this->responseDetail(200, false, 'Data tersedia', [
+                'data'          => $findItem['data'],
+                'pagination'    => $findItem['pagination']
             ]);
 
         } else {
-            $data = $this->response->withHeader('Content-type', 'application/json')->withJson([
-                'reporting' => [
-                    'status'	=>  [
-                        'code'			=> 200,
-                        'description'	=> 'Data tidak tersedia',
-                    ]
-            ]]);
+            $data = $this->responseDetail(200, false, 'Data kosong');
+
         }
 
         return $data;
@@ -96,20 +86,13 @@ class ItemController extends BaseController
         $query      = $request->getQueryParams();
 
         if ($findItem['data']) {
-            $data = $this->responseDetail(200, 'Data tersedia', [
-                'query'  => $query,
-                'result' => $findItem['data'],
-                'meta'   => $findItem['pagination']
+            $data = $this->responseDetail(200, false, 'Data tersedia', [
+                'data'         => $findItem['data'],
+                'pagination'   => $findItem['pagination']
             ]);
 
         } else {
-            $data = $this->response->withHeader('Content-type', 'application/json')->withJson([
-                'reporting' => [
-                    'status'	=>  [
-                        'code'			=> 200,
-                        'description'	=> 'Data tidak tersedia',
-                    ]
-            ]]);
+            $data = $this->responseDetail(200, false, 'Data kosong');
         }
 
         return $data;
@@ -124,25 +107,20 @@ class ItemController extends BaseController
         $countItem  = count($findItem);
         $query      = $request->getQueryParams();
 
-
         // var_dump($findItem); die();
         if ($findItem) {
-            $data = $this->responseDetail(200, 'Data Tersedia',
-                ['result'  => $findItem,
+            $data = $this->responseDetail(200, false, 'Data Tersedia', [
+                'data'  => $findItem,
 
-             ]);
+            ]);
         } else {
-            $data = $this->response->withHeader('Content-type', 'application/json')->withJson([
-                'reporting' => [
-                    'status'	=>  [
-                        'code'			=> 200,
-                        'description'	=> 'Data tidak tersedia',
-                    ]
-            ]]);
+            $data = $this->responseDetail(200, false, 'Data kosong');
+
         }
 
         return $data;
     }
+
     //get all user item (reported)
     public function getReportedUserItem($request, $response, $args)
     {
@@ -157,18 +135,13 @@ class ItemController extends BaseController
 
         // var_dump($findItem); die();
         if ($findItem['data']) {
-            $data = $this->responseDetail(200, 'Data Tersedia',[
-                'result'  => $findItem['data'],
-                'meta' => $findItem['pagination']
+            $data = $this->responseDetail(200, false, 'Data Tersedia',[
+                'data'  => $findItem['data'],
+                'pagination' => $findItem['pagination']
          ]);
         } else {
-            $data = $this->response->withHeader('Content-type', 'application/json')->withJson([
-                'reporting' => [
-                    'status'	=>  [
-                        'code'			=> 200,
-                        'description'	=> 'Data tidak tersedia',
-                    ]
-            ]]);
+            $data = $this->responseDetail(200, false, 'Data kosong');
+
         }
 
         return $data;
@@ -225,15 +198,14 @@ class ItemController extends BaseController
             $newItem = $item->create($data);
             $recentItem = $item->find('id', $newItem);
 
-            $data = $this->responseDetail(201, 'Item baru telah berhasil ditambahkan', [
-                'result' => $recentItem,
-                'query'  => null,
-                'meta'   => null
+            $data = $this->responseDetail(201, false, 'Item baru telah berhasil ditambahkan', [
+                'data' => $recentItem
+
             ]);
 
         } else {
 
-            $data = $this->responseDetail(400, 'Error', ['result' => $this->validator->errors()]);
+            $data = $this->responseDetail(400, true, $this->validator->errors());
         }
 
         return $data;
@@ -272,21 +244,20 @@ class ItemController extends BaseController
 
 
             if ($this->validator->validate()) {
-                $item = new \App\Models\Item($this->db);
+                // $item = new \App\Models\Item($this->db);
                 $updateItem = $item->update($request->getParsedBody(), $args['id']);
                 $recentItemUpdated = $item->find('id', $args['id']);
 
-                $data = $this->responseDetail(200, 'Item berhasil diperbarui', ['result' => $recentItemUpdated,
-                 'meta'   => null,
-                 'query'  => null,
+                $data = $this->responseDetail(200, false, 'Item berhasil diperbarui', [
+                    'data' => $recentItemUpdated,
                 ]);
 
             } else {
 
-                $data = $this->responseDetail(204, 'Error', ['result' => $this->validator->errors()]);
+                $data = $this->responseDetail(400, true, $this->validator->errors());
             }
         } else {
-            $data = $this->responseDetail(204, 'Item tidak ditemukan');
+            $data = $this->responseDetail(404, true, 'Item tidak ditemukan');
         }
 
         return $data;
@@ -312,13 +283,13 @@ class ItemController extends BaseController
         if ($findItem) {
             if ($userStatus == 1 || $guardian == 1) {
                     $item->hardDelete($args['id']);
-                    $data = $this->responseDetail(200, 'Item telah dihapus');
+                    $data = $this->responseDetail(200, false, 'Item telah dihapus');
 
             } else {
-                $data = $this->responseDetail(401, 'Anda tidak berhak menghapus item ini');
+                $data = $this->responseDetail(401, true, 'Anda tidak berhak menghapus item ini');
             }
         } else {
-            $data = $this->responseDetail(200, 'Item tidak ditemukan');
+            $data = $this->responseDetail(404, true, 'Item tidak ditemukan');
         }
 
         return $data;
@@ -338,17 +309,16 @@ class ItemController extends BaseController
             if ($findItem) {
                 if ($userIdItem == $userId) {
                 $item->hardDelete($args['item']);
-                $data = $this->responseDetail(200, 'Item telah dihapus');
+                $data = $this->responseDetail(200, false, 'Item telah dihapus');
             } else {
-                $data = $this->responseDetail(401, 'Anda tidak berhak menghapus item ini');
+                $data = $this->responseDetail(401, true, 'Anda tidak berhak menghapus item ini');
             }
 
         } else {
-            $data = $this->responseDetail(200, 'Item tidak ditemukan');
+            $data = $this->responseDetail(404, true, 'Item tidak ditemukan');
         }
 
         return $data;
-
     }
 
     public function reportItem($request, $response, $args)
@@ -370,7 +340,6 @@ class ItemController extends BaseController
         if (!empty($picGroup)) {
             $pic = $users->find('id', $picGroup[0]['user_id']);
         }
-
 
         // var_dump($findItem); die();
 
@@ -457,22 +426,24 @@ class ItemController extends BaseController
 
                         $mailer->send($dataPic);
                     }
-                    $data = $this->responseDetail(200, 'Item telah berhasil dilaporkan', ['result' => $result]);
 
+                    $data = $this->responseDetail(200, false, 'Item telah berhasil dilaporkan',
+                    [
+                        'data' => $result
+                    ]);
 
+                } else {
+
+                    $data = $this->responseDetail(400, true, $this->validator->errors());
+                }
 
             } else {
-
-                $data = $this->responseDetail(400, 'Error', ['result' => $this->validator->errors()]);
+                $data = $this->responseDetail(404, true, 'Item tidak ditemukan ');
             }
 
-        } else {
-            $data = $this->responseDetail(200, 'Item tidak ditemukan ');
+            return $data;
+
         }
-
-        return $data;
-
-    }
 
     public function postImage($request, $response, $args)
     {
@@ -512,18 +483,14 @@ class ItemController extends BaseController
                     if ($validate->isValid()) {
                         $image->upload();
                         $uploaded = $imageItem->findAllImage($args['item']);
-                        return   $this->responseDetail(200, 'Foto berhasil diunggah', ['result' => $uploaded,
-                         'query'  => null,
-                         'meta'   => null,
+                        return   $this->responseDetail(200, false, 'Foto berhasil diunggah', [
+                            'data' => $uploaded
                         ]);
                     } else {
                         foreach ($validate->getErrors() as $value) {
-                            $valu = $value;
+                            $val = $value;
                         }
-                        return   $this->responseDetail(400, $valu, ['result' => null,
-                         'query'  => null,
-                         'meta'   => null,
-                        ]);
+                        return   $this->responseDetail(400, true, $val);
                     }
 
                 } else {
@@ -560,21 +527,18 @@ class ItemController extends BaseController
 
                     } else {
                         foreach ($validate->getErrors() as $value) {
-                            $valu = $value;
+                            $val = $value;
                         }
-                        return   $this->responseDetail(400, $valu, ['result' => null,
-                         'query'  => null,
-                         'meta'   => null,
-                        ]);
+                        return   $this->responseDetail(400, true, $val);
 
                     }
                 }
 
              } else {
-                return $this->responseDetail(400, 'File foto belum dipilih');
+                return $this->responseDetail(400, true, 'File foto belum dipilih');
             }
         } else {
-            return $this->responseDetail(404, 'Item tidak ditemukan');
+            return $this->responseDetail(404, true, 'Item tidak ditemukan');
 
         }
     }
@@ -588,14 +552,12 @@ class ItemController extends BaseController
         if ($findImageItem){
             $result = $imageItem->findAllImage($args['item']);
 
-            $data = $this->responseDetail(200, 'Data tersedia', [
-                'result' => $result,
-                'query'  => null,
-                'meta'   => null
+            $data = $this->responseDetail(200, false, 'Data tersedia', [
+                'data' => $result,
             ]);
 
         } else {
-            $data = $this->responseDetail(200, 'Data tidak ditemukan');
+            $data = $this->responseDetail(200, false, 'Data tidak ditemukan');
         }
 
         return $data;
@@ -611,16 +573,15 @@ class ItemController extends BaseController
         if ($findImageItem){
             $result = $imageItem->hardDelete($args['image']);
 
-            $data = $this->responseDetail(200, 'Gambar telah dihapus');
+            $data = $this->responseDetail(200, false, 'Gambar telah dihapus');
 
         } else {
-            $data = $this->responseDetail(200, 'Data tidak ditemukan');
+            $data = $this->responseDetail(404, true, 'Data tidak ditemukan');
         }
 
         return $data;
 
     }
-
 
 
 }
