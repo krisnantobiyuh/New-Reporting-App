@@ -17,7 +17,6 @@ class Item extends BaseModel
             'group_id'    => $data['group_id'],
             'user_id'     => $data['user_id'],
             'image'       => $data['image'],
-            'image'       => $data['image'],
             'creator'     => $data['creator'],
             'public'      => $data['public'],
             'status'      => $data['status'],
@@ -37,7 +36,6 @@ class Item extends BaseModel
             'recurrent'   => $data['recurrent'],
             'start_date'  => $data['start_date'],
             'group_id'    => $data['group_id'],
-            'user_id'     => $data['user_id'],
             'public'      => $data['public'],
             'updated_at'  => $date
         ];
@@ -201,7 +199,7 @@ class Item extends BaseModel
 
             // print_r($this); die();
             return $this;
-    }
+    }//
 
 
 }
