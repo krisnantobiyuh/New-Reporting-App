@@ -1,9 +1,9 @@
 
 {% extends 'templates/default.twig' %}
 
-{% block title %} Group {% endblock %}
+{% block title %} List Group {% endblock %}
 
-{% block current %} Group {% endblock %}
+{% block current %} List Group {% endblock %}
 
 {% block content %}
 <div class="row-fluid">
@@ -15,11 +15,11 @@
                     <div class="btn-group">
                         <a class="btn btn-primary" href="#"><i class="icon-collapse"></i> Lainnya</a>
                         <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
-                            <span class="icon-caret-down"></span>
+                            <i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a href="#"><i class="icon-fixed-width icon-pencil"></i> Buat group</a></li>
-                            <li><a href="#"><i class="icon-fixed-width icon-trash"></i> Daftar member</a></li>
+                            <li><a href="" data-toggle="modal" data-target="#squarespaceModal"><i class="icon-fixed-width icon-pencil"></i> Buat group</a></li>
+                            <!-- <li><a href="#"><i class="icon-fixed-width icon-trash"></i> Info group</a></li> -->
                         </ul>
                     </div>
                 </span>
@@ -27,24 +27,24 @@
             <div class="widget-content" style="padding-left:30px; padding-right:30px;">
                 <ul class="recent-posts">
 
-                    {% for group in groups %}
+                    {% for data in data %}
                     <li>
-                        <form action="{{ path_for('') }}" method="POST">
+                        <form action="" method="POST">
                         <div class="row">
                         		<div class=" col-md-3">
                         			<div class="thumb1">
                         			<center>
-                                        <h1><a href="#">
-                                            <img src="{{ base_url() }}/assets/images/{{ group.image }}"
-                                            alt="{{ group.name }}" height="234" width="234" style="margin:20px">
+                                        <h1><a href="">
+                                            <img src="{{ base_url() }}/assets/images/{{ data.image }}"
+                                            alt="{{ data.name }}" height="234" width="234" style="margin:20px">
                                         </a><h1>
                                     </center>
                         			</div>
                                 </div>
                                 <div class="col-sm-2 col-md-7">
                                     <ul>
-                                        <li><span class="badge">{{ group.name }}</span></li>
-                                        <li>{{ group.description }}</li>
+                                        <li><a href="{{ path_for('group.item', {'group': data.group_id}) }}"><span class="badge">{{ data.name }}</span></a></li>
+                                        <li>{{ data.description }}</li>
                                     </ul>
                                 </div>
                             </div>
@@ -53,15 +53,15 @@
                     <nav aria-label="...">
                         <ul class="pager">
                             {% if pagination.current > pagination.first_page %}
-                                <li class="previous"><a href="{{ base_url() }}/home?page={{ data.first_page }}">
+                                <li class="previous"><a href="{{ base_url() }}/group?page={{ pagination.first_page }}">
                                     <span aria-hidden="true">&larr;</span> Halaman pertama</a></li>
-                                <li class="previous"><a href="{{ base_url() }}/home?page={{ data.current - 1 }}">
+                                <li class="previous"><a href="{{ base_url() }}/group?page={{ pagination.current - 1 }}">
                                     <span aria-hidden="true">&larr;</span> Kembali</a></li>
                             {% endif %}
                             {% if pagination.current < pagination.total_page %}
-                                <li class="next"><a href="{{ base_url() }}/home?page={{ data.total_page }}">
+                                <li class="next"><a href="{{ base_url() }}/group?page={{ pagination.total_page }}">
                                     Halaman terakhir <span aria-hidden="true">&rarr;</span></a></li>
-                                <li class="next"><a href="{{ base_url() }}/home?page={{ data.current + 1 }}">
+                                <li class="next"><a href="{{ base_url() }}/group?page={{ pagination.current + 1 }}">
                                     Selanjutnya <span aria-hidden="true">&rarr;</span></a></li>
                             {% endif %}
                           </ul>
@@ -75,26 +75,42 @@
 </div>
 
 
-{% for group in items %}
-
 <!-- Modal -->
-<div id="{{ group.id }}" style="max-height: calc(100vh - 225px); height:auto;" class="modal fade" role="dialog">
+<!-- <div class="center"><button data-toggle="modal" data-target="#squarespaceModal" class="btn btn-primary center-block">Click Me</button></div> -->
 
-                    <div style="padding-left:20px;" class="">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt betn
-                        ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                        laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
-                        voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat c
-                        upidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. </div>
-                    <hr>
-                  <!-- </div> -->
-                  <div style="width:98%; position: absolute; bottom: 14px;" class="chat-message well">
-                    <button class="btn btn-success">Send</button>
-                    <span class="input-box">
-                    <input type="text" name="msg-box" id="msg-box" />
-                    </span> </div>            </div>
-            <!-- </div> -->
-        <!-- </div> -->
+<!-- line modal -->
+<div class="modal fade" id="squarespaceModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+            <h3 class="modal-title" id="lineModalLabel">Tambah Group</h3>
+        </div>
+        <div class="modal-body">
+       
+            <!-- content goes here -->
+            <form action="{{ base_url() }}/pic/create" method='POST'>
+              <div class="form-group">
+                <label for="exampleInputEmail1">Name</label>
+                <input type="text" name="name" class="form-control" placeholder="input name group">
+              </div>
+              <div class="form-group">
+                <label for="exampleTextarea">Example textarea</label>
+                <textarea name="description" class="form-control" rows="3"></textarea>
+              </div>
+        </div>
+        <div class="modal-footer">
+            <div class="btn-group btn-group-justified" role="group" aria-label="group button">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-default" data-dismiss="modal"  role="button">Close</button>
+                </div>
+                <div class="btn-group" role="group">
+                    <button type="submit" class="btn btn-default btn-hover-green" >Save</button>
+                </div>
+            </div>
+        </div>
+            </form>
     </div>
-    {% endfor %}
+  </div>
+</div>
 {% endblock %}

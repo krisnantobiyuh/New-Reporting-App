@@ -28,7 +28,7 @@
                         {% endif %}
 
                         <div class="article-post">
-                            <div class="fr"><a href="#" class="btn btn-primary btn-mini">&#9746;</a> </div>
+                            <div class="fr"><a href="#" class="btn btn-primary btn-mini">komentar</a> </div>
                             <span class="user-info"> <b><span class="date badge badge-warning">{{ item.name }}</span> </b><br> {{ item.created_at }}
                         </span>
                         {% if item.image != null %}
@@ -37,7 +37,7 @@
                         src="{{ base_url() }}/assets/images/{{ item.image }}">
                         {% endif %}
                         <br><br>
-                        <p><a href="{{ base_url() }}/item/{{item.id}}" title="Lihat detail item">
+                        <p><a href="{{path_for('show.item', {('id'): item.id }) }}" title="Lihat detail item">
                             {{ item.description }}</a>
                         </p>
                     </div>

@@ -25,7 +25,7 @@ class UserController extends BaseController
         return  $this->view->render($response, 'auth/login.twig');
     }
 
-    public function login($request, $response)
+     public function login($request, $response)
     {
         try {
             $result = $this->client->request('POST', 'login',
@@ -37,17 +37,13 @@ class UserController extends BaseController
         } catch (GuzzleException $e) {
             $result = $e->getResponse();
         }
-
         $data = json_decode($result->getBody()->getContents(), true);
-
-        var_dump($data);die();
+        
         if ($data['code'] == 200) {
             $_SESSION['login'] = $data['data'];
             $_SESSION['key'] = $data['key'];
-
             if ($_SESSION['login']['status'] == 2) {
                 $_SESSION['user_group'] = $groups;
-
                 $this->flash->addMessage('succes', 'Selamat datang, '. $login['name']);
                 return $response->withRedirect($this->router->pathFor('home'));
             } else {
@@ -55,13 +51,12 @@ class UserController extends BaseController
                 'Anda belum terdaftar sebagai user atau akun anda belum diverifikasi');
                 return $response->withRedirect($this->router->pathFor('login'));
             }
-
         } else {
-
             $this->flash->addMessage('warning', 'Email atau password tidak cocok');
             return $response->withRedirect($this->router->pathFor('login'));
         }
     }
+
 
     public function logout($request, $response)
     {

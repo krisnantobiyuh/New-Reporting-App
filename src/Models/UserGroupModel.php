@@ -192,7 +192,9 @@ class UserGroupModel extends BaseModel
 			 ->join('groups', $this->table, 'user_group', 'groups.id = user_group.group_id')
 			 ->where('user_group.user_id = :id')
 			 ->andWhere('user_group.status = 0')
-			 ->setParameter(':id', $userId);
+			 ->orWhere('user_group.status = 1')
+			 ->setParameter(':id', $userId)
+			 ->orderBy('user_group.id', 'desc');
 
 			 $result = $qb->execute();
 			return $result->fetchAll();
