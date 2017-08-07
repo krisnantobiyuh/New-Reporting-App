@@ -17,9 +17,9 @@ class AuthToken extends BaseMiddleware
         $findUser = $userToken->find('token', $token);
         $user = $users->find('id', $findUser['user_id']);
 
-        $now = date('Y-m-d H:i:s');
+        // $now = date('Y-m-d H:i:s');
 
-        if (!$findUser || $findUser['expired_date'] < $now) {
+        if (!$findUser) {
             $data['status'] = 401;
             $data['message'] = "Anda harus login";
 
@@ -29,10 +29,8 @@ class AuthToken extends BaseMiddleware
             $response = $next($request, $response);
 
             // Tambah Waktu Token
-
-            $addTime['expired_date'] = date('Y-m-d H:i:s', strtotime($now. '+30 minute'));
-
-            $userToken->update($addTime, 'user_id', $findUser['user_id']);
+            // $addTime['expired_date'] = date('Y-m-d H:i:s', strtotime($now. '+30 minute'));
+            // $userToken->update($addTime, 'user_id', $findUser['user_id']);
             return $response;
     }
 }

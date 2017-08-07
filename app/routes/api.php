@@ -26,6 +26,9 @@ $app->group('/api', function() use ($app, $container) {
     $app->get('/items/{user}/unreported', 'App\Controllers\api\ItemController:getUnreportedItem')->setname('api.unreported.item');
     $app->get('/items/{user}/reported', 'App\Controllers\api\ItemController:getReportedUserItem')->setname('api.reported.user.item');
     $app->post('/items/report/{item}', 'App\Controllers\api\ItemController:reportItem')->setname('api.report.item');
+    $app->get('/all-item/{id}', 'App\Controllers\api\ItemController:itemTimeline')->setname('api.item.timeline');
+    $app->get('/item/show/{id}', 'App\Controllers\api\ItemController:showItemDetail')->setname('api.item.show');
+    $app->get('/item/comment/{id}', 'App\Controllers\api\CommentController:getItemComment')->setname('api.item.comment');
     //
     // })->add(new \App\Middlewares\AuthToken($container));
     $app->post('/change/{id}', 'App\Controllers\api\UserController:postImage')->setname('api.user.ima');

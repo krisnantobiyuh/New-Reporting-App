@@ -1,41 +1,37 @@
 <?php
 
 namespace App\Controllers\web;
-
+use GuzzleHttp\Exception\BadResponseException as GuzzleException;
 class HomeController extends BaseController
 {
     public function index($request, $response)
     {
-        $article = new \App\Models\ArticleModel($this->db);
-        $group = new \App\Models\GroupModel($this->db);
-        $item = new \App\Models\Item($this->db);
-        $user = new \App\Models\Users\UserModel($this->db);
+        $id = $_SESSION['login']['id'];
+        try {
+            $result = $this->client->request('GET', 'all-item/'.$id.'?'.
+             $request->getUri()->getQuery());
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
 
-        if ($_SESSION['login']['status'] == 1) {
+        $data = json_decode($result->getBody()->getContents(), true);
 
-            $activeGroup = count($group->getAll());
-            $activeUser = count($user->getAll());
-            $activeArticle = count($article->getAll());
-            $activeItem = count($item->getAll());
-            $inActiveGroup = count($group->getAllTrash());
-            $inActiveUser = count($user->getAllTrash());
-            $inActiveArticle = count($article->getAllTrash());
-            $inActiveItem = count($item->getAllTrash());
+        // var_dump($data['data']);die();
+
+        if ($_SESSION['login']['status'] == 2) {
 
             $data = $this->view->render($response, 'users/home.twig', [
-    			'counts'=> [
-                    'group'         =>	$activeGroup,
-                    'user'	        =>	$activeUser,
-                    'article'	    =>	$activeArticle,
-                    'item' 			=>	$activeItem,
-                    'inact_group'	=>	$inActiveGroup,
-                    'inact_user'	=>	$inActiveUser,
-                    'inact_article' =>	$inActiveArticle,
-                    'inact_item'	=>	$inActiveItem,
-    			]
+                'data'          =>	$data['data'],
+                'pagination'    =>	$data['pagination'],
+                // 'article'	    =>	$activeArticle,
+                // 'item' 			=>	$activeItem,
+                // 'inact_group'	=>	$inActiveGroup,
+                // 'inact_user'	=>	$inActiveUser,
+                // 'inact_article' =>	$inActiveArticle,
+                // 'inact_item'	=>	$inActiveItem,
     		]);
 
-        } elseif ($_SESSION['login']['status'] == 2) {
+        } elseif ($_SESSION['login']['status'] == 1) {
             $allArticle = count($article->getAll());
             $search = $request->getQueryParam('search');
 
@@ -47,7 +43,8 @@ class HomeController extends BaseController
                 $findAll = $article->getArticle()->setPaginate($page, 3);
             }
 // var_dump($findAll);die();
-            $data = $this->view->render($response, 'users/home.twig', ['items' => $item->getAll()]);
+            $data = $this->view->render($response, 'users/home.twig', [
+                'items' => $item->getAll()]);
         }
 
         return $data;
@@ -55,8 +52,94 @@ class HomeController extends BaseController
 
     public function showItem($request, $response, $args)
     {
-        $item = new \App\Models\Item($this->db);
-        $findItem = $item->find('id', $args['id']);
+        // $id = $_SESSION['login']['id'];
+        try {
+            $result = $this->client->request('GET', 'item/show/'.$args['id'].'?'
+            . $request->getUri()->getQuery());
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+
+        $data = json_decode($result->getBody()->getContents(), true);
+
+        try {
+            $comment = $this->client->request('GET', 'item/comment/'.$args['id'].'?'
+            . $request->getUri()->getQuery());
+        } catch (GuzzleException $e) {
+            $comment = $e->getResponse()->getBody()->getContents();
+            var_dump($comment);die();
+        }
+
+        $allComment = json_decode($comment->getBody()->getContents(), true);
+
+
+        if ($data['data']) {
+
+            return $this->view->render($response, 'users/show-item.twig', [
+                'items' => $data['data'],
+                'comment' => $allComment['data'],
+            ]);
+        } else {
+            return $response->withRedirect($this->router->pathFor('home'));
+            // return $this->view->render($response, 'users/home.twig');
+
+        }
+
+    }
+
+
+
+    public function showItemDetail($request, $response, $args)
+    {
+        $items = new \App\Models\Item($this->db);
+
+        $findItem = $items->find('id', $args['id']);
+
+        if ($findItem['reported_at'] == null) {
+            $itemDetails = $items->getUnreportedItemDetail($args['id']);
+
+        }else {
+            $itemDetails = $items->getReportedItemDetail($args['id']);
+        }
+
+        $newItem = array();
+        foreach ($itemDetails as $item) {
+            if (!empty($newItem[$item['id']])) {
+                $currentValue = (array) $newItem[$item['id']]['comment'];
+                $currentValue1 = (array) $newItem[$item['id']]['image'];
+                $newItem[$item['id']]['comment'] = array_unique(array_merge($currentValue,
+                 (array) $item['comment']));
+                $newItem[$item['id']]['image'] =  array_unique(array_merge($currentValue1,
+                 (array) $item['image']));
+            } else {
+                $newItem[$item['id']] = $item;
+            }
+        }
+        $result = array_values($newItem);
+        var_dump($result);die();
         return $this->view->render($response, 'users/show-item.twig', ['items' => $findItem]);
     }
 }
+//
+// public function timeline($request, $response, $args)
+// {
+//     $items = new \App\Models\Item($this->db);
+//
+//     $findItem = $items->getAllGroupItem($args['id']);
+//     $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+//
+//     $newItem = array();
+//     foreach ($findItem as $item) {
+//         if (!empty($newItem[$item['id']])) {
+//             // $currentValue = (array) $newItem[$item['id']]['comment'];
+//             $currentValue1 = (array) $newItem[$item['id']]['image'];
+//             // $newItem[$item['id']]['comment'] = array_unique(array_merge($currentValue, (array) $item['comment']));
+//             $newItem[$item['id']]['image'] =  array_unique(array_merge($currentValue1, (array) $item['image']));
+//         } else {
+//             $newItem[$item['id']] = $item;
+//         }
+//     }
+//     $result = $this->paginateArray(array_values($newItem), $page, 2);
+//     var_dump($result);die();
+//     return $this->view->render($response, 'users/show-item.twig', ['items' => $findItem]);
+// }
