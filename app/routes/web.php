@@ -2,7 +2,7 @@
 
 $app->get('/signup', 'App\Controllers\web\UserController:getSignUp')->setName('signup');
 $app->post('/signup', 'App\Controllers\web\UserController:signUp')->setName('post.signup');
-// $app->get('/activateaccount/{token}', 'App\Controllers\web\UserController:activateAccount')->setName('register');
+$app->get('/test/{id}', 'App\Controllers\web\HomeController:timeline')->setName('timeline');
 
 $app->get('/admin', 'App\Controllers\web\UserController:getLoginAsAdmin')->setName('login.admin');
 $app->post('/admin', 'App\Controllers\web\UserController:loginAsAdmin');

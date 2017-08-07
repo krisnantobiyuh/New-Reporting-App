@@ -10,7 +10,7 @@ class UserController extends BaseController
     public function getAllUser($request, $response)
     {
         try {
-            $result = $this->client->request('GET', 'user');
+            $result = $this->client->request('GET', 'user'. $request->getUri()->getQuery());
         } catch (GuzzleException $e) {
             $result = $e->getResponse();
         }
@@ -138,15 +138,3 @@ class UserController extends BaseController
     }
 
 }
-
-
-
-//
-// ['body' => [
-//     'user' => 'sadsd',
-//     'pass'=> 'aaa'
-// ],
-// 'headers' => [
-//     'accept' => 'aaa'
-// ]
-// ]

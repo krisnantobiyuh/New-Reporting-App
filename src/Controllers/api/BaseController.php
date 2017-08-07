@@ -21,14 +21,14 @@ abstract class BaseController
 		return $this->container->{$property};
 	}
 
-// Detail ResponseWithJson API
+	// Detail ResponseWithJson API
 	public function responseWithJson(array $data)
 	{
 		return $this->response->withHeader('Content-type', 'application/json')
-				->withJson($data, $data['code']);
+		->withJson($data, $data['code']);
 	}
 
-// Detail ResponseWithJson API
+	// Detail ResponseWithJson API
 	public function responseDetail($code, $error, $message, array $data = null)
 	{
 		if (empty($data['pagination'])) {
@@ -50,7 +50,6 @@ abstract class BaseController
 			'key'		=> $data['key']
 		];
 
-
 		if ($data['pagination'] == null) {
 			unset($response['pagination']);
 		}
@@ -59,20 +58,32 @@ abstract class BaseController
 			unset($response['key']);
 		}
 
-	return $this->responseWithJson($response, $code);
+		return $this->responseWithJson($response, $code);
 	}
 
-// Set Paginate
-	public function paginate($total, $perPage, $currentPage, $totalPage)
+	// Set Paginate
+	function paginateArray($data, int $page, int $per_page)
 	{
-		return [
-			'pagination'	=> [
+		$total = count($data);
+		$pages = (int) ceil($total / $per_page);
+
+		$start = ($page - 1) * ($per_page);
+		$offset = $per_page;
+
+		$outArray = array_slice($data, $start, $offset);
+
+		$result = [
+			'data'       => $outArray,
+			'pagination' =>[
 				'total_data'	=> $total,
-				'per_page'		=> $perPage,
-				'current_page'	=> $currentPage,
-				'total_page'	=> $totalPage,
-			],
+				'perpage'   	=> $per_page,
+				'current'   	=> $page,
+				'total_page'	=> $pages,
+				'first_page'	=> 1,
+			]
 		];
+
+		return $result;
 	}
 
 }

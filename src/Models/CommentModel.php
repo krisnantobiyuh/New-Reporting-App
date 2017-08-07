@@ -28,6 +28,19 @@ class CommentModel extends BaseModel
         return $this;
     }
 
+	public function getComment($id)
+	{
+		$qb = $this->db->createQueryBuilder();
+		$this->query = $qb->select('c.*', 'u.id', 'u.username', 'u.image')
+						  ->from($this->table, 'c')
+						  ->where('item_id = :id')
+						  ->setParameter(':id', $id)
+						  ->join('c', 'users', 'u', 'u.id = c.creator')
+						  ->execute();
+
+		return $this->query->fetchAll();
+	}
+
 	public function search($val)
     {
         $qb = $this->db->createQueryBuilder();
