@@ -316,25 +316,29 @@ class UserController extends BaseController
     //User login
     public function login($request, $response)
     {
-        $user = new UserModel($this->db);
-        $login = $user->find('username', $request->getParam('username'));
-        $user = $user->getUser('username', $request->getParam('username'));
-
+        $users = new UserModel($this->db);
+        
+        $login = $users->find('username', $request->getParam('username'));
+        $user = $users->getUser('username', $request->getParam('username'));
+        
         if (empty($login)) {
             $data = $this->responseDetail(401, true, 'Username tidak terdaftar');
         } else {
             $check = password_verify($request->getParam('password'), $login['password']);
+        
             if ($check) {
                 $token = new UserToken($this->db);
+        
                 $token->setToken($login['id']);
                 $getToken = $token->find('user_id', $login['id']);
-
+        
                 $key = [
                 'key_token' => $getToken['token'],
                 ];
+        
                 $data = $this->responseDetail(200, false, 'Login berhasil', [
-                'data'   => $user,
-                'meta'     => $key
+                    'data'   => $user,
+                    'key'     => $key
                 ]);
             } else {
                 $data = $this->responseDetail(401, true, 'Password salah');

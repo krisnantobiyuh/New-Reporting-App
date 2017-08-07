@@ -21,6 +21,7 @@ $app->group('/api', function() use ($app, $container) {
     $app->get('/items/image/{item}', 'App\Controllers\api\ItemController:getImageItem')->setname('api.item.image');
     $app->delete('/items/image/{image}', 'App\Controllers\api\ItemController:deleteImageItem')->setname('api.delete.image');
     $app->post('/items', 'App\Controllers\api\ItemController:createItem')->setname('api.item.create');
+    $app->post('/items/{group}', 'App\Controllers\api\ItemController:createItemUser')->setname('api.item.user.create');    
     $app->get('/items/group/{group}', 'App\Controllers\api\ItemController:getGroupItem')->setname('api.group.item');
     $app->get('/items/group/{group}/reported', 'App\Controllers\api\ItemController:getReportedGroupItem')->setname('api.reported.group.item');
     $app->get('/items/{user}/unreported', 'App\Controllers\api\ItemController:getUnreportedItem')->setname('api.unreported.item');
@@ -61,6 +62,9 @@ $app->group('/api', function() use ($app, $container) {
 		$app->post('/pic/addusers', 'App\Controllers\api\GroupController:setMemberGroup')->setName('pic.member.group.set');
 		$app->put('/upload/image', 'App\Controllers\api\FileSystemController:upload')->setName('api.upload.image');
 		$app->get('/{id}/member', 'App\Controllers\api\GroupController:getAllUserGroup');
+        $app->get('/user/join', 'App\Controllers\api\GroupController:getGeneralGroup');
+        // $app->get('/user/join', 'App\Controllers\api\GroupController:getUserGroup');
+        // $app->get('/items/group/{group}', 'App\Controllers\web\ItemController:getGroupItem')->setName('api.group.item');
 
 	});
 });
