@@ -10,8 +10,16 @@ $app->post('/admin', 'App\Controllers\web\UserController:loginAsAdmin');
 $app->get('/user', 'App\Controllers\web\UserController:getAllUser');
 $app->get('/', 'App\Controllers\web\UserController:getLogin')->setName('login');
 
+$app->get('/user/profile', 'App\Controllers\web\UserController:viewProfile')->setName('user.view.profile');
+
 $app->get('/item/{id}', 'App\Controllers\web\HomeController:showItem');
 $app->post('/', 'App\Controllers\web\UserController:login')->setName('post.login');
+
+$app->group('/guard', function() use ($app, $container) {
+    $app->get('/index/{id}', 'App\Controllers\web\GuardController:showUserByGuard')->setName('guard.show.user');
+    $app->get('/delete/{id}', 'App\Controllers\web\GuardController:deleteGuardian')->setName('guard.delete');
+    $app->get('/create/{id}', 'App\Controllers\web\GuardController:createGuardian')->setName('guard.create');
+});
 
 $app->group('', function() use ($app, $container) {
     $app->get('/home', 'App\Controllers\web\HomeController:index')->setName('home');

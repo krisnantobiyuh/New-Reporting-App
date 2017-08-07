@@ -38,6 +38,7 @@ $app->group('/api', function() use ($app, $container) {
         $app->get('/list', 'App\Controllers\api\GroupController:index')->setName('api.group.list');
         $app->get('/find/{id}', 'App\Controllers\api\GroupController:findGroup')->setName('api.group.find');
         $app->get('/delete/{id}', 'App\Controllers\api\GroupController:delete');
+        $app->get('/get/{id}', 'App\Controllers\api\GroupController:getUsergroup');
         $app->post('/add/user', 'App\Controllers\api\GroupController:setUserGroup')->setName('api.user.add.group');
         $app->put('/set/guardian/{group}/{id}', 'App\Controllers\api\GroupController:setAsGuardian')->setName('api.user.set.guardian');
         $app->get('/detail', 'App\Controllers\api\GroupController:getGroup');
@@ -57,5 +58,13 @@ $app->group('/api', function() use ($app, $container) {
         $app->post('/pic/addusers', 'App\Controllers\api\GroupController:setMemberGroup')->setName('pic.member.group.set');
         $app->put('/upload/image', 'App\Controllers\api\FileSystemController:upload')->setName('api.upload.image');
         $app->get('/{id}/member', 'App\Controllers\api\GroupController:getAllUserGroup');
+    });
+
+    $app->group('/guard', function() use ($app, $container) {
+        $app->post('/create/{id}', 'App\Controllers\api\GuardController:createGuardian')->setName('api.guard.add');
+        $app->get('/delete/{id}', 'App\Controllers\api\GuardController:deleteGuardian')->setName('api.guard.delete');
+        $app->get('/show/user/{id}', 'App\Controllers\api\GuardController:getUserByGuard')->setName('api.guard.show.user');
+        $app->get('/user', 'App\Controllers\api\GuardController:getGuardByUser');
+
     });
 });

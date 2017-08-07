@@ -17,22 +17,18 @@ class GroupController extends BaseController
 	{
 		$query = $request->getQueryParams();
 
-        try {
-        	$client = $this->client->request('GET',
-        		$this->router->pathFor('api.group.list'));
-        	$content= json_decode($client->getBody()->getContents());
-            // $result = $this->client->request('GET', 'group/list'.$request->getUri()->getQuery());
-        } catch (GuzzleException $e) {
-            $result = $e->getResponse();
-        }
+	       try {
+	           $result = $this->client->request('GET', 'group/list'.$request->getUri()->getQuery());
+	       } catch (GuzzleException $e) {
+	           $result = $e->getResponse();
+	       }
+	       
+	       $data = $result->getBody()->getContents();
+	       $data = json_decode($data, true);
 
-        // $data = json_decode($result->getBody()->getContents());
-
-		// var_dump($content->reporting);die();
-		return $this->view->render($response, 'users/group-list.twig', [
-			'groups'		=> $content->reporting->results,
-			'pagination'	=> $content->reporting->meta,
-		]);
+        return $this->view->render($response, 'users/group-list.twig', [
+            'data'            =>    $data['data']
+        ]);
 
 	}
 

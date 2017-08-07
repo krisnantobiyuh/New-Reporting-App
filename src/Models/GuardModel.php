@@ -27,6 +27,17 @@ class GuardModel extends BaseModel
 		$this->updateData($data, $id);
 	}
 
+	 public function getAllUser()
+	    {
+
+	        $qb = $this->db->createQueryBuilder();
+
+	        $this->query = $qb->select('id', 'guard_id', 'user_id')
+	                        ->from($this->table)
+	                        ->where('id', $id);
+
+	        return $this;
+	    }
 	public function getUser($id)
     {
         $qb = $this->db->createQueryBuilder();
@@ -78,7 +89,7 @@ class GuardModel extends BaseModel
 	}
 
 	//Find id guardian table by column
-	public function findGuard($column1, $val1, $column2, $val2)
+	public function findGuards($column1, $val1, $column2, $val2)
 	{
 		$param1 = ':'.$column1;
 		$param2 = ':'.$column2;
@@ -91,6 +102,19 @@ class GuardModel extends BaseModel
 		$result = $qb->execute();
 		return $result->fetch();
 	}
+
+	//Find all user user by column
+	public function findGuard($column, $value)
+    {
+        $param = ':'.$column;
+        $qb = $this->db->createQueryBuilder();
+        $qb->select('*')
+            ->from($this->table)
+            ->setParameter($param, $value)
+            ->where($column . ' = '. $param);
+        $result = $qb->execute();
+        return $result->fetchAll();
+    }
 }
 
 ?>
