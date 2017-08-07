@@ -124,7 +124,7 @@ class CommentController extends BaseController
             ]);
 
         } else {
-            $data = $this->responseDetail(200, 'Data tidak ditemukan');
+            $data = $this->responseDetail(404, 'Data tidak ditemukan');
         }
 
         return $data;
@@ -142,7 +142,7 @@ class CommentController extends BaseController
             ]);
 
         } else {
-            $data = $this->responseDetail(200, false, 'Data tidak ditemukan');
+            $data = $this->responseDetail(404, true, 'Data tidak ditemukan');
         }
 // var_dump($data);die();
         return $data;
