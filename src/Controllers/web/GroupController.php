@@ -36,19 +36,21 @@ class GroupController extends BaseController
 	//Get Group user
 	public function getGeneralGroup($request, $response)
 	{
-		$query = $request->getQueryParams();
-
         try {
-            $result = $this->client->request('GET', 'group/user/join'.$request->getUri()->getQuery());
+            $result = $this->client->request('GET', 'group/user/join',[
+				'query' => [
+					'perpage' => 10,
+					'page' => $request->getQueryParam('page')
+		   ]]);
         } catch (GuzzleException $e) {
             $result = $e->getResponse();
         }
 
-        // $data = $result->getBody()->getContents();
         $data = json_decode($result->getBody()->getContents(), true);
 // var_dump($data);die();
 		return $this->view->render($response, 'users/group-list.twig', [
-			'data'			=>	$data['data']
+			'data'			=>	$data['data'],
+			'pagination'	=>	$data['pagination']
 		]);
 	}
 

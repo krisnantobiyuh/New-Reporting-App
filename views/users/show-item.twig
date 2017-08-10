@@ -7,86 +7,87 @@
 
 {% block content %}
 <a class="list-group-item active main-color-bg">
-  <span class="" aria-hidden="true">lihat item</span>
+    <span class="" aria-hidden="true">lihat item</span>
 </a>
-<div style="padding:10px; background:#fff;"class="span12">
-    <div class="widget-title"> <span class="icon"> <i class="icon-file"></i> </span>
-        <br>
-    </div>
-    <ul class="recent-posts">
-        <!-- <li> -->
-        {% if items.reported == null and items.creator_image != null %}
-        <div class="user-thumb"> <img width="70" height="70" alt="User"
-            src="{{ base_url() }}/assets/images/{{ items.creator_image }}">
-            <span class="user-info">
-                <b> {{ items.item }} </b> <br>
-                
-            </span><br>
-        </div>
-        {% elseif items.reported != null and items.user_image != null %}
-        <div class="user-thumb"> <img width="70" height="70" alt="User"
-            src="{{ base_url() }}/assets/images/{{ items.user_image }}">
-        </div>
-        {% else %}
-        <div class="user-thumb"> <img width="70" height="70" alt="User"
-            src="{{ base_url() }}/assets/images/avatar.png">
-            <span class="user-info">
-                <b> {{ items.item }} </b> <br>
-                {{ items.reported }}
-            </span><br>
-        </div>
-        {% endif %}
-        {% if items.reported_at == null %}
-        <h6>{{ items.creator }} membuat item di grup {{ items.group_name }}</h6>
+<div style="padding:20px; background:#fff;"class="span12">
+{% if items.reported_at == null and items.creator_image != null %}
+<div class="user-thumb"> <img width="70" height="70" alt="Photo"
+    src="{{ base_url() }}/assets/images/{{ items.creator_image }}">
+    &nbsp&nbsp&nbsp<b>{{ item.creator }}</b>
+    <i>membuat item di grup</i> <b>{{ item.group_name }}</b><br>
 
-        <span class="user-info"> <b>
-            <span class="date badge badge-warning">{{ items.item }}
-            </span> >
-            <span class="date badge badge-success">{{ items.group_name }}
-            </span></b><br> {{ items.created }}
-        </span>
-        {% else %}
-        <h6>{{ items.user }} melaporkan item di grup {{ items.group_name }}</h6>
-        <br>
-        <span class="user-info"> <b>
-            <span class="date badge badge-warning">{{ items.item }}
-            </span> >
-            <span class="date badge badge-success">{{ items.group_name }}
-            </span></b><br> {{ items.reported }}
-        </span>
-        {% endif %}
-            <div class="article-post">
-                <div class="widget-content"><br>
-                    {% for image in items.image %}
-                    <img width="80%" style="max-width: 300px;"alt="Image item"
-                    src="{{ base_url() }}/assets/images/{{ image }}">
-                    {% endfor %}
-                <div>
-                    <p> {{ items.description }} </p>
+    <span class="user-info">
+        <b> {{ items.item }} </b> <br> {{ items.reported }}
+    </span><br>s
+</div>
+{% elseif items.reported_at != null and items.user_image != null %}
+<div class="user-thumb"> <img width="70" height="70" alt="Photo"
+    src="{{ base_url() }}/assets/images/{{ items.user_image }}">
+    &nbsp&nbsp&nbsp<b>{{ item.usee }}</b>
+    <i>membuat item di grup</i> <b>{{ items.group_name }}</b><br>
+
+</div>
+{% else %}
+<div class="user-thumb"> <img width="70" height="70" alt="User"
+    src="{{ base_url() }}/assets/images/avatar.png">
+    <span class="user-info">
+        <b> {{ items.name }} </b> <br>{{ items.reported }}
+    </span><br>
+</div>
+{% endif %}
+{% if items.reported_at == null %}
+<span style="font-size: 14pt;" class="user-info"> <b>
+    <span class="label label-warning">{{ items.name }}
+    </span>&nbsp > &nbsp
+    <span class="label label-success">{{ items.group_name }}
+    </span></b> <p style="font-size: 11pt;">{{ item.created_at }}</p>
+</span>
+{% else %}
+<br>
+<span style="font-size: 14pt;" class="user-info"> <b>
+    <span class="label label-warning">{{ items.name }}
+    </span>&nbsp > &nbsp
+    <span class="label label-success">{{ items.group_name }}
+    </span></b> <p style="font-size: 11pt;">{{ item.reported_at }}</p>
+</span>
+{% endif %}
+<div class="article-post">
+    <div class="widget-content"><br>
+        <div>
+            <p> {{ items.description }} </p>
+        </div>
+        {% for image in items.image %}
+        <img height="200px" style="max-width: 300px;"alt="Image item"
+        src="{{ base_url() }}/assets/images/{{ image }}">
+        {% endfor %}
+        <hr style="border-top: 4px double #8c8b8b;">
+        <div style="background:#F6F7F9; padding: 15px;">
+            {% for comment in comment %}
+            <div class="user-thumb">
+                {% if comment.image != null %}
+                <img width="40" height="40" src="{{ comment.image }}">
+                {% endif %}
+                <b> &nbsp&nbsp{{ comment.username }}</b>&nbsp&nbsp{{ comment.comment }}
+                <br>
+                <div style="font-size:11px">
+                    {{ comment.created_at }}
                 </div>
-            <hr>
-            <ul>
-                {% for comment in comment %}
-
-                <li>
-                    <div class="user-thumb"> <img width="40" height="40" alt="User"
-                        src="{{ comment.image }}">
-                    </div>
-                    <b>{{ comment.username }}</b> <br> {{ comment.comment }} </li>
-                    <hr>
-                {% endfor %}
-
-            </ul>
-            <div class="chat-message well">
+            </div>
+            <hr style="border-top: 1px dashed #8c8b8b;">
+            {% endfor %}
+        </div>
+        <div class="chat-message well">
+            <form action="{{path_for('post.comment')}}" method="post">
                 <span class="input-box">
-                    <input type="text" name="msg-box" style="width:80%" id="msg-box" />
+                    <input type="hidden" name="item_id" value="{{ items.id }}" />
+                    <input type="text" name="comment" style="width:80%" id="msg-box" />
                     <button class="btn btn-success">Kirim komentar</button>
                 </span>
-            </div>
+            </form>
         </div>
     </div>
-<!-- </li> -->
-</ul>
+</div>
+<!-- </ul> -->
 </div>
 
 

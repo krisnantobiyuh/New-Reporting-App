@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace App\Controllers\web;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -7,29 +7,39 @@ use App\Models\Item as Item;
 use App\Models\UserItem;
 
 /**
-* 
+*
 */
 class ItemController extends BaseController
 {
     //Get group item unreported
     public function getGroupItem($request, $response, $args)
 	{
-		$query = $request->getQueryParams();
-		try {
-			$result = $this->client->request('GET', 'items/group/'.$args['group'].
-				$request->getUri()->getQuery());
-		} catch (GuzzleException $e) {
-			$result = $e->getResponse();
-		}
+        try {
+            $result = $this->client->request('GET', 'items/group/'.$args['group'],[
+                'query' => [
+                    'perpage' => 10,
+                    'page' => $request->getQueryParam('page')
+                    ]]);
+
+                    try {
+                        $findGroup = $this->client->request('GET', 'group/find/'.$args['group']);
+                    } catch (GuzzleException $e) {
+                        $findGroup = $e->getResponse();
+                    }
+                    $dataGroup = json_decode($findGroup->getBody()->getContents(), true);
+
+                } catch (GuzzleException $e) {
+                    $result = $e->getResponse();
+                }
 
         $data = json_decode($result->getBody()->getContents(), true);
+// var_dump($dataGroup);die();
 
-
-		return $this->view->render($response, 'users/item-list.twig', [
+		return $this->view->render($response, 'users/group/unreported-item.twig', [
 			'data'			=>	$data['data'],
 			'pagination'  	=>	$data['pagination'],
-			'group_id' 		=> 	$args['group'],
-		]); 
+			'group' 		=> 	$dataGroup['data']
+		]);
 	}
 
 	//create item by user
@@ -70,18 +80,28 @@ class ItemController extends BaseController
     {
     	$query = $request->getQueryParams();
     	try {
-    		$result = $this->client->request('GET', 'items/group/'.$args['group'].'/reported'.
-    			$request->getUri()->getQuery());
+    		$result = $this->client->request('GET', 'items/group/'.$args['group'].'/reported',[
+                'query' => [
+                    'perpage' => 10,
+                    'page' => $request->getQueryParam('page')
+                    ]]);
+
+                try {
+                    $findGroup = $this->client->request('GET', 'group/find/'.$args['group']);
+                } catch (GuzzleException $e) {
+                    $findGroup = $e->getResponse();
+                }
+                $dataGroup = json_decode($findGroup->getBody()->getContents(), true);
     	} catch (GuzzleException $e) {
     		$result = $e->getResponse();
     	}
 
 		$data = json_decode($result->getBody()->getContents(), true);
 
-		return $this->view->render($response, 'users/item-list-reported.twig', [
+		return $this->view->render($response, 'users/group/reported-item.twig', [
 			'data'			=>	$data['data'],
 			'pagination'	=>	$data['pagination'],
-			'group_id' 		=> 	$args['group'],
+			'group' 		=> 	$dataGroup['data'],
 		]);
     }
 
@@ -148,4 +168,4 @@ class ItemController extends BaseController
     }
 }
 
- ?>	
+ ?>

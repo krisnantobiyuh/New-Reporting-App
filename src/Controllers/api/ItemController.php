@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controllers\api;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -48,7 +47,7 @@ class ItemController extends BaseController
         }
 
         return $data;
-    } 
+    }
 
     //Get group item unreported
     public function getGroupItem($request, $response, $args)
@@ -57,7 +56,8 @@ class ItemController extends BaseController
 
         $groupId    = $args['group'];
         $page = !$request->getQueryParam('page') ?  1 : $request->getQueryParam('page');
-        $findItem   = $item->getItem('group_id', $groupId, 'status', 0)->setPaginate($page,5);
+        $perpage = $request->getQueryParam('perpage');
+        $findItem   = $item->getItem('group_id', $groupId, 'status', 0)->setPaginate($page, $perpage);
         // $countItem  = count($findItem);
         $query      = $request->getQueryParams();
         if ($findItem['data']) {
@@ -80,7 +80,8 @@ class ItemController extends BaseController
 
         $groupId    = $args['group'];
         $page = !$request->getQueryParam('page') ?  1 : $request->getQueryParam('page');
-        $findItem   = $item->getItem('group_id', $groupId, 'status', 1)->setPaginate($page,5);
+        $perpage = $request->getQueryParam('perpage');
+        $findItem   = $item->getItem('group_id', $groupId, 'status', 1)->setPaginate($page, $perpage);
         $countItem  = count($findItem);
         $query      = $request->getQueryParams();
         if ($findItem['data']) {
@@ -465,7 +466,7 @@ class ItemController extends BaseController
                     }
 
                     $date = date('d M Y H:i:s');
-                    $content = $userName. ' telah melaporkan '. $findItem['name']. ' pada '. $date;
+                    $content = $userName.' telah melaporkan '.$findItem['name'].' pada '.$date;
 
                     if ($guard) {
                         $dataGuard = [
@@ -527,7 +528,8 @@ class ItemController extends BaseController
                 if (count($image)>1) {
                     $base = $request->getUri()->getBaseUrl();
                     $validate = $image->addValidations(array(
-                        new \Upload\Validation\Mimetype(['image/png', 'image/gif', 'image/jpg', 'image/jpeg']),
+                        new \Upload\Validation\Mimetype(['image/png', 'image/gif',
+                         'image/jpg', 'image/jpeg']),
                         new \Upload\Validation\Size('5M')));
                     for ($i = 0; $i < count($image); $i++) {
                         $image[$i]->setName(uniqid('img-'.date('Ymd'). '-'));
@@ -655,22 +657,24 @@ class ItemController extends BaseController
 
         $findItem = $items->getAllGroupItem($args['id']);
         $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+        $perpage = $request->getQueryParam('perpage');
 
         $newItem = array();
         if ($findItem){
             foreach ($findItem as $item) {
                 if (!empty($newItem[$item['id']])) {
-
-                    // $currentValue = (array) $newItem[$item['id']]['comment'];
                     $currentValue1 = (array) $newItem[$item['id']]['image'];
-                    // $newItem[$item['id']]['comment'] = array_unique(array_merge($currentValue, (array) $item['comment']));
-                    $newItem[$item['id']]['image'] =  array_unique(array_merge($currentValue1, (array) $item['image']));
-                    $newItem[$item['id']]['comment'] =  count($item['comment']);
+                    $currentValue2 = (array) $newItem[$item['id']]['comment'];
+                    $newItem[$item['id']]['image'] =
+                     array_unique(array_merge($currentValue1, (array) $item['image']));
+                    $newItem[$item['id']]['comment'] =
+                     array_unique(array_merge($currentValue2, (array) $item['comment']));
                 } else {
                     $newItem[$item['id']] = $item;
                 }
             }
-            $result = $this->paginateArray(array_values($newItem), $page, 2);
+
+            $result = $this->paginateArray($newItem, $page, $perpage);
             $data = $this->responseDetail(200, false, 'Data tersedia', [
                 'data'        => $result['data'],
                 'pagination'  => $result['pagination']
@@ -702,8 +706,10 @@ class ItemController extends BaseController
                 if (!empty($newItem[$item['id']])) {
                     $currentValue = (array) $newItem[$item['id']]['comment'];
                     $currentValue1 = (array) $newItem[$item['id']]['image'];
-                    $newItem[$item['id']]['comment'] = array_unique(array_merge($currentValue, (array) $item['comment']));
-                    $newItem[$item['id']]['image'] =  array_unique(array_merge($currentValue1, (array) $item['image']));
+                    $newItem[$item['id']]['comment'] =
+                     array_unique(array_merge($currentValue, (array) $item['comment']));
+                    $newItem[$item['id']]['image'] =
+                     array_unique(array_merge($currentValue1, (array) $item['image']));
                 } else {
                     $newItem[$item['id']] = $item;
                 }

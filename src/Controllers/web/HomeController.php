@@ -9,8 +9,11 @@ class HomeController extends BaseController
     {
         $id = $_SESSION['login']['id'];
         try {
-            $result = $this->client->request('GET', 'all-item/'.$id.'?'.
-             $request->getUri()->getQuery());
+            $result = $this->client->request('GET', 'all-item/'.$id.'?',[
+                 'query' => [
+                     'perpage' => 10,
+                     'page' => $request->getQueryParam('page')
+ 			]]);
         } catch (GuzzleException $e) {
             $result = $e->getResponse();
         }
