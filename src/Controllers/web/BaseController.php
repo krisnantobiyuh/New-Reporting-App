@@ -32,4 +32,30 @@ abstract class BaseController
             return $this->container->{$property};
         }
     }
+
+
+
+    function paginateArray($data, $page, $per_page)
+    {
+        $total = count($data);
+        $pages = (int) ceil($total / $per_page);
+
+        $start = ($page - 1) * ($per_page);
+        $offset = $per_page;
+
+        $outArray = array_slice($data, $start, $offset);
+
+        $result = [
+            'data'        => $outArray,
+            'pagination'  =>[
+                'total_data'=> $total,
+                'perpage'   => $per_page,
+                'current'   => $page,
+                'total_page'=> $pages,
+                'first_page'=> 1,
+            ]
+        ];
+
+        return $result;
+    }
 }

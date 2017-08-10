@@ -14,32 +14,28 @@ class GuardController extends BaseController
     // Function show user by guard_id
     public function showUserByGuard($request, $response, $args)
     {
-        $query = $request->getQueryParams();
+        // $query = $request->getQueryParams();
 
         try {
-            $result = $this->client->request('GET', 'guard/index'.$args['id'].$request->getUri()->getQuery());
-            // $result->addHeader('Authorization', '7e505da11dd87b99ba9a4ed644a20ba4');
+            $result = $this->client->request('GET', $this->router->pathFor('api.guard.show.user', ['id' => $args['id']]));
+            $content = json_decode($client->getBody()->getContents());
         } catch (GuzzleException $e) {
-            $result = $e->getResponse();
+            $content = json_decode($e->getResponse()->getBody()->getContents());
         }
-            $data = $result->getBody()->getContents();
-            $data = json_decode($data, true);
-            var_dump($data);
+        var_dump($content);die();
+            // return $this->view->render($response, 'guard/show-user.twig', $content->reporting);
     }
 
     // Function Delete Guardian
     public function deleteGuardian($request, $response, $args)
     {
-        $query = $request->getQueryParams();
-
         try {
-            $result = $this->client->request('GET', 'guard/delete'. $args['id'].$request->getUri()->getQuery());
+            $result = $this->client->request('GET', $this->router->pathFor('api.guard.delete', ['id' => $args['id']]));
+            $content = json_decode($client->getBody()->getContents());
         } catch (GuzzleException $e) {
-            $result = $e->getResponse();
+            $content = json_decode($e->getResponse()->getBody()->getContents());
         }
-            $data = $result->getBody()->getContents();
-            $data = json_decode($data, true);
-            var_dump($data);
+            var_dump($content);
     }
 
     // Function Create Guardian
@@ -63,9 +59,11 @@ class GuardController extends BaseController
     {
         $query = $request->getQueryParams();
         try {
-            
+            $result = $this->client->request('GET', 'guard/show'.$request->getUri()->getQuery());
         } catch (GuzzleException $e) {
             $result = $e->getResponse();
         }
+        $data = json_decode($result->getBody()->getContents(), true);
+        var_dump($data);
     }
 }

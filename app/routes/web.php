@@ -2,24 +2,22 @@
 
 $app->get('/signup', 'App\Controllers\web\UserController:getSignUp')->setName('signup');
 $app->post('/signup', 'App\Controllers\web\UserController:signUp')->setName('post.signup');
+$app->get('/test/{id}', 'App\Controllers\web\HomeController:timeline')->setName('timeline');
 
-// $app->get('/activateaccount/{token}', 'App\Controllers\web\UserController:activateAccount')->setName('register');
+$app->get('/user/show/profile', 'App\Controllers\web\UserController:viewProfile')->setName('user.view.profile');
+$app->get('/user/setting/profile', 'App\Controllers\web\UserController:settingProfile')->setName('user.setting.profile');
 
 $app->get('/admin', 'App\Controllers\web\UserController:getLoginAsAdmin')->setName('login.admin');
 $app->post('/admin', 'App\Controllers\web\UserController:loginAsAdmin');
 $app->get('/user', 'App\Controllers\web\UserController:getAllUser');
 $app->get('/', 'App\Controllers\web\UserController:getLogin')->setName('login');
-
-$app->get('/user/profile', 'App\Controllers\web\UserController:viewProfile')->setName('user.view.profile');
-
 $app->get('/item/{id}', 'App\Controllers\web\HomeController:showItem');
 $app->post('/', 'App\Controllers\web\UserController:login')->setName('post.login');
 
-$app->group('/guard', function() use ($app, $container) {
-    $app->get('/index/{id}', 'App\Controllers\web\GuardController:showUserByGuard')->setName('guard.show.user');
-    $app->get('/delete/{id}', 'App\Controllers\web\GuardController:deleteGuardian')->setName('guard.delete');
-    $app->get('/create/{id}', 'App\Controllers\web\GuardController:createGuardian')->setName('guard.create');
-});
+$app->get('/guard/show', 'App\Controllers\web\GuardController:showGuardByUser');
+$app->get('/guard/show/{id}', 'App\Controllers\web\GuardController:showUserByGuard');
+
+$app->get('/guard/delete/{id}', 'App\Controllers\web\GuardController:deleteGuardian');
 
 $app->group('', function() use ($app, $container) {
     $app->get('/home', 'App\Controllers\web\HomeController:index')->setName('home');
@@ -29,6 +27,7 @@ $app->group('', function() use ($app, $container) {
     $app->post('/setting', 'App\Controllers\web\UserController:settingAccount');
     $app->get('/group', 'App\Controllers\web\GroupController:index')->setName('group');
     $app->get('/group/{id}', 'App\Controllers\web\GroupController:enter')->setName('pic.group');
+
     // $app->get('/group/{id}', function ($request, $response, $args) {
     //     return $this->view->render($response, 'user/group-list.twig');
     // });

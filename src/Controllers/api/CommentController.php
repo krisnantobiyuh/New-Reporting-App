@@ -124,9 +124,28 @@ class CommentController extends BaseController
             ]);
 
         } else {
-            $data = $this->responseDetail(400, 'Data tidak ditemukan');
+            $data = $this->responseDetail(200, 'Data tidak ditemukan');
         }
 
         return $data;
     }
+
+    //Find User by id
+    public function getItemComment($request, $response, $args)
+    {
+        $comment = new CommentModel($this->db);
+        $findComment = $comment->getComment($args['id']);
+
+        if ($findComment) {
+            $data = $this->responseDetail(200, false, 'Data tersedia', [
+                'data'    => $findComment,
+            ]);
+
+        } else {
+            $data = $this->responseDetail(200, false, 'Data tidak ditemukan');
+        }
+// var_dump($data);die();
+        return $data;
+    }
+
 }

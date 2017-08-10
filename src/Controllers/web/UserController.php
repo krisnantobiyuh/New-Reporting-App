@@ -6,14 +6,17 @@ use GuzzleHttp\Exception\BadResponseException as GuzzleException;
 
 class UserController extends BaseController
 {
+
     public function getAllUser($request, $response)
     {
         try {
-            $result = $this->client->request('GET', 'user');
+            $result = $this->client->request('GET', 'user'. $request->getUri()->getQuery());
         } catch (GuzzleException $e) {
             $result = $e->getResponse();
         }
+
         $data = json_decode($result->getBody()->getContents(), true);
+
         var_dump($data);
     }
 
@@ -34,13 +37,17 @@ class UserController extends BaseController
         } catch (GuzzleException $e) {
             $result = $e->getResponse();
         }
+
         $data = json_decode($result->getBody()->getContents(), true);
+
         // var_dump($data);die();
         if ($data['code'] == 200) {
             $_SESSION['login'] = $data['data'];
             $_SESSION['key'] = $data['key'];
+
             if ($_SESSION['login']['status'] == 2) {
                 $_SESSION['user_group'] = $groups;
+
                 $this->flash->addMessage('succes', 'Selamat datang, '. $login['name']);
                 return $response->withRedirect($this->router->pathFor('home'));
             } else {
@@ -48,7 +55,9 @@ class UserController extends BaseController
                 'Anda belum terdaftar sebagai user atau akun anda belum diverifikasi');
                 return $response->withRedirect($this->router->pathFor('login'));
             }
+
         } else {
+
             $this->flash->addMessage('warning', 'Email atau password tidak cocok');
             return $response->withRedirect($this->router->pathFor('login'));
         }
@@ -59,6 +68,7 @@ class UserController extends BaseController
         if ($_SESSION['login']['status'] == 2) {
             session_destroy();
             return $response->withRedirect($this->router->pathFor('login'));
+
         } elseif ($_SESSION['login']['status'] == 1) {
             session_destroy();
             return $response->withRedirect($this->router->pathFor('login.admin'));
@@ -69,7 +79,7 @@ class UserController extends BaseController
     {
         return  $this->view->render($response, 'auth/register.twig');
     }
-    
+
     public function signUp($request, $response)
     {
         $this->validator
@@ -83,12 +93,15 @@ class UserController extends BaseController
                 'username',
                 'password'
              ], 30);
+
         $this->validator
              ->rule('lengthMin', [
                 'username',
                 'password'
              ], 5);
+
         if ($this->validator->validate()) {
+
             try {
                 $result = $this->client->request('POST', 'register',
                     ['form_params' => [
@@ -100,8 +113,11 @@ class UserController extends BaseController
             } catch (GuzzleException $e) {
                 $result = $e->getResponse();
             }
+
             $data = json_decode($result->getBody()->getContents(), true);
+
             // var_dump($data);die();
+
             if ($data['code'] == 201) {
                 $this->flash->addMessage('succes', 'Pendaftaran berhasil,
                 silakan cek email anda untuk mengaktifkan akun');
@@ -111,20 +127,50 @@ class UserController extends BaseController
                 $this->flash->addMessage('warning', $data['message']);
                 return $response->withRedirect($this->router->pathFor('signup'));
             }
+
         } else {
             $_SESSION['errors'] = $this->validator->errors();
             $_SESSION['old'] = $request->getParams();
+
             // $this->flash->addMessage('info');
             return $response->withRedirect($this->router->pathFor('signup'));
         }
     }
+
+    public function viewProfile($request, $response)
+    {
+        return $this->view->render($response, 'users/view-profile.twig');
+    }
+
+    public function settingProfile($request, $response)
+    {
+        return $this->view->render($response, 'users/setting-profile.twig');
+    }
+
+    public function updateProfile($request, $response, $args)
+    {
+       $query = $request->getQueryParams();
+           
+        $data = [
+            'name' => $request->getParams()['name'],
+            'username' => $request->getParams()['username'],
+            'gender' => $request->getParams()['gender'],
+            'email' => $request->getParams()['email'],
+            'phone' => $request->getParams()['phone'],
+            'address' => $request->getParams()['address'],
+            // 'password' => $request->getParams()['password'],
+        ];
+       
+       try {
+         $result = $this->client->request('POST', 'group/create',
+                ['form_params' => [
+                    'name'          => $request->getParam('name'),
+                    'description'   => $request->getParam('description')
+                ]
+            ]);
+        } catch (GuzzleException $e) {
+            
+        } 
+    }
+
 }
-//
-// ['body' => [
-//     'user' => 'sadsd',
-//     'pass'=> 'aaa'
-// ],
-// 'headers' => [
-//     'accept' => 'aaa'
-// ]
-// ]

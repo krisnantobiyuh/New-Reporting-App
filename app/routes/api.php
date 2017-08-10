@@ -26,8 +26,11 @@ $app->group('/api', function() use ($app, $container) {
     $app->get('/items/{user}/unreported', 'App\Controllers\api\ItemController:getUnreportedItem')->setname('api.unreported.item');
     $app->get('/items/{user}/reported', 'App\Controllers\api\ItemController:getReportedUserItem')->setname('api.reported.user.item');
     $app->post('/items/report/{item}', 'App\Controllers\api\ItemController:reportItem')->setname('api.report.item');
+    $app->get('/all-item/{id}', 'App\Controllers\api\ItemController:itemTimeline')->setname('api.item.timeline');
+    $app->get('/item/show/{id}', 'App\Controllers\api\ItemController:showItemDetail')->setname('api.item.show');
+    $app->get('/item/comment/{id}', 'App\Controllers\api\CommentController:getItemComment')->setname('api.item.comment');
     //
-    // })->add(new \App\Middlewares\AuthToken($container));
+    // })->add(new \App\Middlewares\AuthsToken($container));
     $app->post('/change/{id}', 'App\Controllers\api\UserController:postImage')->setname('api.user.ima');
     $app->group('/user', function() use ($app, $container) {
         $this->get('', 'App\Controllers\api\UserController:index')->setName('api.user.list');
@@ -62,9 +65,9 @@ $app->group('/api', function() use ($app, $container) {
 
     $app->group('/guard', function() use ($app, $container) {
         $app->post('/create/{id}', 'App\Controllers\api\GuardController:createGuardian')->setName('api.guard.add');
-        $app->get('/delete/{id}', 'App\Controllers\api\GuardController:deleteGuardian')->setName('api.guard.delete');
+        $app->get('/delete/{id}/{guard}', 'App\Controllers\api\GuardController:deleteGuardian')->setName('api.guard.delete');
         $app->get('/show/user/{id}', 'App\Controllers\api\GuardController:getUserByGuard')->setName('api.guard.show.user');
-        $app->get('/user', 'App\Controllers\api\GuardController:getGuardByUser');
+        $app->get('/show', 'App\Controllers\api\GuardController:getGuardByUser')->setName('api.guard.show');
 
     });
 });

@@ -10,16 +10,8 @@
             <a class="list-group-item active main-color-bg">
               <span align="center" aria-hidden="true"><i class="icon-file"></i></span><i class="fa fa-address-book-o"></i>&nbsp; My Profile
             </a>
-              <div class="box box-info">
+              <div class="box box-primary">
                 <div class="box-header">
-                <!-- <button class="btn btn-info pull-left btn1">View Profile</button> -->
-                <center>
-                <div class="btn-group" role="group">
-                <button type="button" style="width:250px" class="btn btn-primary btn1">View Profile</button>
-                <button style="width:250px" type="button" class="btn btn-primary">My Item</button>
-                <button style="width:250px" type="button" class="btn btn-primary">My Group</button>
-                </div>
-                </center><hr>
                 
                 <div id="panel1">
                 <div class="col-lg-4">
@@ -41,11 +33,11 @@
         </div>
     {% endif %}
 
-    </div>
-    <!-- <a href="{{path_for('user.setting')}}"><button type="submit"
-         class="btn btn-social-button btn-github">
+    <a href="{{path_for('user.setting.profile')}}"><button type="submit"
+         class="btn btn-social-button btn-github pull-right">
          <i class="fa fa-cogs"></i> Setting profile</button></a>
-                </ul> -->
+                </ul>
+    </div>
              
 
 {% endblock %}

@@ -55,14 +55,14 @@ class GuardModel extends BaseModel
 	{
 		$qb = $this->db->createQueryBuilder();
 
-		$qb->select('users.*')
+		$this->query = $qb->select('users.*')
 			 ->from('users', 'users')
 			 ->join('users', $this->table, 'guard', 'users.id = guard.user_id')
 			 ->where('guard.guard_id = :id')
 			 ->setParameter(':id', $guardId);
 
-			 $result = $qb->execute();
- 			return $result->fetchAll();
+			 // $result = $qb->execute();
+ 			return $this;
 	}
 
 	//Get all users are not registered to guard
@@ -114,6 +114,18 @@ class GuardModel extends BaseModel
             ->where($column . ' = '. $param);
         $result = $qb->execute();
         return $result->fetchAll();
+    }
+
+    public function getUserId($id)
+    {
+        $qb = $this->db->createQueryBuilder();
+
+		$this->query = $qb->select('*')
+            ->from($this->table)
+            ->where('user_id ='. $id);
+		$query = $qb->execute();
+
+	    return $this;
     }
 }
 

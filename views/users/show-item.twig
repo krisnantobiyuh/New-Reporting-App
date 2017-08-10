@@ -1,47 +1,93 @@
 
 {% extends 'templates/default.twig' %}
 
-{% block title %} {{ item.name }} {% endblock %}
+{% block title %} {{ items.name }} {% endblock %}
 
 {% block current %} Beranda > Item {% endblock %}
 
- {% block content %}
- <div class="container-fluid">
-     <div class="row-fluid">
-         <div style="padding:10px; background:#fff;"class="span12">
-             <div class="widget-title"> <span class="icon"> <i class="icon-file"></i> </span>
-                <br>
-             </div>
-             <ul class="recent-posts">
+{% block content %}
+<a class="list-group-item active main-color-bg">
+  <span class="" aria-hidden="true">lihat item</span>
+</a>
+<div style="padding:10px; background:#fff;"class="span12">
+    <div class="widget-title"> <span class="icon"> <i class="icon-file"></i> </span>
+        <br>
+    </div>
+    <ul class="recent-posts">
+        <!-- <li> -->
+        {% if items.reported == null and items.creator_image != null %}
+        <div class="user-thumb"> <img width="70" height="70" alt="User"
+            src="{{ base_url() }}/assets/images/{{ items.creator_image }}">
+            <span class="user-info">
+                <b> {{ items.item }} </b> <br>
+                
+            </span><br>
+        </div>
+        {% elseif items.reported != null and items.user_image != null %}
+        <div class="user-thumb"> <img width="70" height="70" alt="User"
+            src="{{ base_url() }}/assets/images/{{ items.user_image }}">
+        </div>
+        {% else %}
+        <div class="user-thumb"> <img width="70" height="70" alt="User"
+            src="{{ base_url() }}/assets/images/avatar.png">
+            <span class="user-info">
+                <b> {{ items.item }} </b> <br>
+                {{ items.reported }}
+            </span><br>
+        </div>
+        {% endif %}
+        {% if items.reported_at == null %}
+        <h6>{{ items.creator }} membuat item di grup {{ items.group_name }}</h6>
 
-                 <li>
-                     {% if item.image != null %}
-                     <div class="user-thumb"> <img width="40" height="40" alt="User"
-                         src="{{ base_url() }}/assets/images/{{ item.image }}">
-                     </div>
-                     {% else %}
-                     <div class="user-thumb"> <img width="40" height="40" alt="User"
-                         src="{{ base_url() }}/assets/images/avatar.png">
-                     </div>
-                     {% endif %}
-                     <div class="article-post">
-                         <span class="user-info"> <b> {{ item.name }} </b> <br>
-                              {{ item.created_at }}
-                         </span><br><br>
-                         <p> {{ item.description }} </p>
-                     </div>
-                 </li>
-             </ul>
-             <br>
-             <div class="chat-message well">
-                 <span class="input-box">
-                     <input type="text" name="msg-box" style="width:80%" id="msg-box" />
-                     <button class="btn btn-success">Kirim komentar</button>
-                 </span>
-             </div>
-         </div>
-     </div>
- </div>
+        <span class="user-info"> <b>
+            <span class="date badge badge-warning">{{ items.item }}
+            </span> >
+            <span class="date badge badge-success">{{ items.group_name }}
+            </span></b><br> {{ items.created }}
+        </span>
+        {% else %}
+        <h6>{{ items.user }} melaporkan item di grup {{ items.group_name }}</h6>
+        <br>
+        <span class="user-info"> <b>
+            <span class="date badge badge-warning">{{ items.item }}
+            </span> >
+            <span class="date badge badge-success">{{ items.group_name }}
+            </span></b><br> {{ items.reported }}
+        </span>
+        {% endif %}
+            <div class="article-post">
+                <div class="widget-content"><br>
+                    {% for image in items.image %}
+                    <img width="80%" style="max-width: 300px;"alt="Image item"
+                    src="{{ base_url() }}/assets/images/{{ image }}">
+                    {% endfor %}
+                <div>
+                    <p> {{ items.description }} </p>
+                </div>
+            <hr>
+            <ul>
+                {% for comment in comment %}
+
+                <li>
+                    <div class="user-thumb"> <img width="40" height="40" alt="User"
+                        src="{{ comment.image }}">
+                    </div>
+                    <b>{{ comment.username }}</b> <br> {{ comment.comment }} </li>
+                    <hr>
+                {% endfor %}
+
+            </ul>
+            <div class="chat-message well">
+                <span class="input-box">
+                    <input type="text" name="msg-box" style="width:80%" id="msg-box" />
+                    <button class="btn btn-success">Kirim komentar</button>
+                </span>
+            </div>
+        </div>
+    </div>
+<!-- </li> -->
+</ul>
+</div>
 
 
- {% endblock %}
+{% endblock %}

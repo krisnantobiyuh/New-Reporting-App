@@ -583,5 +583,75 @@ class ItemController extends BaseController
 
     }
 
+    public function itemTimeline($request, $response, $args)
+    {
+        $items = new Item($this->db);
+
+        $findItem = $items->getAllGroupItem($args['id']);
+        $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+
+        $newItem = array();
+        if ($findItem){
+            foreach ($findItem as $item) {
+                if (!empty($newItem[$item['id']])) {
+
+                    // $currentValue = (array) $newItem[$item['id']]['comment'];
+                    $currentValue1 = (array) $newItem[$item['id']]['image'];
+                    // $newItem[$item['id']]['comment'] = array_unique(array_merge($currentValue, (array) $item['comment']));
+                    $newItem[$item['id']]['image'] =  array_unique(array_merge($currentValue1, (array) $item['image']));
+                    $newItem[$item['id']]['comment'] =  count($item['comment']);
+                } else {
+                    $newItem[$item['id']] = $item;
+                }
+            }
+            $result = $this->paginateArray(array_values($newItem), $page, 2);
+            $data = $this->responseDetail(200, false, 'Data tersedia', [
+                'data'        => $result['data'],
+                'pagination'  => $result['pagination']
+            ]);
+
+        } else {
+            $data = $this->responseDetail(404, true, 'Data tidak ditemukan');
+        }
+
+        return $data;
+    }
+
+    public function showItemDetail($request, $response, $args)
+    {
+        $items = new \App\Models\Item($this->db);
+
+        $findItem = $items->find('id', $args['id']);
+
+        if ($findItem){
+            if ($findItem['reported_at'] == null) {
+                $itemDetails = $items->getUnreportedItemDetail($args['id']);
+
+            }else {
+                $itemDetails = $items->getReportedItemDetail($args['id']);
+            }
+// var_dump();die();
+            $newItem = array();
+            foreach ($itemDetails as $item) {
+                if (!empty($newItem[$item['id']])) {
+                    $currentValue = (array) $newItem[$item['id']]['comment'];
+                    $currentValue1 = (array) $newItem[$item['id']]['image'];
+                    $newItem[$item['id']]['comment'] = array_unique(array_merge($currentValue, (array) $item['comment']));
+                    $newItem[$item['id']]['image'] =  array_unique(array_merge($currentValue1, (array) $item['image']));
+                } else {
+                    $newItem[$item['id']] = $item;
+                }
+            }
+            // $result = array_values($newItem);
+            $data = $this->responseDetail(200, false, 'Data tersedia', [
+                'data'        => array_values($newItem)[0]
+            ]);
+        } else {
+            $data = $this->responseDetail(404, true, 'Data tidak ditemukan');
+        }
+
+        return $data;
+        //  return $this->view->render($response, 'users/show-item.twig', ['items' => $findItem]);
+     }
 
 }
