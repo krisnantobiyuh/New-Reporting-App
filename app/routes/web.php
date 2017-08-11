@@ -5,13 +5,16 @@ $app->post('/signup', 'App\Controllers\web\UserController:signUp')->setName('pos
 $app->get('/test/{id}', 'App\Controllers\web\HomeController:timeline')->setName('timeline');
 
 $app->get('/user/show/profile', 'App\Controllers\web\UserController:viewProfile')->setName('user.view.profile');
-$app->get('/user/setting/profile', 'App\Controllers\web\UserController:settingProfile')->setName('user.setting.profile');
+
+$app->get('/user/setting/profile', 'App\Controllers\web\UserController:settingProfile');
+
+$app->post('/user/setting/profile', 'App\Controllers\web\UserController:updateProfile')->setName('user.setting.profile');
 
 $app->get('/admin', 'App\Controllers\web\UserController:getLoginAsAdmin')->setName('login.admin');
 $app->post('/admin', 'App\Controllers\web\UserController:loginAsAdmin');
 $app->get('/user', 'App\Controllers\web\UserController:getAllUser');
 $app->get('/', 'App\Controllers\web\UserController:getLogin')->setName('login');
-$app->get('/item/{id}', 'App\Controllers\web\HomeController:showItem');
+$app->get('/item/{id}', 'App\Controllers\web\HomeController:showItem')->setName('show.item');
 $app->post('/', 'App\Controllers\web\UserController:login')->setName('post.login');
 
 $app->get('/guard/show', 'App\Controllers\web\GuardController:showGuardByUser');
@@ -27,6 +30,24 @@ $app->group('', function() use ($app, $container) {
     $app->post('/setting', 'App\Controllers\web\UserController:settingAccount');
     $app->get('/group', 'App\Controllers\web\GroupController:index')->setName('group');
     $app->get('/group/{id}', 'App\Controllers\web\GroupController:enter')->setName('pic.group');
+    $app->get('/group/user/join', 'App\Controllers\web\GroupController:getGeneralGroup')->setName('group.user');
+    $app->post('/create', 'App\Controllers\web\GroupController:add')->setName('web.group.add');
+    $app->get('/pic/create', 'App\Controllers\web\GroupController:createByUser')->setName('pic.create.group');
+    $app->post('/pic/create', 'App\Controllers\web\GroupController:createByUser')->setName('pic.create.group');
+    $app->get('/items/group/{group}', 'App\Controllers\web\ItemController:getGroupItem')->setName('group.item');
+    $app->get('/items/{group}', 'App\Controllers\web\ItemController:createItemUser')->setName('web.item.user.create');    
+    $app->post('/items/{group}', 'App\Controllers\web\ItemController:createItemUser')->setName('web.item.user.create');
+    $app->get('/items/group/{group}/reported', 'App\Controllers\web\ItemController:getReportedGroupItem')->setname('web.reported.group.item');  
+    $app->get('/items/report/{item}', 'App\Controllers\web\ItemController:reportItem')->setname('web.report.item');
+    $app->post('/items/report/{item}', 'App\Controllers\web\ItemController:reportItem')->setname('web.report.item');
+    $app->get('/items/{item}/user', 'App\Controllers\web\ItemController:deleteItemByUser')->setname('web.user.delete.item');
+    $app->get('/group/{id}/leave', 'App\Controllers\web\GroupController:leaveGroup')->setName('web.leave.group');
+
+
+
+
+
+
 
     // $app->get('/group/{id}', function ($request, $response, $args) {
     //     return $this->view->render($response, 'user/group-list.twig');
@@ -38,4 +59,5 @@ $app->group('', function() use ($app, $container) {
     //     return $this->view->render($response, 'users/group-list.twig');
     // });
     // ->add(new \App\Middlewares\web\GuardMiddleware($container));
-})->add(new \App\Middlewares\web\AuthMiddleware($container));
+    // )->add(new \App\Middlewares\web\AuthMiddleware($container)
+});

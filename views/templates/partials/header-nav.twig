@@ -14,10 +14,9 @@
     <div id="navbar" class="collapse navbar-collapse">
       <ul style="background:#d5dfe7;" class="nav navbar-nav hidden-lg">
           <li><a href="index.html">Profil</a></li>
-        <li><a href="{{ base_url() }}/home">Beranda</a></li>
-        <li><a href="posts.html">Posts</a></li>
-        <li><a href="users.html">Users</a></li>
-        <li><a href="index.html">Logout</a></li>
+        <li><a href="{{path_for('home') }}">Beranda</a></li>
+        <li><a href="{{ path_for('group.user') }}">Grup</a></li>
+        <li><a href="{{path_for('logout')}}">Logout</a></li>
       </ul>
       <ul style="margin-top:10px;" class="nav navbar-nav navbar-right hidden-xs">
         <li><a  style="color:#fff;" href="#"> {{ login.name}}</a></li>

@@ -127,6 +127,16 @@ class GuardModel extends BaseModel
 
 	    return $this;
     }
+
+    //HardDelete
+    public function deleteGuard($guardId)
+    {
+        $qb = $this->db->createQueryBuilder();
+
+         $qb->delete($this->table)
+            ->where('guard_id = ' . $guardId)
+            ->execute();
+    }
 }
 
 ?>

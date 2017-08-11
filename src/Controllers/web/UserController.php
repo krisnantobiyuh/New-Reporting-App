@@ -25,7 +25,7 @@ class UserController extends BaseController
         return  $this->view->render($response, 'auth/login.twig');
     }
 
-    public function login($request, $response)
+     public function login($request, $response)
     {
         try {
             $result = $this->client->request('POST', 'login',
@@ -37,17 +37,13 @@ class UserController extends BaseController
         } catch (GuzzleException $e) {
             $result = $e->getResponse();
         }
-
         $data = json_decode($result->getBody()->getContents(), true);
-
-        // var_dump($data);die();
+        
         if ($data['code'] == 200) {
             $_SESSION['login'] = $data['data'];
             $_SESSION['key'] = $data['key'];
-
             if ($_SESSION['login']['status'] == 2) {
                 $_SESSION['user_group'] = $groups;
-
                 $this->flash->addMessage('succes', 'Selamat datang, '. $login['name']);
                 return $response->withRedirect($this->router->pathFor('home'));
             } else {
@@ -55,13 +51,12 @@ class UserController extends BaseController
                 'Anda belum terdaftar sebagai user atau akun anda belum diverifikasi');
                 return $response->withRedirect($this->router->pathFor('login'));
             }
-
         } else {
-
             $this->flash->addMessage('warning', 'Email atau password tidak cocok');
             return $response->withRedirect($this->router->pathFor('login'));
         }
     }
+
 
     public function logout($request, $response)
     {
@@ -142,35 +137,56 @@ class UserController extends BaseController
         return $this->view->render($response, 'users/view-profile.twig');
     }
 
-    public function settingProfile($request, $response)
+    public function settingProfile($request, $response, $args)
     {
         return $this->view->render($response, 'users/setting-profile.twig');
     }
 
     public function updateProfile($request, $response, $args)
     {
-       $query = $request->getQueryParams();
-           
-        $data = [
-            'name' => $request->getParams()['name'],
-            'username' => $request->getParams()['username'],
-            'gender' => $request->getParams()['gender'],
-            'email' => $request->getParams()['email'],
-            'phone' => $request->getParams()['phone'],
-            'address' => $request->getParams()['address'],
-            // 'password' => $request->getParams()['password'],
-        ];
-       
-       try {
-         $result = $this->client->request('POST', 'group/create',
-                ['form_params' => [
-                    'name'          => $request->getParam('name'),
-                    'description'   => $request->getParam('description')
-                ]
-            ]);
-        } catch (GuzzleException $e) {
-            
-        } 
+       $this->validator
+            ->rule('required', ['name', 'username', 'email', 'address', 'phone', 'gender'])
+            ->message('{field} tidak boleh kosong')
+            ->label('Nama', 'Username', 'Email', 'Alamat', 'Nomor Telepon');
+        $this->validator->rule('email', 'email');
+        $this->validator->rule('alphaNum', 'username');
+        if ($this->validator->validate()) {
+
+            try {
+                $result = $this->client->request('POST', 'update/user'.$args['id']. $request->getUri()->getQuery(),
+                    ['form_params' => [
+                        'name' => $request->getParam('name'),
+                        'username' => $request->getParam('username'),
+                        'email' => $request->getParam('email'),
+                        'address' => $request->getParam('address'),
+                        'phone_number' => $request->getParam('phone_number'),
+                        'gender' => $request->getParam('gender')
+                    ]
+                ]);
+            } catch (GuzzleException $e) {
+                $result = $e->getResponse();
+            }
+
+            $data = json_decode($result->getBody()->getContents(), true);
+            var_dump($data);die();   
+
+            if ($data['code'] == 201) {
+                $this->flash->addMessage('succes', 'Update profile success');
+                return $response->withRedirect($this->router->pathFor('user.view.profile'));
+
+            } else {
+                $_SESSION['old'] = $request->getParams();
+                $this->flash->addMessage('error', $data['message']);
+                return $response->withRedirect($this->router->pathFor('user.setting.profile'));
+            }
+
+        } else {
+            $_SESSION['errors'] = $this->validator->errors();
+            $_SESSION['old'] = $request->getParams();
+
+            // $this->flash->addMessage('info');
+            return $response->withRedirect($this->router->pathFor('user.setting.profile'));
     }
+}
 
 }
