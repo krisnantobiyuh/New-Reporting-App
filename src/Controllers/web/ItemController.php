@@ -27,6 +27,7 @@ class ItemController extends BaseController
 
 		return $this->view->render($response, 'users/item-list.twig', [
 			'data'			=>	$data['data'],
+			'count_item'	=>	count($data['data']),
 			'pagination'  	=>	$data['pagination'],
 			'group_id' 		=> 	$args['group'],
 		]); 
@@ -117,7 +118,6 @@ class ItemController extends BaseController
     	$query = $request->getQueryParams();
 
     	try {
-    		// $item = $this->client->request('GET', '/items/group/'.$args['group']);
     		$data = $this->client->request('GET', 'items/'.$args['item'].
     			$request->getUri()->getQuery());
             $this->flash->addMessage('succes', 'Berhasil menghapus tugas');
@@ -125,8 +125,8 @@ class ItemController extends BaseController
     		$data = $e->getResponse();
             $this->flash->addMessage('error', 'Ada kesalahan saat menghapus tugas');
     	}
+    	
 		$dataDetailItem = json_decode($data->getBody()->getContents(), true);
-		// var_dump($dataDetailItem['data']['group_id']);die();
 
     	try {
     		$result = $this->client->request('DELETE', 'items/'.$args['item'].'/user'.
@@ -143,8 +143,37 @@ class ItemController extends BaseController
 			// 'data'			=>	$data['data'],
 			'group' 		=> 	$dataDetailItem['data']['group_id']
 		]));
+    }
 
-    	// return $response->withRedirect("http://localhost/New-Reporting-App/public/items/group/".$args['group_id']);
+    //Delete item reported
+    public function deleteItemReported($request, $response, $args)
+    {
+    	$query = $request->getQueryParams();
+
+    	try {
+    		$data = $this->client->request('GET', 'items/'.$args['item'].
+    			$request->getUri()->getQuery());
+    	} catch (GuzzleException $e) {
+    		$data = $e->getResponse();
+    	}
+    	
+		$dataDetailItem = json_decode($data->getBody()->getContents(), true);
+
+    	try {
+    		$result = $this->client->request('DELETE', 'items/'.$args['item'].'/delete'.
+    			$request->getUri()->getQuery());
+            $this->flash->addMessage('succes', 'Berhasil menghapus tugas yang telah dilaporkan');
+    	} catch (GuzzleException $e) {
+    		$result = $e->getResponse();
+            $this->flash->addMessage('error', 'Ada kesalahan saat menghapus tugas');
+    	}
+
+		$data = json_decode($result->getBody()->getContents(), true);
+
+		return $response->withRedirect($this->router->pathFor('web.reported.group.item', [
+			// 'data'			=>	$data['data'],
+			'group' 		=> 	$dataDetailItem['data']['group_id']
+		]));
     }
 }
 

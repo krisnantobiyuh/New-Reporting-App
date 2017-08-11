@@ -31,6 +31,8 @@ $app->group('', function() use ($app, $container) {
     $app->post('/items/report/{item}', 'App\Controllers\web\ItemController:reportItem')->setname('web.report.item');
     $app->get('/items/{item}/user', 'App\Controllers\web\ItemController:deleteItemByUser')->setname('web.user.delete.item');
     $app->get('/group/{id}/leave', 'App\Controllers\web\GroupController:leaveGroup')->setName('web.leave.group');
+    $app->get('/items/{item}/delete', 'App\Controllers\web\ItemController:deleteItemReported')->setname('web.user.delete.item');
+
 
 
 

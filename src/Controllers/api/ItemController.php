@@ -387,6 +387,32 @@ class ItemController extends BaseController
         return $data;
     }
 
+    //Delete item reported
+    public function deleteItemReported( $request, $response, $args)
+    {
+        $item = new Item($this->db);
+        $userToken = new \App\Models\Users\UserToken($this->db);
+
+        $findItem = $item->find('id', $args['item']);
+        $token = $request->getHeader('Authorization')[0];
+        $user = $userToken->getUserId($token);
+
+        $userIdItem = $findItem['user_id'];
+            if ($findItem) {
+                if ($userIdItem == $user) {
+                $item->hardDelete($args['item']);
+                $data = $this->responseDetail(200, false, 'Item telah dihapus');
+            } else {
+                $data = $this->responseDetail(401, true, 'Anda tidak berhak menghapus item ini');
+            }
+
+        } else {
+            $data = $this->responseDetail(404, true, 'Item tidak ditemukan');
+        }
+
+        return $data;
+    }
+
     public function reportItem($request, $response, $args)
     {
         $item = new Item($this->db);

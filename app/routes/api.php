@@ -16,6 +16,7 @@ $app->group('/api', function() use ($app, $container) {
     $app->get('/items/{id}', 'App\Controllers\api\ItemController:getItemDetail')->setname('api.item.Detail');
     $app->delete('/items/{id}', 'App\Controllers\api\ItemController:deleteItem')->setname('api.item.delete');
     $app->delete('/items/{item}/user', 'App\Controllers\api\ItemController:deleteItemByUser')->setname('api.user.delete.item');
+    $app->delete('/items/{item}/delete', 'App\Controllers\api\ItemController:deleteItemReported')->setname('api.user.delete.item');
     $app->put('/items/{id}', 'App\Controllers\api\ItemController:updateItem')->setname('api.item.update');
     $app->post('/items/upload/{item}', 'App\Controllers\api\ItemController:postImage')->setname('api.item.upload');
     $app->get('/items/image/{item}', 'App\Controllers\api\ItemController:getImageItem')->setname('api.item.image');

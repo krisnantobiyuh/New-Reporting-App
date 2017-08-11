@@ -191,8 +191,8 @@ class UserGroupModel extends BaseModel
 			 ->from('groups', 'groups')
 			 ->join('groups', $this->table, 'user_group', 'groups.id = user_group.group_id')
 			 ->where('user_group.user_id = :id')
-			 ->andWhere('user_group.status = 0')
 			 ->orWhere('user_group.status = 1')
+			 ->andWhere('user_group.status = 0')
 			 ->setParameter(':id', $userId)
 			 ->orderBy('user_group.id', 'desc');
 

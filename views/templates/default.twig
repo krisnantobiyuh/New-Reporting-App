@@ -138,26 +138,9 @@
         });
 </script>
 <script type="text/javascript">
-// $(document).ready(function(){
-//    $(".laporkan").click(function(){ // Click to only happen on announce links
-//      $('#reportedModal').modal('show');
-//      $("#data-id").val($(this).data('id'));
-//      $('#laporkan').attr('action', '{{ base_url() }}/items/report/'$(this).data('id'));
-//    });
-// });
-
-
-// $(document).on("click", ".laporkan", function () {
-//      var myBookId = $(this).data('id');
-//      $(".#laporkan").attr('title', '/items/report/'+myBookId);
-//      $(".#coba").attr('title', '/items/report/'+myBookId);
-// });
-
-
-// $(document).on("click", ".open-AddBookDialog", function () {
-//      var myBookId = $(this).data('id');
-//      $(".modal-body #bookId").attr('title', '/items/report/'+myBookId);
-// });
+$('#infoGroup').on('shown.bs.modal', function () {
+  $('#myInput').focus()
+});
 </script>
 </body>
 </html>

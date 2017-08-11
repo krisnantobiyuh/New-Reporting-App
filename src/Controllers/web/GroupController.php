@@ -48,7 +48,8 @@ class GroupController extends BaseController
         $data = json_decode($data, true);
 
 		return $this->view->render($response, 'users/group-list.twig', [
-			'data'			=>	$data['data']
+			'data'			=>	$data['data'],
+			'count'			=>	$data['data']
 		]);
 	}
 
