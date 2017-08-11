@@ -17,10 +17,8 @@ class Item extends BaseModel
             'start_date'  => $data['start_date'],
             'group_id'    => $data['group_id'],
             'user_id'     => $data['user_id'],
-            'image'       => $data['image'],
-            'image'       => $data['image'],
             'creator'     => $data['creator'],
-            'public'      => $data['public'],
+            'privacy'     => $data['privacy'],
             'status'      => $data['status'],
             'reported_at' => $data['reported_at'],
             'updated_at'  => $date
@@ -273,6 +271,40 @@ class Item extends BaseModel
         $result = $qb->execute();
         return $result->fetchAll();
 
+    }
+
+    public function getByMonth($month, $year, $user_id)
+    {
+        $qb = $this->db->createQueryBuilder();
+        $qb->select('*')
+            ->from($this->table)
+            ->where('YEAR(updated_at) = :year')
+            ->andWhere('MONTH(updated_at) = :month')
+            ->andWhere('user_id = :id')
+            ->andWhere('status = 1');
+
+        $qb->setParameter('year', $year)
+            ->setParameter('month', $month)
+           ->setParameter('id', $user_id);
+
+        $query = $qb->execute();
+        return $query->fetchAll();
+    }
+
+    public function getByYear($year, $user_id)
+    {
+        $qb = $this->db->createQueryBuilder();
+        $qb->select('*')
+            ->from($this->table)
+            ->where('YEAR(updated_at) = :year')
+            ->andWhere('user_id = :id')
+            ->andWhere('status = 1');
+
+        $qb->setParameter('year', $year)
+           ->setParameter('id', $user_id);
+
+        $query = $qb->execute();
+        return $query->fetchAll();
     }
 
 

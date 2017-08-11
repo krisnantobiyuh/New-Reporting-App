@@ -108,26 +108,22 @@ class ItemController extends BaseController
     //create item by user
 	public function reportItem($request, $response, $args)
 	{
-		$query = $request->getQueryParams();
-
-		var_dump($request->getParam('description'));
-		var_dump($request->getParam('public'));
+		// var_dump($request->getParams());die();
+		// var_dump($request->getParam('public'));
 		try {
-			$result = $this->client->request('POST', 'items/report/'.$args['item'], [
-				'query' => [
-	                'description'   => $request->getParam('description'),
-	                'public'        => $request->getParam('public')
-				]
-			]);
-            $this->flash->addMessage('succes', 'Berhasil melaporkan tugas');
+			$result = $this->client->request('PUT', 'item/report/'.$args['item'],
+                ['form_params' => [
+                    'description'   => $request->getParam('description'),
+                ]
+            ]);
+            // $this->flash->addMessage('succes', 'Berhasil melaporkan tugas');
 		} catch (GuzzleException $e) {
 			$result = $e->getResponse();
-            $this->flash->addMessage('error', 'Ada kesalahan saat melaporkan tugas');
+            // $this->flash->addMessage('error', 'Ada kesalahan saat melaporkan tugas');
 		}
 
-		$content = $result->getBody()->getContents();
-        $content = json_decode($content, true);
-
+        $content = json_decode($result->getBody()->getContents(), true);
+var_dump($content);die();
     	return $response->withRedirect("http://localhost/New-Reporting-App/public/items/group/".$args['group'].'/reported');
 
 	}
@@ -166,6 +162,13 @@ class ItemController extends BaseController
 
     	// return $response->withRedirect("http://localhost/New-Reporting-App/public/items/group/".$args['group_id']);
     }
+
+    // public function byMonth($request, $response, $args)
+    // {
+    //     $item = new Item($this->db);
+    //     $result= $item->getByMonth('08','2017',$args['id']);
+    //     var_dump($result);die();
+    // }
 }
 
  ?>

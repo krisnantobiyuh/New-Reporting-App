@@ -194,7 +194,7 @@
 </div>
 
 
-<div id="{{ item.id}}" class="modal fade" role="dialog">
+<div id="{{item.id}}" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content">
@@ -206,20 +206,42 @@
             <div class="modal-body">
 
             <!-- content goes here -->
-            <form  action="{{data.id}}" method="POST" enctype="multipart/form-data" id="laporkan">
+            <form  action="{{path_for('report.item', {item:item.id})}}"
+            method="POST" enctype="multipart/form-data" id="laporkan">
                 {% if errors %}
                 <div class="alert alert-danger">
                     <a class="close" data-dismiss="alert" href="#">x</a>
                     Mohon mengisi form dengan benar
                 </div>
                 {% endif %}
+                <div class="row" style="margin-left:45px;">
+                    <div class="col-xs-12 col-sm-6 col-md-10">
+                        <div class="form-group {{ errors.image ? 'has-error' : '' }}">
+                            <center>Foto :</center>
+                            <div class="input-group">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-image"></i>
+                                </div>
+                                <input type="file" id="file" class="form-control"
+                                name="image" placeholder="Item image">
+                            </div>
+                            {% if errors.image %}
+                            <span class="help-block">{{errors.image | first}}</span>
+                            {% endif %}<br />
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div class="form-group {{ errors.description ? 'has-error' : '' }}">
                             <label for="description">Deskripsi :</label>
-                            <input type="text" name="description" class="form-control" id="coba">
-                            <input type="hidden" id="data-id" name="description"
-                             value="{{ item.description }}">
+                            <textarea rows="5" name="description" class="form-control"
+                            value="{{ item.description }}"> {{ item.description }}
+                            </textarea>
+                                    <!-- <input type="text" name="description" class="form-control" id="coba"> -->
+                            <input type="hidden" id="data-id" name="item_id"
+                             value="{{ item.id }}">
+
                             {% if errors.description %}
                             <span class="help-block">{{ errors.description | first }}</span>
                             {% endif %}
@@ -242,36 +264,15 @@
                         </div>
                     </div>
                 </div> -->
-                <div class="row" style="margin-left:45px;">
-                    <div class="col-xs-12 col-sm-6 col-md-10">
-                        <div class="form-group {{ errors.image ? 'has-error' : '' }}">
-                            <!-- <div id="image_preview" align="center"><img id="previewing"
-                                src="{{ base_url() }}/assets/images/{{ item.image }}"
-                                class="img-thumbnail" style="width:200px" >
-                            </div><br /> -->
-                            <label>Foto :</label>
-                            <div class="input-group">
-                                <div class="input-group-addon">
-                                    <i class="fa fa-image"></i>
-                                </div>
-                                <input type="file" id="file" class="form-control"
-                                name="image" placeholder="Item image">
-                            </div>
-                            {% if errors.image %}
-                            <span class="help-block">{{errors.image | first}}</span>
-                            {% endif %}<br />
-                        </div>
-                    </div>
-                </div>
                 <div class="modal-footer">
                     <div class="btn-group btn-group-justified" role="group" aria-label="group button">
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-danger"
-                             data-dismiss="modal"  role="button">Close</button>
+                             data-dismiss="modal"  role="button"><b>Close</b></button>
                         </div>
                         <div class="btn-group" role="group">
-                            <button type="submit" class="btn btn-primary btn-hover-green">
-                                Laporkan</button>
+                            <button type="submit" class="btn btn-success btn-hover-green">
+                                <b>Laporkan</b></button>
                         </div>
                     </div>
                 </div>
