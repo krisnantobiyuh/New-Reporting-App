@@ -49,7 +49,7 @@ class ItemController extends BaseController
         }
 
         return $data;
-    }
+    } 
 
     //Get group item unreported
     public function getGroupItem($request, $response, $args)
@@ -81,11 +81,9 @@ class ItemController extends BaseController
 
         $groupId    = $args['group'];
         $page = !$request->getQueryParam('page') ?  1 : $request->getQueryParam('page');
-        $findItem   = $item->getItem('group_id', $groupId, 'status', 1)
-            ->setPaginate($page,5);
+        $findItem   = $item->getItem('group_id', $groupId, 'status', 1)->setPaginate($page,5);
         $countItem  = count($findItem);
         $query      = $request->getQueryParams();
-
         if ($findItem['data']) {
             $data = $this->responseDetail(200, false, 'Data tersedia', [
                 'data'         => $findItem['data'],
@@ -210,6 +208,73 @@ class ItemController extends BaseController
 
         return $data;
     }
+    //Create item
+    public function createItemUser($request, $response, $args)
+    {
+        $userToken = new \App\Models\Users\UserToken($this->db);
+        $userGroup = new \App\Models\UserGroupModel($this->db);
+        $token = $request->getHeader('Authorization')[0];
+        $userId = $userToken->getUserId($token);
+        $rules = [
+            'required' => [
+                ['name'],
+                ['recurrent'],
+                ['description'],
+                ['start_date'],
+                // ['user_id'],
+                ['group_id'],
+                // ['creator'],
+                ['public'],
+            ],
+
+        ];
+
+        $this->validator->rules($rules);
+
+        $this->validator->labels([
+            'name'        => 'Name',
+            'recurrent'   => 'Recurrent',
+            'description' => 'Description',
+            'start_date'  => 'Start date',
+            'user_id'     => 'User id',
+            'group_id'    => 'Group id',
+            'creator '    => 'Creator',
+            'public'      => 'Public'
+        ]);
+        // var_dump($this->validator);
+        // die();
+
+        if ($this->validator->validate()) {
+
+            $data = [
+                'name'          => $request->getParams()['name'],
+                'description'   => $request->getParams()['description'],
+                'recurrent'     => $request->getParams()['recurrent'],
+                'start_date'    => $request->getParams()['start_date'],
+                'user_id'       => $userId,
+                'group_id'      => $args['group'],
+                'image'         => $request->getParams()['image'],
+                'public'        => $request->getParams()['public'],
+                'creator'       => $userId,
+                'status'        => 0,
+                'reported_at'   => null,
+            ];
+            $item = new Item($this->db);
+            $newItem = $item->create($data);
+            $recentItem = $item->find('id', $newItem);
+
+            $data = $this->responseDetail(201, false, 'Item baru telah berhasil ditambahkan', [
+                'data' => $recentItem
+
+            ]);
+
+        } else {
+
+            $data = $this->responseDetail(400, true, $this->validator->errors());
+        }
+
+        return $data;
+    }
 
     //Edit item
     public function updateItem( $request, $response, $args)
@@ -300,14 +365,15 @@ class ItemController extends BaseController
     public function deleteItemByUser( $request, $response, $args)
     {
         $item = new Item($this->db);
+        $userToken = new \App\Models\Users\UserToken($this->db);
 
         $findItem = $item->find('id', $args['item']);
         $token = $request->getHeader('Authorization')[0];
-        $user = $item->getUserByToken($token);
-        $userId = $user['id'];
+        $user = $userToken->getUserId($token);
+
         $userIdItem = $findItem['user_id'];
             if ($findItem) {
-                if ($userIdItem == $userId) {
+                if ($userIdItem == $user) {
                 $item->hardDelete($args['item']);
                 $data = $this->responseDetail(200, false, 'Item telah dihapus');
             } else {

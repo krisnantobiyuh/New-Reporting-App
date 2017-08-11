@@ -1,5 +1,4 @@
 /vendor
-/app/setting.php
 /mysql_directory
 /public/assets/images/
 docker-compose.yml

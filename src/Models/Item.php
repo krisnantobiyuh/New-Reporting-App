@@ -218,9 +218,7 @@ class Item extends BaseModel
         $this->query = $qb->select('*')
         ->from($this->table)
         ->where('deleted = 0');
-        // ->execute();
 
-        // print_r($this); die();
         return $this;
     }
 

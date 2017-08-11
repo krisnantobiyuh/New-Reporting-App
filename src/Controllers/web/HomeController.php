@@ -1,7 +1,10 @@
 <?php
 
 namespace App\Controllers\web;
+
 use GuzzleHttp\Exception\BadResponseException as GuzzleException;
+
+
 class HomeController extends BaseController
 {
     public function index($request, $response)
@@ -23,12 +26,6 @@ class HomeController extends BaseController
             $data = $this->view->render($response, 'users/home.twig', [
                 'data'          =>	$data['data'],
                 'pagination'    =>	$data['pagination'],
-                // 'article'	    =>	$activeArticle,
-                // 'item' 			=>	$activeItem,
-                // 'inact_group'	=>	$inActiveGroup,
-                // 'inact_user'	=>	$inActiveUser,
-                // 'inact_article' =>	$inActiveArticle,
-                // 'inact_item'	=>	$inActiveItem,
     		]);
 
         } elseif ($_SESSION['login']['status'] == 1) {
@@ -66,12 +63,12 @@ class HomeController extends BaseController
             $comment = $this->client->request('GET', 'item/comment/'.$args['id'].'?'
             . $request->getUri()->getQuery());
         } catch (GuzzleException $e) {
-            $comment = $e->getResponse()->getBody()->getContents();
-            var_dump($comment);die();
+            $comment = $e->getResponse();
         }
 
         $allComment = json_decode($comment->getBody()->getContents(), true);
 
+        // var_dump($allComment);die();
 
         if ($data['data']) {
 

@@ -83,9 +83,9 @@ class UserGroupModel extends BaseModel
     {
         $qb = $this->db->createQueryBuilder();
 
-        $this->query = $qb->select('users.*', 'user_group.*')
-         	 ->from('users', 'users')
-        	 ->join('users', $this->table, 'user_group', 'users.id = user_group.user_id')
+        $this->query = $qb->select('u.id', 'u.name', 'u.username', 'u.image', 'u.email', 'u.created_at', 'u.address', 'u.gender', 'u.phone' )
+         	 ->from('users', 'u')
+        	 ->join('u', $this->table, 'user_group', 'u.id = user_group.user_id')
         	 ->where('user_group.group_id = :id')
         	 ->setParameter(':id', $groupId);
 
@@ -192,7 +192,9 @@ class UserGroupModel extends BaseModel
 			 ->join('groups', $this->table, 'user_group', 'groups.id = user_group.group_id')
 			 ->where('user_group.user_id = :id')
 			 ->andWhere('user_group.status = 0')
-			 ->setParameter(':id', $userId);
+			 ->orWhere('user_group.status = 1')
+			 ->setParameter(':id', $userId)
+			 ->orderBy('user_group.id', 'desc');
 
 			 $result = $qb->execute();
 			return $result->fetchAll();

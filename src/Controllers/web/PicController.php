@@ -4,13 +4,38 @@ namespace App\Controllers\web;
 
 use GuzzleHttp\Exception\BadResponseException as GuzzleException;
 
-class UserController extends BaseController
+class PicController extends BaseController
 {
 
-    public function getAllUser($request, $response)
+    public function enter($request, $response, $args)
+	{
+		$query = $request->getQueryParams();
+
+        try {
+            $result = $this->client->request('GET', 'group/'.$args['id'].'/member'.
+			$request->getUri()->getQuery());
+			// $result->addHeader('Authorization', '7e505da11dd87b99ba9a4ed644a20ba4');
+
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+
+        $data = json_decode($result->getBody()->getContents(), true);
+
+		// var_dump($data); die();
+
+		// var_dump($data->reporting->results);die();
+		return $this->view->render($response, 'pic/group-timeline.twig', [
+			'members'	=> $data['data'],
+			'group'	=> $args['id'],
+			'pagination'	=> $data['pagination'],
+		]);
+	}
+
+    public function getUnreportedItem($request, $response, $args)
     {
         try {
-            $result = $this->client->request('GET', 'user'. $request->getUri()->getQuery());
+            $result = $this->client->request('GET', 'items/group/'. $args['id']. $request->getUri()->getQuery());
         } catch (GuzzleException $e) {
             $result = $e->getResponse();
         }
@@ -18,6 +43,11 @@ class UserController extends BaseController
         $data = json_decode($result->getBody()->getContents(), true);
 
         // var_dump($data); die();
+        return $this->view->render($response, 'pic/tugas.twig', [
+            'items'	=> $data['data'],
+            'group'	=> $args['id'],
+            'pagination'	=> $data['pagination'],
+        ]);
     }
 
     public function getLogin($request, $response)
