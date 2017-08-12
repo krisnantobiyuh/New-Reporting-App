@@ -1,5 +1,5 @@
 <?php
- 
+
 namespace App\Controllers\api;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -8,7 +8,7 @@ use App\Models\GroupModel;
 use App\Models\UserGroupModel;
 
 class GroupController extends BaseController
-{ 
+{
 	//Get All Group
 	function index(Request $request, Response $response)
 	{
@@ -718,17 +718,23 @@ class GroupController extends BaseController
 	public function getGeneralGroup($request, $response)
 	{
 		$userGroup = new \App\Models\UserGroupModel($this->db);
-		$token = $request->getHeader('Authorization')[0];
-		$userToken = new \App\Models\Users\UserToken($this->db);
+        $userToken = new \App\Models\Users\UserToken($this->db);
+
+        $token = $request->getHeader('Authorization')[0];
 		$userId = $userToken->getUserId($token);
 		$getGroup = $userGroup->generalGroup($userId);
-
+		$page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+		$perpage = $request->getQueryParam('perpage');
+// var_dump($page);die();
 		if ($getGroup) {
-			return $this->responseDetail(200, false, 'Berhasil menampilkan data', [
-				'data' 	=> 	$getGroup
+			$result = $this->paginateArray($getGroup, $page, $perpage);
+
+			return $this->responseDetail(200, false, 'Grup tersedia', [
+				'data' 			=> 	$result['data'],
+				'pagination' 	=> 	$result['pagination']
 			]);
 		} else {
-			return $this->responseDetail(400, true, 'Ada kesalahan saat menampilkan data');
+			return $this->responseDetail(404, true, 'Group tidak tersedia');
 		}
 	}
 

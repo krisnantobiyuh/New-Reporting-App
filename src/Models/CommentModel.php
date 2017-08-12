@@ -5,12 +5,12 @@ namespace App\Models;
 class CommentModel extends BaseModel
 {
 	protected $table = 'comments';
-	protected $column = ['comment', 'creator', 'item_id', 'created_at', 'updated_at'];
+	protected $column = ['comment', 'creator', 'item_id'];
 
 	function add(array $data)
 	{
 		$data = [
-			'comment' 	=> 	$data['name'],
+			'comment' 	=> 	$data['comment'],
 			'creator'	=>	$data['creator'],
 			'item_id'	=>	$data['item_id'],
 		];
@@ -27,6 +27,19 @@ class CommentModel extends BaseModel
 
         return $this;
     }
+
+	public function getComment($id)
+	{
+		$qb = $this->db->createQueryBuilder();
+		$this->query = $qb->select('c.*', 'u.id', 'u.username', 'u.image')
+						  ->from($this->table, 'c')
+						  ->where('item_id = :id')
+						  ->setParameter(':id', $id)
+						  ->join('c', 'users', 'u', 'u.id = c.creator')
+						  ->execute();
+
+		return $this->query->fetchAll();
+	}
 
 	public function search($val)
     {

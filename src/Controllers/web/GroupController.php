@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Controllers\web;
 
@@ -36,20 +36,22 @@ class GroupController extends BaseController
 	//Get Group user
 	public function getGeneralGroup($request, $response)
 	{
-		$query = $request->getQueryParams();
-
         try {
-            $result = $this->client->request('GET', 'group/user/join'.$request->getUri()->getQuery());
+            $result = $this->client->request('GET', 'group/user/join',[
+				'query' => [
+					'perpage' => 10,
+					'page' => $request->getQueryParam('page')
+		   ]]);
         } catch (GuzzleException $e) {
             $result = $e->getResponse();
         }
-        
-        $data = $result->getBody()->getContents();
-        $data = json_decode($data, true);
 
+        $data = json_decode($result->getBody()->getContents(), true);
+// var_dump($data);die();
 		return $this->view->render($response, 'users/group-list.twig', [
 			'data'			=>	$data['data'],
-			'count'			=>	$data['data']
+			'count'			=>	$data['data'],
+			'pagination'	=>	$data['pagination']
 		]);
 	}
 
@@ -75,19 +77,19 @@ class GroupController extends BaseController
 		]);
 	}
 
-	
+
 	//Find group by id
 	function findGroup($request, $response, $args)
 	{
 		try {
-			$client = $this->client->request('GET', 
+			$client = $this->client->request('GET',
 						$this->router->pathFor('api.group.detail', ['id' => $args['id']]));
 			$content = json_decode($client->getBody()->getContents());
 		} catch (GuzzleException $e) {
 			$content = json_decode($e->getResponse()->getBody()->getContents());
 			$this->flash->addMessage('errors', 'Data tidak ditemukan');
 		}
-		return $this->view->render($response, 'admin/group/detail.twig', $content->reporting); 
+		return $this->view->render($response, 'admin/group/detail.twig', $content->reporting);
 	}
 	//Get create group
 	public function getAdd($request, $response)
@@ -120,7 +122,7 @@ class GroupController extends BaseController
 
 		return $this->view->render($response, 'users/group-list.twig', [
 			'data'	=>	$content
-		]); 
+		]);
 	}
 	//Get edit group
 	public function getUpdate($request, $response, $args)
@@ -133,7 +135,7 @@ class GroupController extends BaseController
 	public function update($request, $response, $args)
 	{
 		try {
-			$client = $this->client->request('GET', 
+			$client = $this->client->request('GET',
 						$this->router->pathFor('api.group.update', ['id' => $args['id']]));
 			$content = json_decode($client->getBody()->getContents());
 		} catch (GuzzleException $e) {
@@ -144,7 +146,7 @@ class GroupController extends BaseController
 	public function setInactive($request, $response, $args)
 	{
 		try {
-			$client = $this->client->request('POST', 
+			$client = $this->client->request('POST',
 						$this->router->pathFor('api.softdelete.group', ['id' => $args['id']]));
 			$content = json_decode($client->getBody()->getContents());
             $this->flash->addMessage('success', 'Berhasil menghapus data');
@@ -158,7 +160,7 @@ class GroupController extends BaseController
 	public function restore($request, $response, $args)
 	{
 		try {
-			$client = $this->client->request('POST', 
+			$client = $this->client->request('POST',
 						$this->router->pathFor('api.restore.group', ['id' => $args['id']]));
 			$content = json_decode($client->getBody()->getContents());
 		} catch (GuzzleException $e) {
@@ -190,7 +192,7 @@ class GroupController extends BaseController
 	public function getMemberGroup($request, $response, $args)
 	{
 		try {
-			$client = $this->client->request('GET', 
+			$client = $this->client->request('GET',
 						$this->router->pathFor('api.getMemberGroup', ['id' => $args['id']]));
 			$content = json_decode($client->getBody()->getContents());
 		} catch (GuzzleException $e) {
@@ -212,7 +214,7 @@ class GroupController extends BaseController
 	}
 	//Set user as member of group
 	public function setMemberGroup($request, $response, $args)
-	{		
+	{
 			$data = [
 				'group_id' 			=>	$request->getParams()['group_id'],
 				'user_id'			=>	$request->getParams()['user_id']
@@ -286,18 +288,18 @@ class GroupController extends BaseController
 		$content = $result->getBody()->getContents();
         $content = json_decode($content, true);
 
-    	return $response->withRedirect("http://localhost/New-Reporting-App/public/group/user/join");
+    	return $response->withRedirect("http://localhost/Reporting-App/public/group/user/join");
 	}
-	
+
 	//Find group by id
 	public function delGroup($request, $response, $args)
 	{
 		try {
-			$client = $this->client->request('GET', 
+			$client = $this->client->request('GET',
 						$this->router->pathFor('api.delGroup', ['id' => $args['id']]));
-			$content = json_decode($client->getBody()->getContents());		
+			$content = json_decode($client->getBody()->getContents());
 		} catch (GuzzleException $e) {
-			$content = json_decode($e->getResponse()->getBody()->getContents());		
+			$content = json_decode($e->getResponse()->getBody()->getContents());
 			$this->flash->addMessage(404, 'Data tidak ditemukan');
 		}
 		return $this->router->render($response, 'user.group', $content->reporting);
@@ -305,11 +307,11 @@ class GroupController extends BaseController
 	public function searchGroup($request, $response)
     {
 		try {
-			$client = $this->client->request('GET', 
+			$client = $this->client->request('GET',
 						$this->router->pathFor('api.search.group'));
-			$content = json_decode($client->getBody()->getContents());		
+			$content = json_decode($client->getBody()->getContents());
 		} catch (GuzzleException $e) {
-			$content = json_decode($e->getResponse()->getBody()->getContents());		
+			$content = json_decode($e->getResponse()->getBody()->getContents());
 			$this->flash->addMessage(404, 'Data tidak ditemukan');
 		}
         return $this->view->render($response, 'users/user/found-group.twig', $content->reporting);
@@ -330,26 +332,26 @@ class GroupController extends BaseController
 
 		$data = json_decode($result->getBody()->getContents(), true);
 
-    	return $response->withRedirect("http://localhost/New-Reporting-App/public/group/user/join");
+    	return $response->withRedirect("http://localhost/Reporting-App/public/group/user/join");
     }
 	//Delete group
 	public function delete($request, $response, $args)
 	{
 		try {
-			$client = $this->client->request('DELETE', 
+			$client = $this->client->request('DELETE',
 						$this->router->pathFor('api.group.delete', ['id' => $args['id']]));
-			$content = json_decode($client->getBody()->getContents());		
+			$content = json_decode($client->getBody()->getContents());
 		} catch (GuzzleException $e) {
-			$content = json_decode($e->getResponse()->getBody()->getContents());		
+			$content = json_decode($e->getResponse()->getBody()->getContents());
 			$this->flash->addMessage(404, 'Data tidak ditemukan');
 		}
-		return $this->view->render($response, 'admin/group/index.twig', $content->reporting); 
+		return $this->view->render($response, 'admin/group/index.twig', $content->reporting);
 	}
 	//Set user as member of group
 	public function joinGroup($request, $response, $args)
 	{
 		try {
-			$client = $this->client->request('GET', 
+			$client = $this->client->request('GET',
 						$this->router->pathFor('api.join.group', ['id' => $args['id']]));
 			$content = json_decode($client->getBody());
 		} catch (GuzzleException $e) {
@@ -362,8 +364,8 @@ class GroupController extends BaseController
 	public function setAsGuardian($request, $response, $args)
 	{
 		try {
-			$client = $this->client->request('PUT', 
-						$this->router->pathFor('api.user.set.guardian', 
+			$client = $this->client->request('PUT',
+						$this->router->pathFor('api.user.set.guardian',
 								['group' => $args['group'], 'id' => $args['id']]));
 			$client = $client->getBody()->getContents();
 			$content = json_decode($client);
@@ -372,13 +374,13 @@ class GroupController extends BaseController
 			$content = json_decode($client);
 		}
 		return $this->view->render($response, '', $content->reporting);
-	}	
+	}
 	//set As member
 	public function setAsMember($request, $response, $args)
-	{ 
+	{
 		try {
-			$client = $this->client->request('PUT', 
-						$this->router->pathFor('api.user.set.member', 
+			$client = $this->client->request('PUT',
+						$this->router->pathFor('api.user.set.member',
 								['id' => $args['id'], 'group' => $args['group']]));
 			$client = $client->getBody()->getContents();
 			$content = json_decode($client);
@@ -392,8 +394,8 @@ class GroupController extends BaseController
 	public function setAsPic($request, $response, $args)
 	{
 		try {
-			$client = $this->client->request('PUT', 
-						$this->router->pathFor('api.user.set.pic', 
+			$client = $this->client->request('PUT',
+						$this->router->pathFor('api.user.set.pic',
 								['id' => $args['id'], 'group' => $args['group']]));
 			$client = $client->getBody()->getContents();
 			$content = json_decode($client);
@@ -407,8 +409,8 @@ class GroupController extends BaseController
 	public function deleteUser($request, $response, $args)
 	{
 		try {
-			$client = $this->client->request('POST', 
-						$this->router->pathFor('api.delete.user.group', 
+			$client = $this->client->request('POST',
+						$this->router->pathFor('api.delete.user.group',
 								['group' => $args['group'], 'id' => $args['id']]));
 			$client = $client->getBody()->getContents();
 			$content = json_decode($client);
@@ -422,8 +424,8 @@ class GroupController extends BaseController
 	public function postImage($request, $response, $args)
 	{
 		try {
-			$client = $this->client->request('POST', 
-						$this->router->pathFor('api.change.photo.group', 
+			$client = $this->client->request('POST',
+						$this->router->pathFor('api.change.photo.group',
 								['id' => $args['id']]));
 			$client = $client->getBody()->getContents();
 			$content = json_decode($client);
