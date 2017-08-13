@@ -186,13 +186,6 @@ class UserGroupModel extends BaseModel
 	public function generalGroup($userId)
 	{
 		$qb = $this->db->createQueryBuilder();
-
-		$qb->select('groups.*', 'user_group.*')
-			 ->from('groups', 'groups')
-			 ->join('groups', $this->table, 'user_group', 'groups.id = user_group.group_id')
-			 ->where('user_group.user_id = :id')
-			 ->orWhere('user_group.status = 1')
-			 ->andWhere('user_group.status = 0')
 		$qb->select('g.*')
 			 ->from('groups', 'g')
 			 ->join('g', $this->table, 'ug', 'g.id = ug.group_id')
@@ -201,7 +194,6 @@ class UserGroupModel extends BaseModel
 			 ->andWhere('g.deleted = 0')
 			 ->setParameter(':id', $userId)
 			 ->orderBy('g.name', 'asc');
-
 			 $result = $qb->execute();
 			return $result->fetchAll();
 	}

@@ -50,7 +50,6 @@ class GroupController extends BaseController
 // var_dump($data);die();
 		return $this->view->render($response, 'users/group-list.twig', [
 			'data'			=>	$data['data'],
-			'count'			=>	$data['data'],
 			'pagination'	=>	$data['pagination']
 		]);
 	}

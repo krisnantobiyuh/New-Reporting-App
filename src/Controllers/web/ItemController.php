@@ -38,7 +38,7 @@ class ItemController extends BaseController
 		return $this->view->render($response, 'users/group/unreported-item.twig', [
 			'data'			=>	$data['data'],
 			'count_item'	=>	count($data['data']),
-			'pagination'  	=>	$data['pagination'],
+			// 'pagination'  	=>	$data['pagination'],
 			'group' 		=> 	$dataGroup['data']
 		]);
 	}
@@ -73,7 +73,7 @@ class ItemController extends BaseController
 		$content = $result->getBody()->getContents();
         $content = json_decode($content, true);
 
-    	return $response->withRedirect("http://localhost/New-Reporting-App/public/items/group/".$args['group']);
+    	return $response->withRedirect("http://localhost/Reporting-App/public/items/group/".$args['group']);
 	}
 
 	//Get group item reported
@@ -124,8 +124,8 @@ class ItemController extends BaseController
 		}
 
         $content = json_decode($result->getBody()->getContents(), true);
-var_dump($content);die();
-    	return $response->withRedirect("http://localhost/New-Reporting-App/public/items/group/".$args['group'].'/reported');
+// var_dump($content);die();
+    	return $response->withRedirect("http://localhost/Reporting-App/public/items/group/".$args['group'].'/reported');
 
 	}
 	//Delete item by user
