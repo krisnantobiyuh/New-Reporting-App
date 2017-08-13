@@ -27,6 +27,7 @@ class UserController extends BaseController
 
      public function login($request, $response)
     {
+        // var_dump($request->getParams());die();
         try {
             $result = $this->client->request('POST', 'login',
                 ['form_params' => [
@@ -38,7 +39,7 @@ class UserController extends BaseController
             $result = $e->getResponse();
         }
         $data = json_decode($result->getBody()->getContents(), true);
-        
+
         if ($data['code'] == 200) {
             $_SESSION['login'] = $data['data'];
             $_SESSION['key'] = $data['key'];
@@ -129,6 +130,109 @@ class UserController extends BaseController
 
             // $this->flash->addMessage('info');
             return $response->withRedirect($this->router->pathFor('signup'));
+        }
+    }
+
+    public function viewProfile($request, $response)
+    {
+        $base = $request->getUri()->getBaseUrl();
+$path = $base.'/assets/images/';
+// var_dump($path);die();
+        return $this->view->render($response, 'users/view-profile.twig');
+    }
+
+    public function settingProfile($request, $response, $args)
+    {
+        return $this->view->render($response, 'users/setting-profile.twig');
+    }
+
+    public function updateProfile($request, $response, $args)
+    {
+        $this->validator
+        ->rule('required', ['name', 'username', 'email', 'address', 'phone', 'gender'])
+        ->message('{field} tidak boleh kosong')
+        ->label('Nama', 'Username', 'Email', 'Alamat', 'Nomor Telepon', 'Jenis kelamin');
+        $this->validator->rule('email', 'email');
+        $this->validator->rule('alphaNum', 'username');
+        if ($this->validator->validate()) {
+
+            try {
+                $result = $this->client->request('POST', 'update/user'.$args['id']. $request->getUri()->getQuery(),
+                    ['form_params' => [
+                        'name' => $request->getParam('name'),
+                        'username' => $request->getParam('username'),
+                        'email' => $request->getParam('email'),
+                        'address' => $request->getParam('address'),
+                        'phone_number' => $request->getParam('phone_number'),
+                        'gender' => $request->getParam('gender')
+                    ]
+                ]);
+            } catch (GuzzleException $e) {
+                $result = $e->getResponse();
+            }
+
+            $data = json_decode($result->getBody()->getContents(), true);
+            var_dump($data);die();
+
+            if ($data['code'] == 201) {
+                $this->flash->addMessage('succes', 'Update profile success');
+                return $response->withRedirect($this->router->pathFor('user.view.profile'));
+
+            } else {
+                $_SESSION['old'] = $request->getParams();
+                $this->flash->addMessage('error', $data['message']);
+                return $response->withRedirect($this->router->pathFor('user.setting.profile'));
+            }
+
+        } else {
+            $_SESSION['errors'] = $this->validator->errors();
+            $_SESSION['old'] = $request->getParams();
+
+            // $this->flash->addMessage('info');
+            return $response->withRedirect($this->router->pathFor('user.setting.profile'));
+        }
+    }
+
+    public function changeImage($request, $response)
+    {
+        // var_dump($_FILES);die();
+        $path = $_FILES['image']['tmp_name'];
+        $mime = $_FILES['image']['type'];
+        $name  = $_FILES['image']['name'];
+        $id = $request->getParam('id');
+
+        try {
+            $result = $this->client->request('POST', 'user/'.$id.'/change-image', [
+                'multipart' => [
+                    [
+                        'name'     => 'image',
+                        'filename' => $name,
+                        'Mime-Type'=> $mime,
+                        'contents' => fopen( $path, 'r' )
+                    ]
+                ]
+            ]);
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+
+        try {
+            $user = $this->client->request('GET', 'user/'.$id);
+        } catch (GuzzleException $e) {
+            $user = $e->getResponse();
+        }
+
+        $data = json_decode($result->getBody()->getContents(), true);
+        $newUser = json_decode($user->getBody()->getContents(), true);
+
+        $_SESSION['login'] = $newUser['data'];
+        // var_dump($newUser);die();
+        if ($data['code'] == 201) {
+            $this->flash->addMessage('succes', 'Foto profil berhasil diubah');
+            return $response->withRedirect($this->router->pathFor('user.view.profile'));
+        } else {
+            $this->flash->addMessage('warning', $data['message']);
+            return $response->withRedirect($this->router->pathFor('user.view.profile'));
         }
     }
 

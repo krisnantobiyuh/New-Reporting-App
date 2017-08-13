@@ -9,54 +9,108 @@ use App\Models\ArticleModel;
 
 class ArticleController extends BaseController
 {
+	// public function index(Request $request, Response $response)
+	// {
+	// 	$article = new \App\Models\ArticleModel($this->db);
+
+	// 	$getArticle = $article->getAll();
+
+	// 	$countArticles = count($getArticle);
+
+	// 	if ($getArticle) {
+	// 		$page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+	// 		$get = $article->paginate($page, $getArticle, 5);
+	// 		if ($get) {
+	// 			$data = $this->responseDetail(200, 'Data Available', $get,
+	// 			 $this->paginate($countArticles, 5, $page, ceil($countArticles/5)));
+	// 		} else {
+	// 			$data = $this->responseDetail(404, 'Error', 'Data Not Found');
+	// 		}
+	// 	} else {
+	// 		$data = $this->responseDetail(204, 'Succes', 'No Content');
+	// 	}
+
+	// 	return $data;
+	// }
+
 	public function index(Request $request, Response $response)
-	{
+    {
+        $article = new ArticleModel($this->db);
+
+        $getArticle = $article->getAll();
+        $countArticle = count($getArticle);
+        $query = $request->getQueryParams();
+
+        if ($getArticle) {
+            $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+
+            $get = $article->paginate($page, $getArticle, 5);
+            $pagination = $this->paginate($countArticle, 5, $page, ceil($countArticle/5));
+
+            if ($get) {
+                $data = $this->responseDetail(200, 'Data available', [
+                    'query' => $query,
+                    'result'  => $getArticle,
+                    'meta' => $pagination
+                    ]
+                );
+            } else {
+                $data = $this->responseDetail(404, 'Data not found', ['query' => $query ]);
+            }
+        } else {
+            $data = $this->responseDetail(204, 'Berhasil', [
+                'result' => 'Konten tidak tersedia',
+                'query'  => $query
+            ]);
+        }
+
+        return $data;
+
+    }
+
+    public function create(Request $request, Response $response)
+    {
 		$article = new \App\Models\ArticleModel($this->db);
+        $rules = [
+            'required' => [
+                ['title'],
+                ['content'],
+                ['image'],
+            ]
+        ];
+        $this->validator->rules($rules);
 
-		$getArticle = $article->getAll();
+        $this->validator->labels([
+        'title'     =>  'Title',
+        'content'   =>  'Content',
+        'image'     =>  'Image',
+        ]);
 
-		$countArticles = count($getArticle);
+        if ($this->validator->validate()) {
+            if (!empty($request->getUploadedFiles()['image'])) {
+                $storage = New \Upload\Storage\FileSystem('assets/images');
+                $image = New \Upload\File('image', $storage);
 
-		if ($getArticle) {
-			$page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
-			$get = $article->paginate($page, $getArticle, 10);
-			if ($get) {
-				$data = $this->responseDetail(200, 'Data Available', $get,
-				 $this->paginate($countArticles, 10, $page, ceil($countArticles/10)));
-			} else {
-				$data = $this->responseDetail(404, 'Error', 'Data Not Found');
-			}
-		} else {
-			$data = $this->responseDetail(204, 'Succes', 'No Content');
-		}
+                $image->setName(uniqid('img-'.date('Ymd').'-'));
+                $image->addValidations(array(
+                new \Upload\Validation\Mimetype(array('image/png', 'image/gif',
+                'image/jpg', 'image/jpeg')),
+                new \Upload\Validation\Size('5M')
+                ));
 
-		return $data;
-	}
+                $image->upload();
+                $imageName = $image->getNameWithExtension();
+            } else {
+                $imageName = '';        
+            }
 
-	public function add(Request $request, Response $response)
-	{
-		$rules = [
-			'required' => [
-				['title'],
-				['content'],
-				['image'],
-			]
-		];
-		$this->validator->rules($rules);
+    			$article->add($request->getParsedBody(), $imageName);
+                $data['create data'] = $request->getParsedBody();
 
-		$this->validator->labels([
-		'title' 	=>	'Title',
-		'content'	=>	'Content',
-		'image'		=>	'Image',
-		]);
-
-		if ($this->validator->validate()) {
-			$article = new \App\Models\ArticleModel($this->db);
-			$add = $article->add($request->getParsedBody());
-
-			$findArticle = $article->find('id', $add);
-
-			$data = $this->responseDetail(201, 'Succes Add Article', $findArticle);
+                    $data = $this->responseDetail(201, 'Article Succes created', [
+                        'result'  => $data,
+                        'query' => $request->getParsedBody()
+                    ]);
 
 		} else {
 			$data = $this->responseDetail(400, 'Errors', $this->validator->errors());
@@ -67,39 +121,97 @@ class ArticleController extends BaseController
 
 	//Edit article
 	public function update(Request $request, Response $response, $args)
-	{
-		$article = new \App\Models\ArticleModel($this->db);
-		$findArticle = $article->find('id', $args['id']);
-		if ($findArticle) {
-			$article->updateData($request->getParsedBody(), $args['id']);
+    {
+        $article = new ArticleModel($this->db);
+        $findArticle = $article->find('id', $args['id']);
 
-			$afterUpdate = $article->find('id', $args['id']);
+        if ($findArticle) {
+            $this->validator->rule('required', ['title', 'content', 'image']);
+            $this->validator->rule('integer', 'id');
 
-			$data = $this->responseDetail(200, 'Success Update Data', $afterUpdate);
-		} else {
-			$data = $this->responseDetail(404, 'Error', 'Data Not Found');
-		}
+            if ($this->validator->validate()) {
+                $article->updateData($request->getParsedBody(), $args['id']);
+                $data['update data'] = $request->getParsedBody();
 
-		return $data;
-	}
+                $data = $this->responseDetail(200, 'Data berhasil diperbarui', [
+                    'result'  => $data,
+                    'query' => $request->getParsedBody()
+                ]);
+            } else {
+                $data = $this->responseDetail(400, $this->validator->errors(), [
+                    'query' => $request->getParsedBody()
+                ]);
+            }
+        } else {
+            $data = $this->responseDetail(404, 'Data not found');
+        }
+        return $data;
+    }
 
 	//Delete article
-	public function delete(Request $request, Response $response, $args)
-	{
-		$article = new \App\Models\ArticleModel($this->db);
-		$findArticle = $article->find('id', $args['id']);
+	 public function delete(Request $request, Response $response, $args)
+    {
+        $article = new ArticleModel($this->db);
+        $findArticle = $article->find('id', $args['id']);
 
-		if ($findArticle) {
-			$article->hardDelete($args['id']);
+        if ($findArticle) {
+            $article->hardDelete($args['id']);
+            $data['id'] = $args['id'];
+            $data = $this->responseDetail(200, 'Data has been deleted');
+        } else {
+            $data = $this->responseDetail(400, 'Data not found');
+        }
 
-			$data = $this->responseDetail(200, 'Succes', 'Data Has Been Delete');
-		} else {
-			$data = $this->responseDetail(404, 'Error', 'Data Not Found');
-		}
+        return $data;
+    }
 
-		return $data;
-	}
+	public function find(Request $request, Response $response, $args)
+    {
+        $article = new ArticleModel($this->db);
+        $findArticle = $article->find('id', $args['id']);
+
+        if ($findArticle) {
+            $data = $this->responseDetail(200, 'Data available', [
+                'result'    => $findArticle,
+            ]);
+        } else {
+            $data = $this->responseDetail(400, 'Data not found');
+        }
+
+        return $data;
+    }
+
+    public function postImage(Request $request, Response $response, $args)
+    {
+        $article = New ArticleModel($this->db);
+        $findArticle = $article->getAll('id', $args['id']);
+
+        if ($findArticle) {
+            return $this->responseDetail(404, 'Data Not Found');
+        }
+
+        if (!empty($request->getUploadFiles()['image'])) {
+            $storage = New \Upload\Storage\FileSystem('assets/images');
+            $image = new \Upload\File('image', $storage);
+
+            $image->setName(uniqid('img-', $storage). '-');
+            $image->addValidation(array(
+                    New \Upload\Validation\MimeType(array('image/png', 'image/gif', 'image/jpg', 'image/jpeg')), 
+                    New \Upload\Validation\Size('5M')
+                ));
+
+            $image->upload();
+            $data['image'] = $image->getNameWithExtension();
+
+            $article->update($data, $args['id']);
+            $newArticle = $article->getAll('id', $args['id']);
+
+            return $this->responseDetail(200, 'Photo uploaded successfully', [
+                    'result' => $newArticle
+                ]);
+        } else {
+            return $this->responseDetail(400, 'File foto belum dipilih');    
+        }
+    }
 }
-
-
 ?>

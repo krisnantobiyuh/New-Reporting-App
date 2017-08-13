@@ -26,7 +26,7 @@ class HomeController extends BaseController
 
             $data = $this->view->render($response, 'users/home.twig', [
                 'data'          =>	$data['data'],
-                'pagination'    =>	$data['pagination'],
+                'meta'    =>	$data['pagination'],
     		]);
 
         } elseif ($_SESSION['login']['status'] == 1) {

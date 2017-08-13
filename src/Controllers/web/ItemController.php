@@ -163,12 +163,12 @@ var_dump($content);die();
     	// return $response->withRedirect("http://localhost/New-Reporting-App/public/items/group/".$args['group_id']);
     }
 
-    // public function byMonth($request, $response, $args)
-    // {
-    //     $item = new Item($this->db);
-    //     $result= $item->getByMonth('08','2017',$args['id']);
-    //     var_dump($result);die();
-    // }
+    public function byMonth($request, $response, $args)
+    {
+        $item = new Item($this->db);
+        $result= $item->getByMonth('08','2017',$args['id']);
+        var_dump($result);die();
+    }
 }
 
  ?>
