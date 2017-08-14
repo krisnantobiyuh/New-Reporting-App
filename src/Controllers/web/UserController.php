@@ -134,12 +134,27 @@ class UserController extends BaseController
 
     public function viewProfile($request, $response)
     {
-        return $this->view->render($response, 'users/view-profile.twig');
+        try {
+            $result = $this->client->request('GET', 'user/detail'. $request->getUri()->getQuery());
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+
+        $data = json_decode($result->getBody()->getContents(), true);
+
+        return $this->view->render($response, 'users/view-profile.twig', $data);
     }
 
     public function settingProfile($request, $response, $args)
     {
-        return $this->view->render($response, 'users/setting-profile.twig');
+         try {
+            $result = $this->client->request('GET', 'user/detail'. $request->getUri()->getQuery());
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+
+        $data = json_decode($result->getBody()->getContents(), true);
+        return $this->view->render($response, 'users/setting-profile.twig', $data);
     }
 
     public function updateProfile($request, $response, $args)
@@ -153,14 +168,14 @@ class UserController extends BaseController
         if ($this->validator->validate()) {
 
             try {
-                $result = $this->client->request('POST', 'update/user'.$args['id']. $request->getUri()->getQuery(),
+                $result = $this->client->request('POST', 'user/edit/'.$args['id']. $request->getUri()->getQuery(),
                     ['form_params' => [
                         'name' => $request->getParam('name'),
                         'username' => $request->getParam('username'),
+                        'gender' => $request->getParam('gender'),
                         'email' => $request->getParam('email'),
                         'address' => $request->getParam('address'),
-                        'phone_number' => $request->getParam('phone_number'),
-                        'gender' => $request->getParam('gender')
+                        'phone' => $request->getParam('phone'),
                     ]
                 ]);
             } catch (GuzzleException $e) {
@@ -168,25 +183,37 @@ class UserController extends BaseController
             }
 
             $data = json_decode($result->getBody()->getContents(), true);
-            var_dump($data);die();   
+            // var_dump($data);die();   
 
-            if ($data['code'] == 201) {
+            if ($data['code'] == 200) {
                 $this->flash->addMessage('succes', 'Update profile success');
                 return $response->withRedirect($this->router->pathFor('user.view.profile'));
 
             } else {
                 $_SESSION['old'] = $request->getParams();
                 $this->flash->addMessage('error', $data['message']);
-                return $response->withRedirect($this->router->pathFor('user.setting.profile'));
+                return $response->withRedirect($this->router->pathFor('user.setting.profile', ['id' => $args['id']]));
             }
 
         } else {
             $_SESSION['errors'] = $this->validator->errors();
             $_SESSION['old'] = $request->getParams();
 
-            // $this->flash->addMessage('info');
-            return $response->withRedirect($this->router->pathFor('user.setting.profile'));
+            $this->flash->addMessage('info');
+            return $response->withRedirect($this->router->pathFor('user.setting.profile', ['id' => $args['id']]));
+        }
+
     }
-}
+    
+    public function getChangePassword($request, $response)
+    {
+        return $this->view->render($response, 'users/change-password.twig', ['id' => $args['id']]);
+    }
+
+    public function changePassword($request, $response, $args)
+    {
+        
+    }
 
 }
+

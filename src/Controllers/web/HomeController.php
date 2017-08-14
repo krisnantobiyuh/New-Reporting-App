@@ -9,8 +9,11 @@ class HomeController extends BaseController
     {
         $id = $_SESSION['login']['id'];
         try {
-            $result = $this->client->request('GET', 'all-item/'.$id.'?'.
-             $request->getUri()->getQuery());
+            $result = $this->client->request('GET', 'all-item/'.$id.'?',[
+                 'query' => [
+                     'perpage' => 10,
+                     'page' => $request->getQueryParam('page')
+ 			]]);
         } catch (GuzzleException $e) {
             $result = $e->getResponse();
         }
@@ -23,7 +26,7 @@ class HomeController extends BaseController
 
             $data = $this->view->render($response, 'users/home.twig', [
                 'data'          =>	$data['data'],
-                'meta'    =>	$data['pagination'],
+                'pagination'    => $data['pagination']
     		]);
 
         } elseif ($_SESSION['login']['status'] == 1) {

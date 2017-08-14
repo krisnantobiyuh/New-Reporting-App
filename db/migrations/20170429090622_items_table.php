@@ -30,7 +30,7 @@ class ItemsTable extends AbstractMigration
         $items = $this->table('items');
         $items->addColumn('name', 'string')
              ->addColumn('description', 'string', ['null' => true])
-             ->addColumn('image', 'string', ['null' => true])
+            //  ->addColumn('image', 'string', ['null' => true])
              ->addColumn('group_id', 'integer')
              ->addColumn('user_id', 'integer', ['null' => true])
              ->addColumn('creator', 'integer')

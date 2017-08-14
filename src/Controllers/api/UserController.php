@@ -523,4 +523,38 @@ class UserController extends BaseController
         }
         return $data;
     }
+
+      //Update profile account
+    public function updateProfile($request, $response)
+    {
+        $users = new UserModel($this->db);
+        $userToken = new \App\Models\Users\UserToken($this->container->db);
+
+        $token = $request->getHeader('Authorization')[0];
+        $user = $userToken->find('token', $token);
+        $findUser = $users->find('id', $user['user_id']);
+        // var_dump($findUser);die();
+        if ($findUser) {
+            $this->validator->rule('required', ['name', 'email', 'username', 'gender', 'address', 'phone']);
+            $this->validator->rule('email', 'email');
+            $this->validator->rule('alphaNum', 'username');
+            $this->validator->rule('numeric', 'phone');
+            $this->validator->rule('lengthMin', ['name', 'email', 'username', 'password'], 5);
+            $this->validator->rule('integer', 'id');
+            if ($this->validator->validate()) {
+                $users->updateData($request->getParsedBody(), $user['user_id']);
+                $data['update data'] = $request->getParsedBody();
+
+                $data = $this->responseDetail(200, false, 'Data berhasil diupdate', [
+                    'data'  => $data
+                    ]);
+            } else {
+                $data = $this->responseDetail(400, true, $this->validator->errors());
+            }
+        } else {
+            $data = $this->responseDetail(400, true, 'Data tidak ditemukan');
+        }
+        return $data;
+    }
+
 }

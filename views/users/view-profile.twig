@@ -10,34 +10,32 @@
             <a class="list-group-item active main-color-bg">
               <span align="center" aria-hidden="true"><i class="icon-file"></i></span><i class="fa fa-address-book-o"></i>&nbsp; My Profile
             </a>
+  
               <div class="box box-primary">
                 <div class="box-header">
-                
                 <div id="panel1">
                 <div class="col-lg-4">
-            {% if login %}
                 <p class="text-center"><b>Photo</b><br>
                 <img style="width:300px" class="img-thumbnail"
                  src="{{ base_url() }}/assets/images/avatar.png" alt="">
             </div>
               <div class="col-lg-4">
                 <br>
-                <p class="text-left"><b><span class="col1">Nama </span>:  </b> {{login.name}}<br><br>
-                <b><span class="col1">Username </span>:  </b> {{login.username}}<br><br>
-                <b><span class="col1">Email </span>:  </b> {{login.email}}<br><br>
-                <b><span class="col1">Jenis Kelamin </span>:  </b> {{login.gender}}<br><br>
-                <b><span class="col1">Alamat </span>:  </b> {{login.address}}<br><br>
-                <b><span class="col1">No.Telepon </span>:  </b> {{login.phone}}<br><br>
-                <b><span class="col1">Mulai Bergabung</span>:  </b>{{login.created_at | date("F jS Y ")}}</p>
+                <p class="text-left"><b><span class="col1">Nama </span>:  </b> {{data.name}}<br><br>
+                <b><span class="col1">Username </span>:  </b> {{data.username}}<br><br>
+                <b><span class="col1">Email </span>:  </b> {{data.email}}<br><br>
+                <b><span class="col1">Jenis Kelamin </span>:  </b> {{data.gender}}<br><br>
+                <b><span class="col1">Alamat </span>:  </b> {{data.address}}<br><br>
+                <b><span class="col1">No.Telepon </span>:  </b> {{data.phone}}<br><br>
+                <b><span class="col1">Mulai Bergabung</span>:  </b>{{data.created_at | date("F jS Y ")}} <br><br>
+                <b><span class="col1">Terakhir Diperbarui</span>:  </b>{{data.updated_at | date("F jS \\a\\t g:ia", "Asia/Jakarta")}}</p>
               </div>
         </div>
-    {% endif %}
 
-    <a href="{{path_for('user.setting.profile')}}"><button type="submit"
+    <a href="{{path_for('user.setting.profile', {id:data.id})}}"><button type="submit"
          class="btn btn-social-button btn-github pull-right">
          <i class="fa fa-cogs"></i> Setting profile</button></a>
                 </ul>
     </div>
-             
 
 {% endblock %}

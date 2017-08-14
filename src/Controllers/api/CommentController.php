@@ -43,24 +43,23 @@ class CommentController extends BaseController
 
         $rules = ['required'  => [['comment']]];
 
-        $this->validator->rules('required', 'comment');
+        $this->validator->rule('required', ['comment', 'item_id']);
         $this->validator->labels([
             'comment'      => 'Komentar'
         ]);
 
         if ($this->validator->validate()) {
 
-            $addComment = $comments->create($request->getParsedBody());
-            $recentComment = $item->find('id', $addComment);
+            $addComment = $comments->add($request->getParsedBody());
+            $recentComment = $comments->find('id', $addComment);
 
-            return $this->responseDetail(201, 'Komentar berhasil ditambahkan', [
-                'result'  => $recentComment,
-                'query' => $request->getParsedBody()
+            return $this->responseDetail(201, false, 'Komentar berhasil ditambahkan', [
+                'data'  => $recentComment
             ]);
 
         } else {
 
-            return $this->responseDetail(400, $this->validator->errors());
+            return $this->responseDetail(400, true, $this->validator->errors());
         }
     }
 
