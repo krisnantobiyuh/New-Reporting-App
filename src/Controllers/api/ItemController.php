@@ -13,7 +13,8 @@ class ItemController extends BaseController
     {
         $item = new Item($this->db);
         $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
-        $getItems = $item->getAllItem()->setPaginate($page,5);
+        $perPage = $request->getQueryParam('perpage');
+        $getItems = $item->getAllItem()->setPaginate($page, $perPage);
         $countItems = count($getItems);
         $query = $request->getQueryParams();
 
@@ -56,8 +57,8 @@ class ItemController extends BaseController
 
         $groupId    = $args['group'];
         $page = !$request->getQueryParam('page') ?  1 : $request->getQueryParam('page');
-        $perpage = $request->getQueryParam('perpage');
-        $findItem   = $item->getItem('group_id', $groupId, 'status', 0)->setPaginate($page, $perpage);
+        $perPage = $request->getQueryParam('perpage');
+        $findItem   = $item->getItem('group_id', $groupId, 'status', 0)->setPaginate($page, $perPage);
         // $countItem  = count($findItem);
         $query      = $request->getQueryParams();
         if ($findItem['data']) {

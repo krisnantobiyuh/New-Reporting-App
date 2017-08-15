@@ -13,8 +13,8 @@ class UserController extends BaseController
         $user = new UserModel($this->db);
 
         $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
-        $perPage = $request->getParsedBody()['perpage'];
-        $getUser = $user->getAllUser()->setPaginate($page, 2);
+        $perPage = $request->getQueryParam('perpage');
+        $getUser = $user->getAllUser()->setPaginate($page, $perPage);
 
         if ($getUser) {
             $data = $this->responseDetail(200, false, 'Data tersedia', [
@@ -136,7 +136,6 @@ class UserController extends BaseController
         if (!$findUser) {
             return $this->responseDetail(404, true, 'Akun tidak ditemukan');
         }
-        if ($this->validator->validate()) {
 
             if (!empty($request->getUploadedFiles()['image'])) {
                 $storage = new \Upload\Storage\FileSystem('assets/images');
@@ -150,25 +149,59 @@ class UserController extends BaseController
                 ));
 
                 $image->upload();
+                unlink('assets/images/'.$findUser['image']);die();
                 $data['image'] = $image->getNameWithExtension();
 
                 $user->updateData($data, $args['id']);
                 $newUser = $user->getUser('id', $args['id']);
 
                 return  $this->responseDetail(200, false, 'Foto berhasil diunggah', [
-                    'result' => $newUser
+                    'data' => $newUser
                 ]);
 
             } else {
                 return $this->responseDetail(400, true, 'File foto belum dipilih');
 
             }
-        } else {
-            $errors = $this->validator->errors();
 
-            return  $this->responseDetail(400, $errors);
+    }
+
+    public function changeImage($request, $response, $args)
+    {
+        $user = new UserModel($this->db);
+
+        $findUser = $user->getUser('id', $args['id']);
+
+        if (!$findUser) {
+            return $this->responseDetail(404, true, 'Akun tidak ditemukan');
         }
+        if (!empty($request->getUploadedFiles()['image'])) {
+            $storage = new \Upload\Storage\FileSystem('assets/images');
+            $image = new \Upload\File('image',$storage);
 
+            $image->setName(uniqid('img-'.date('Ymd').'-'));
+            $image->addValidations(array(
+                new \Upload\Validation\Mimetype(array('image/png', 'image/gif',
+                'image/jpg', 'image/jpeg')),
+                new \Upload\Validation\Size('5M')
+            ));
+
+            $image->upload();
+            $base = $request->getUri()->getBaseUrl();
+            if (file_exists('assets/images/'.$findUser['image'])) {
+                unlink('assets/images/'.$findUser['image']);die();
+            }
+            $data['image'] = $image->getNameWithExtension();
+
+            $user->updateData($data, $args['id']);
+            $newUser = $user->getUser('id', $args['id']);
+
+            return  $this->responseDetail(201, false, 'Foto berhasil diunggah', [
+                'data' => $newUser
+            ]);
+        } else {
+            return $this->responseDetail(400, true, 'File foto belum dipilih');
+        }
     }
 
     //Delete user account by id
@@ -179,8 +212,9 @@ class UserController extends BaseController
         $token = $request->getHeader('Authorization')[0];
 
         if ($findUser) {
+            unlink('assets/images/'.$findUser['image']);die();
             $user->hardDelete($args['id']);
-            $data['id'] = $args['id'];
+            // $data['id'] = $args['id'];
             $data = $this->responseDetail(200, false, 'Akun berhasil dihapus');
         } else {
             $data = $this->responseDetail(400, true, 'Akun tidak ditemukan');
@@ -279,7 +313,7 @@ class UserController extends BaseController
     public function findUser($request, $response, $args)
     {
         $user = new UserModel($this->db);
-        $findUser = $user->find('id', $args['id']);
+        $findUser = $user->getUser('id', $args['id']);
 
         if ($findUser) {
             $data = $this->responseDetail(200, false, 'Data tersedia', [
@@ -317,25 +351,25 @@ class UserController extends BaseController
     public function login($request, $response)
     {
         $users = new UserModel($this->db);
-        
+
         $login = $users->find('username', $request->getParam('username'));
         $user = $users->getUser('username', $request->getParam('username'));
-        
+
         if (empty($login)) {
             $data = $this->responseDetail(401, true, 'Username tidak terdaftar');
         } else {
             $check = password_verify($request->getParam('password'), $login['password']);
-        
+
             if ($check) {
                 $token = new UserToken($this->db);
-        
+
                 $token->setToken($login['id']);
                 $getToken = $token->find('user_id', $login['id']);
-        
+
                 $key = [
                 'key_token' => $getToken['token'],
                 ];
-        
+
                 $data = $this->responseDetail(200, false, 'Login berhasil', [
                     'data'   => $user,
                     'key'     => $key

@@ -26,6 +26,15 @@ return [
 		'default'	=> 'en',
 	],
 
+	'reporting' => [
+       'base_uri' => 'http://localhost/Reporting-App/public/api/',
+       'headers' => [
+           'key' => @$_ENV['REPORTING_API_KEY'],
+           'Accept' => 'application/json',
+           'Content-Type' => 'application/json',
+           'Authorization' => @$_SESSION['key']['key_token']
+       ],
+  ],
 	// Setting View
 	'view' => [
 		'path'	=>	__DIR__ . '/../views',
@@ -34,6 +43,7 @@ return [
 			'debug' => true
 		]
 	],
+<<<<<<< HEAD
 
 	'reporting' => [
 	   'base_uri' => 'http://localhost/Reporting-App/public/api/',
@@ -52,3 +62,6 @@ return [
     	'path'	=> __DIR__ . "/../public/assets",
      ]
 ];
+=======
+];
+>>>>>>> upstream/web
