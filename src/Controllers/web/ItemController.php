@@ -33,8 +33,10 @@ class ItemController extends BaseController
                 }
 
         $data = json_decode($result->getBody()->getContents(), true);
-// var_dump($dataGroup);die();
-
+        // var_dump($dataGroup);die();
+        if (!isset($data['pagination'])) {
+        $data['pagination'] = null;
+        }
 		return $this->view->render($response, 'users/group/unreported-item.twig', [
 			'data'			=>	$data['data'],
 			'pagination'  	=>	$data['pagination'],
@@ -72,13 +74,14 @@ class ItemController extends BaseController
 		$content = $result->getBody()->getContents();
         $content = json_decode($content, true);
 
-    	return $response->withRedirect("http://localhost/New-Reporting-App/public/items/group/".$args['group']);
-	}
+    	return $response->withRedirect($this->router->pathFor('group.user'), [
+            'group' 		=> 	$args['group']
+        ]);
+    }
 
 	//Get group item reported
     public function getReportedGroupItem($request, $response, $args)
     {
-    	$query = $request->getQueryParams();
     	try {
     		$result = $this->client->request('GET', 'items/group/'.$args['group'].'/reported',[
                 'query' => [
@@ -124,8 +127,9 @@ class ItemController extends BaseController
 
         $content = json_decode($result->getBody()->getContents(), true);
 var_dump($content);die();
-    	return $response->withRedirect("http://localhost/New-Reporting-App/public/items/group/".$args['group'].'/reported');
-
+    	return $response->withRedirect($this->router->pathFor('group.user'), [
+            'group' 		=> 	$args['group']
+        ]);
 	}
 	//Delete item by user
     public function deleteItemByUser($request, $response, $args)
@@ -155,19 +159,34 @@ var_dump($content);die();
 
 		$data = json_decode($result->getBody()->getContents(), true);
 
-			return $response->withRedirect($this->router->pathFor('group.item', [
-			// 'data'			=>	$data['data'],
-			'group' 		=> 	$dataDetailItem['data']['group_id']
-		]));
+        return $response->withRedirect($this->router->pathFor('group.item', [
+            'group' 		=> 	$dataDetailItem['data']['group_id']
+        ]));
 
-    	// return $response->withRedirect("http://localhost/New-Reporting-App/public/items/group/".$args['group_id']);
     }
 
-    public function byMonth($request, $response, $args)
+    public function getItembyMonth($request, $response, $args)
     {
-        $item = new Item($this->db);
-        $result= $item->getByMonth('08','2017',$args['id']);
-        var_dump($result);die();
+        var_dump($_SESSION['back']);die();
+        $id = $_SESSION['login']['id'];
+        try {
+            $result = $this->client->request('GET', 'items/'.$id.'/month',[
+                'query' => [
+                    'perpage' => 10,
+                    'month' => 8,
+                    'year' => 2017
+                    ]]);
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+
+        $data = json_decode($result->getBody()->getContents(), true);
+var_dump($data);die();
+        return $this->view->render($response, 'users/group/reported-item.twig', [
+            'data'			=>	$data['data'],
+            'pagination'	=>	$data['pagination'],
+            'group' 		=> 	$dataGroup['data'],
+        ]);
     }
 }
 

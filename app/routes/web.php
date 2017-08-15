@@ -2,7 +2,9 @@
 
 $app->get('/signup', 'App\Controllers\web\UserController:getSignUp')->setName('signup');
 $app->post('/signup', 'App\Controllers\web\UserController:signUp')->setName('post.signup');
-// $app->get('/test/{id}', 'App\Controllers\web\HomeController:timeline')->setName('timeline');
+$app->post('/reset', 'App\Controllers\web\UserController:resetPassword')->setName('password.reset');
+$app->get('/test', 'App\Controllers\web\HomeController:index')->setName('timeline');
+$app->get('/404', 'App\Controllers\web\HomeController:notFound')->setName('not.found');
 
 
 $app->get('/admin', 'App\Controllers\web\UserController:getLoginAsAdmin')->setName('login.admin');
@@ -11,7 +13,7 @@ $app->get('/user', 'App\Controllers\web\UserController:getAllUser');
 $app->get('/', 'App\Controllers\web\UserController:getLogin')->setName('login');
 $app->post('/', 'App\Controllers\web\UserController:login')->setName('post.login');
 $app->get('/item/{id}', 'App\Controllers\web\HomeController:showItem')->setName('show.item');
-$app->get('/test/{id}', 'App\Controllers\web\ItemController:byMonth');
+$app->get('/test/{id}', 'App\Controllers\web\ItemController:getItembyMonth');
 
 $app->get('/guard/show', 'App\Controllers\web\GuardController:showGuardByUser');
 $app->get('/guard/show/{id}', 'App\Controllers\web\GuardController:showUserByGuard');
@@ -29,7 +31,7 @@ $app->group('', function() use ($app, $container) {
     $app->get('/group/user/join', 'App\Controllers\web\GroupController:getGeneralGroup')->setName('group.user');
     $app->post('/create', 'App\Controllers\web\GroupController:add')->setName('web.group.add');
     $app->get('/pic/create', 'App\Controllers\web\GroupController:createByUser')->setName('pic.create.group');
-    $app->post('/pic/create', 'App\Controllers\web\GroupController:createByUser')->setName('pic.create.group');
+    $app->post('/group/create', 'App\Controllers\web\GroupController:createByUser')->setName('pic.create.group');
     $app->get('/items/group/{group}', 'App\Controllers\web\ItemController:getGroupItem')->setName('group.item');
     $app->get('/items/{group}', 'App\Controllers\web\ItemController:createItemUser')->setName('web.item.user.create');
     $app->post('/items/{group}', 'App\Controllers\web\ItemController:createItemUser')->setName('web.item.user.create');
@@ -45,6 +47,7 @@ $app->group('/user', function() use ($app, $container) {
     $app->get('/setting/profile', 'App\Controllers\web\UserController:settingProfile');
     $app->post('/setting/profile', 'App\Controllers\web\UserController:updateProfile')->setName('user.setting.profile');
     $app->post('/image/change', 'App\Controllers\web\UserController:changeImage')->setName('user.change.image');
+    $app->get('/item/month', 'App\Controllers\web\ItemController:getItembyMonth')->setName('user.item.month');
 
 });
 

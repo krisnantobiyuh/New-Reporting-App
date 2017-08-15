@@ -7,7 +7,7 @@ $app->group('/api', function() use ($app, $container) {
     $app->get('/logout', 'App\Controllers\api\UserController:logout')->setname('api.logout');
     $app->post('/register', 'App\Controllers\api\UserController:register')->setname('api.register');
     $app->post('/forgot-password', 'App\Controllers\api\UserController:recovery')->setName('api.recovery');
-    $app->get('/reset', 'App\Controllers\api\UserController:forgotPassword')->setName('api.reset');
+    $app->post('/reset', 'App\Controllers\api\UserController:forgotPassword')->setName('api.reset');
     $app->post('/reset/{token}', 'App\Controllers\api\UserController:reset')->setName('api.recovery');
     $app->post('/test', 'App\Controllers\api\UserController:changePassword')->setName('api.reset.password');
 
@@ -26,6 +26,8 @@ $app->group('/api', function() use ($app, $container) {
         $app->get('/group/{group}/reported', 'App\Controllers\api\ItemController:getReportedGroupItem')->setname('api.reported.group.item');
         $app->get('/{user}/unreported', 'App\Controllers\api\ItemController:getUnreportedItem')->setname('api.unreported.item');
         $app->get('/{user}/reported', 'App\Controllers\api\ItemController:getReportedUserItem')->setname('api.reported.user.item');
+        $app->get('/{user}/month', 'App\Controllers\api\ItemController:getReportedByMonth')->setname('api.reported.user.month');
+        $app->get('/{user}/year', 'App\Controllers\api\ItemController:getReportedByYear')->setname('api.reported.user.year');
     });
     $app->put('/item/report/{item}', 'App\Controllers\api\ItemController:reportItem')->setname('api.report.item');
 

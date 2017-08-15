@@ -78,23 +78,25 @@
           <ul class="pager">
               <div class="pagination">
                   <ul>
-                      <li class="{% if pagination.current == 1 %}disabled{% endif %}">
-                          <a href="{{ base_url() }}/items/group/{{group.id}}?page={{ pagination.current - 1 }}">
+                      {% if pagination.current > 1 %}
+                      <li><a href="{{ base_url() }}/home/?page={{ pagination.current - 1 }}">
                               Sebelumnya</a></li>
-                              <li class="active"> <a>{{ pagination.current }}</a></li>
-                              <li class="{% if pagination.current == pagination.total_page %}disabled{% endif %}">
-                                  <a href="{{ base_url() }}/items/group/{{group.id}}?page={{ pagination.current + 1 }}">
-                                      Selanjutnya</a></li>
-                                  </ul>
-                              </div>
-                          </ul>
-                      </nav>
-                  </div>
+                      {% endif %}
+                      <li class="active"> <a>{{ pagination.current }}</a></li>
+                      {% if pagination.current < pagination.total_page %}
+                      <li><a href="{{ base_url() }}/home/?page={{ pagination.current + 1 }}">
+                              Selanjutnya</a></li>
+                      {% endif %}
+                  </ul>
               </div>
-          </div>
-      </div>
+          </ul>
+      </nav>
   </div>
-  {% for key, item in data %}
+</div>
+</div>
+</div>
+</div>
+{% for key, item in data %}
 
 <!-- line modal items-->
 <div class="modal fade" id="squarespaceModal" tabindex="-1"

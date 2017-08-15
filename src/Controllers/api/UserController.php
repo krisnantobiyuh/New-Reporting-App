@@ -212,7 +212,9 @@ class UserController extends BaseController
         $token = $request->getHeader('Authorization')[0];
 
         if ($findUser) {
-            unlink('assets/images/'.$findUser['image']);die();
+            if (file_exists('assets/images/'.$findUser['image'])) {
+                unlink('assets/images/'.$findUser['image']);die();
+            }
             $user->hardDelete($args['id']);
             // $data['id'] = $args['id'];
             $data = $this->responseDetail(200, false, 'Akun berhasil dihapus');
@@ -381,54 +383,6 @@ class UserController extends BaseController
         return $data;
     }
 
-    //Set item to user in group
-    // public function setItemUser($request, $response, $args)
-    // {
-    //     $user = new UserModel($this->db);
-    //     $findUser = $user->find('id', $request->getParsedBody()['user_id']);
-    //     $group = new \App\Models\GroupModel($this->db);
-    //     $findGroup = $group->find('id', $args['group']);
-    //
-    //     $token = $request->getHeader('Authorization')[0];
-    //
-    //     $userToken = new \App\Models\Users\UserToken($this->db);
-    //
-    //     if ($findUser && $findGroup) {
-    //         $data['user_id'] = $findUser['id'];
-    //         $item = new \App\Models\UserItem($this->db);
-    //         // $findUserGroup = $item->findUser('user_id', $args['id'], 'group_id', $args['group']);
-    //
-    //         $this->validator->rule('required', ['item_id', 'user_id']);
-    //         $this->validator->rule('integer', ['id']);
-    //
-    //         if ($this->validator->validate()) {
-    //             $item->setItem($request->getParsedBody(), $args['group']);
-    //             $data = $request->getParsedBody();
-    //
-    //
-    //             $data = $this->responseDetail(201, false, 'Succes managed to select the item', $data, $findUser);
-    //         } else {
-    //             // $data['status_code'] = 400;
-    //             // $data['status_message'] = "Error";
-    //             // $data['data'] = $this->validator->errors();
-    //
-    //             $data = $this->responseDetail(400, true, $this->validator->errors());
-    //         }
-    //
-    //         return $data;
-    //
-    //         $items = $user->find('id', $args['id']);
-    //         $item = $request->getParsedBody();
-    //
-    //         $data = $this->responseDetail(201, false, 'user Succes Purchased', $items, $item);
-    //     } else {
-    //         $data = $this->responseDetail(404, true, 'user Not Found');
-    //     }
-    //
-    //     return $data;
-    //
-    // }
-
     public function activateAccount($request, $response, $args)
     {
         $users = new UserModel($this->db);
@@ -482,29 +436,28 @@ class UserController extends BaseController
         $registers = new \App\Models\RegisterModel($this->db);
 
         $findUser = $users->find('email', $request->getParsedBody()['email']);
-        $token = 'rec-'.md5(openssl_random_pseudo_bytes(8));
-        $tokenId = $registers->setToken($findUser['id'], $token);
-        $tokenSet = $registers->find('token', $token);
+        // $token = 'rec-'.md5(openssl_random_pseudo_bytes(8));
+        // $tokenId = $registers->setToken($findUser['id'], $token);
+        // $tokenSet = $registers->find('token', $token);
 
         if (!$findUser) {
             return $this->responseDetail(404, true, 'Email tidak terdaftar');
 
-        } elseif ($findUser && $tokenSet) {
-            $base = $request->getUri()->getBaseUrl();
+        } elseif ($findUser) {
+            $data['new_password'] = substr(md5(microtime()),rand(0,26),7);
+            $users->changePassword($data, $findUser['id']);
 
-            $activateUrl = '<a href ='.$base ."/reset/".$token.'>
-            <h3>SETEL ULANG SANDI</h3></a>';
-
-            $content = "Yang terhormat ".$findUser['name'].",
-            <br /> <br /> Baru-baru ini Anda meminta untuk menyetel ulang kata sandi akun Reporting App Anda.
-            Untuk mengubah kata sandi akun Anda, silakan klik tautan di bawah ini.
-            <br /> <br />" .$activateUrl."<br /> <br />
-            Jika tautan tidak bekerja, Anda dapat menyalin atau mengetik kembali
-            tautan di bawah ini. <br /><br /> " .$base ."/api/recovery/".$token.
-            " <br /><br /> Jika Anda tidak seharusnya menerima email ini, mungkin pengguna lain
+            $content = "Yang terhormat ".$findUser['name'].",<br /> <br />
+            Baru-baru ini Anda meminta untuk menyetel ulang kata sandi akun Reporting App Anda.
+            Berikut ini adalah password sementara yang dapat Anda gunakan untuk login
+            ke akun Reporting App.<br /><h3>" .$data['new_password']."</h3> <br />
+            Untuk mengubah kata sandi, silakan login lalu masuk ke menu pengaturan akun
+            kemudian pilih menu \"Ubah Password\".  <br /> <br />
+            Jika Anda tidak seharusnya menerima email ini, mungkin pengguna lain
             memasukkan alamat email Anda secara tidak sengaja saat mencoba menyetel
             ulang sandi. Jika Anda tidak memulai permintaan ini, Anda tidak perlu
-            melakukan tindakan lebih lanjut dan dapat mengabaikan email ini dengan aman. <br /><br />
+            melakukan tindakan lebih lanjut dan dapat mengabaikan email ini dengan aman.
+            <br /><br />
             Terima kasih, <br /><br /> Admin Reporting App";
 
             $mail = [

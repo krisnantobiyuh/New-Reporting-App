@@ -81,8 +81,8 @@ class ItemController extends BaseController
 
         $groupId    = $args['group'];
         $page = !$request->getQueryParam('page') ?  1 : $request->getQueryParam('page');
-        $perpage = $request->getQueryParam('perpage');
-        $findItem   = $item->getItem('group_id', $groupId, 'status', 1)->setPaginate($page, $perpage);
+        $perPage = $request->getQueryParam('perpage');
+        $findItem   = $item->getItem('group_id', $groupId, 'status', 1)->setPaginate($page, $perPage);
         $countItem  = count($findItem);
         $query      = $request->getQueryParams();
         if ($findItem['data']) {
@@ -652,7 +652,7 @@ class ItemController extends BaseController
 
         $findItem = $items->getAllGroupItem($args['id']);
         $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
-        $perpage = $request->getQueryParam('perpage');
+        $perPage = $request->getQueryParam('perpage');
 
         $newItem = array();
         if ($findItem){
@@ -669,7 +669,7 @@ class ItemController extends BaseController
                 }
             }
 
-            $result = $this->paginateArray($newItem, $page, $perpage);
+            $result = $this->paginateArray($newItem, $page, $perPage);
             $data = $this->responseDetail(200, false, 'Data tersedia', [
                 'data'        => $result['data'],
                 'pagination'  => $result['pagination']
@@ -721,4 +721,52 @@ class ItemController extends BaseController
         //  return $this->view->render($response, 'users/show-item.twig', ['items' => $findItem]);
      }
 
+
+     public function getReportedByMonth($request, $response, $args)
+     {
+         $item = new Item($this->db);
+
+         $month = $request->getParsedBody()['month'];
+         $year = $request->getParsedBody()['year'];
+         $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+         $perPage = $request->getQueryParam('perpage');
+         $findItem = $item->getByMonth($month, $year, $args['user']);
+         $result = $this->paginateArray($findItem, $page, $perPage);
+        //  var_dump($result);die();
+
+        if ($findItem) {
+            $data = $this->responseDetail(200, false, 'Data Tersedia', [
+                'data'  => $result['data'],
+                'pagination'  => $result['pagination']
+
+            ]);
+        } else {
+            $data = $this->responseDetail(200, false, 'Data kosong');
+
+        }
+        return $data;
+     }
+
+     public function getReportedByYear($request, $response, $args)
+     {
+         $item = new Item($this->db);
+
+         $year = $request->getParsedBody()['year'];
+         $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+         $perPage = $request->getQueryParam('perpage');
+         $findItem = $item->getByYear($year, $args['user']);
+         $result = $this->paginateArray($findItem, $page, $perPage);
+        //  var_dump($result);die();
+
+        if ($findItem) {
+            $data = $this->responseDetail(200, false, 'Data Tersedia', [
+                'data'  => $result['data'],
+                'pagination'  => $result['pagination']
+
+            ]);
+        } else {
+            $data = $this->responseDetail(200, false, 'Data kosong');
+
+        }
+     }
 }

@@ -19,14 +19,14 @@ class HomeController extends BaseController
         }
 
         $data = json_decode($result->getBody()->getContents(), true);
-
-        // var_dump($data['data']);die();
-
+        // var_dump($data['pagination']);die();
+        if (!isset($data['pagination'])) {
+        $data['pagination'] = null;
+        }
         if ($_SESSION['login']['status'] == 2) {
-
             $data = $this->view->render($response, 'users/home.twig', [
-                'data'          =>	$data['data'],
-                'meta'    =>	$data['pagination'],
+                'data'       =>	$data['data'],
+                'pagination' =>	$data['pagination']
     		]);
 
         } elseif ($_SESSION['login']['status'] == 1) {
@@ -72,17 +72,13 @@ class HomeController extends BaseController
         // var_dump($allComment);die();
 
         if ($data['data']) {
-
             return $this->view->render($response, 'users/show-item.twig', [
                 'items' => $data['data'],
                 'comment' => $allComment['data'],
             ]);
         } else {
             return $response->withRedirect($this->router->pathFor('home'));
-            // return $this->view->render($response, 'users/home.twig');
-
         }
-
     }
 
 
@@ -116,6 +112,11 @@ class HomeController extends BaseController
         $result = array_values($newItem);
         var_dump($result);die();
         return $this->view->render($response, 'users/show-item.twig', ['items' => $findItem]);
+    }
+
+    public function notFound($request, $response)
+    {
+        return $this->view->render($response, 'response/404.twig');
     }
 }
 //

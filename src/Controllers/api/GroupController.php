@@ -725,10 +725,10 @@ class GroupController extends BaseController
 		$userId = $userToken->getUserId($token);
 		$getGroup = $userGroup->generalGroup($userId);
 		$page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
-		$perpage = $request->getQueryParam('perpage');
+		$perPage = $request->getQueryParam('perpage');
 // var_dump($page);die();
 		if ($getGroup) {
-			$result = $this->paginateArray($getGroup, $page, $perpage);
+			$result = $this->paginateArray($getGroup, $page, $perPage);
 
 			return $this->responseDetail(200, false, 'Grup tersedia', [
 				'data' 			=> 	$result['data'],

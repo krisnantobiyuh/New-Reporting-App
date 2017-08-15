@@ -172,7 +172,7 @@ $path = $base.'/assets/images/';
             }
 
             $data = json_decode($result->getBody()->getContents(), true);
-            var_dump($data);die();
+            // var_dump($data);die();
 
             if ($data['code'] == 201) {
                 $this->flash->addMessage('succes', 'Update profile success');
@@ -227,7 +227,7 @@ $path = $base.'/assets/images/';
 
         $_SESSION['login'] = $newUser['data'];
         // var_dump($newUser);die();
-        if ($data['code'] == 201) {
+        if ($data['error'] == false) {
             $this->flash->addMessage('succes', 'Foto profil berhasil diubah');
             return $response->withRedirect($this->router->pathFor('user.view.profile'));
         } else {
@@ -235,5 +235,31 @@ $path = $base.'/assets/images/';
             return $response->withRedirect($this->router->pathFor('user.view.profile'));
         }
     }
+
+    public function resetPassword($request, $response)
+    {
+        // var_dump( $request->getParam('email'));die();
+        try {
+            $result = $this->client->request('POST', 'reset',
+                ['form_params' => [
+                    'email' => $request->getParam('email')
+                ]
+            ]);
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+
+        $data = json_decode($result->getBody()->getContents(), true);
+
+        // var_dump($data);
+        if ($data['code'] == 200) {
+            $this->flash->addMessage('succes', $data['message']);
+            return $response->withRedirect($this->router->pathFor('login'));
+        } else {
+            $this->flash->addMessage('warning', $data['message']);
+            return $response->withRedirect($this->router->pathFor('login'));
+        }
+    }
+
 
 }

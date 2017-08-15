@@ -47,7 +47,10 @@ class GroupController extends BaseController
         }
 
         $data = json_decode($result->getBody()->getContents(), true);
-// var_dump($data);die();
+		// var_dump($data);die();
+		if (!isset($data['pagination'])) {
+			$data['pagination'] = null;
+		}
 		return $this->view->render($response, 'users/group-list.twig', [
 			'data'			=>	$data['data'],
 			'pagination'	=>	$data['pagination']
@@ -287,7 +290,8 @@ class GroupController extends BaseController
 		$content = $result->getBody()->getContents();
         $content = json_decode($content, true);
 
-    	return $response->withRedirect("http://localhost/New-Reporting-App/public/group/user/join");
+		// return $this->router->pathFor('group.user');
+    	return $response->withRedirect($this->router->pathFor('group.user'));
 	}
 
 	//Find group by id
@@ -331,7 +335,7 @@ class GroupController extends BaseController
 
 		$data = json_decode($result->getBody()->getContents(), true);
 
-    	return $response->withRedirect("http://localhost/New-Reporting-App/public/group/user/join");
+    	return $response->withRedirect($this->router->pathFor('group.user'));
     }
 	//Delete group
 	public function delete($request, $response, $args)

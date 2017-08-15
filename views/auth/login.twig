@@ -47,14 +47,15 @@
                             <i class="fa fa-login"></i>Masuk</button>
                 </div>
             </form>
-            <form id="recoverform" action="#" class="form-vertical">
+            <form id="recoverform" action="{{path_for('password.reset')}}"
+            method="post" class="form-vertical">
 				<p class="normal_text">Silakan masukkan email anda. Kami akan
                      mengirimi anda instruksi untuk menyetel ulang kata sandi.</p>
 
                     <div class="controls">
                         <div class="main_input_box">
                             <span class="add-on bg_lo"><i class="icon-envelope"></i></span>
-                            <input type="text" placeholder="E-mail address" />
+                            <input type="text" name="email" placeholder="Alamat E-mail" />
                         </div>
                     </div>
 

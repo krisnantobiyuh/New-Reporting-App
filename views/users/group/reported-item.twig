@@ -82,13 +82,15 @@
                         <ul class="pager">
                             <div class="pagination">
                                 <ul>
-                                    <li class="{% if pagination.current == 1 %}disabled{% endif %}">
-                                        <a href="{{ base_url() }}/items/group/{{group.id}}?page={{ pagination.current - 1 }}">
+                                    {% if pagination.current > 1 %}
+                                    <li><a href="{{ base_url() }}/home/?page={{ pagination.current - 1 }}">
                                             Sebelumnya</a></li>
+                                    {% endif %}
                                     <li class="active"> <a>{{ pagination.current }}</a></li>
-                                    <li class="{% if pagination.current == pagination.total_page %}disabled{% endif %}">
-                                        <a href="{{ base_url() }}/items/group/{{group.id}}?page={{ pagination.current + 1 }}">
+                                    {% if pagination.current < pagination.total_page %}
+                                    <li><a href="{{ base_url() }}/home/?page={{ pagination.current + 1 }}">
                                             Selanjutnya</a></li>
+                                    {% endif %}
                                 </ul>
                             </div>
                         </ul>
