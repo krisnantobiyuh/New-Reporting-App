@@ -1,9 +1,7 @@
 <?php
-
 $app->get('/signup', 'App\Controllers\web\UserController:getSignUp')->setName('signup');
 $app->post('/signup', 'App\Controllers\web\UserController:signUp')->setName('post.signup');
 // $app->get('/test/{id}', 'App\Controllers\web\HomeController:timeline')->setName('timeline');
-
 $app->get('/admin', 'App\Controllers\web\UserController:getLoginAsAdmin')->setName('login.admin');
 $app->post('/admin', 'App\Controllers\web\UserController:loginAsAdmin');
 $app->get('/user', 'App\Controllers\web\UserController:getAllUser');
@@ -11,12 +9,9 @@ $app->get('/', 'App\Controllers\web\UserController:getLogin')->setName('login');
 $app->post('/', 'App\Controllers\web\UserController:login')->setName('post.login');
 $app->get('/item/{id}', 'App\Controllers\web\HomeController:showItem')->setName('show.item');
 $app->get('/test/{id}', 'App\Controllers\web\ItemController:byMonth');
-
 $app->get('/guard/show', 'App\Controllers\web\GuardController:showGuardByUser');
 $app->get('/guard/show/{id}', 'App\Controllers\web\GuardController:showUserByGuard');
-
 $app->get('/guard/delete/{id}', 'App\Controllers\web\GuardController:deleteGuardian');
-
 $app->group('', function() use ($app, $container) {
     $app->get('/home/', 'App\Controllers\web\HomeController:index')->setName('home');
     $app->get('/logout', 'App\Controllers\web\UserController:logout')->setName('logout');
@@ -39,23 +34,17 @@ $app->group('', function() use ($app, $container) {
     $app->get('/group/{id}/leave', 'App\Controllers\web\GroupController:leaveGroup')->setName('web.leave.group');
     $app->post('/comment', 'App\Controllers\web\CommentController:postComment')->setName('post.comment');
 
-// $app->group('', function() use ($app, $container) {
-//
-// });
-
 $app->group('/user', function() use ($app, $container) {
     $app->get('/show/profile', 'App\Controllers\web\UserController:viewProfile')->setName('user.view.profile');
-
-    $app->get('/setting/profile/{id}', 'App\Controllers\web\UserController:settingProfile');
-
-    $app->post('/setting/profile/{id}', 'App\Controllers\web\UserController:updateProfile')->setName('user.setting.profile');
-
-    $app->get('/change/password', 'App\Controllers\web\UserController:getChangePassword')->setName('user.change.password');
-
-
+    $app->get('/setting/profile', 'App\Controllers\web\UserController:settingProfile');
+    $app->post('/setting/profile', 'App\Controllers\web\UserController:updateProfile')->setName('user.setting.profile');
+    $app->post('/image/change', 'App\Controllers\web\UserController:changeImage')->setName('user.change.image');
+    // $app->get('/change/password', 'App\Controllers\web\UserController:getChangePassword')->setName('user.change.password');
+    // $app->post('/change/password', 'App\Controllers\web\UserController:postChangePassword');
+     $this->get('/change/password', 'App\Controllers\web\UserController:getChangePassword')
+        ->setName('user.change.password');
+        $this->post('/change/password', 'App\Controllers\web\UserController:postChangePassword');
 });
-
-
     // $app->get('/group/{id}', function ($request, $response, $args) {
     //     return $this->view->render($response, 'user/group-list.twig');
     // });

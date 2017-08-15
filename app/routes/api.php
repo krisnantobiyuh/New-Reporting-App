@@ -41,7 +41,11 @@ $app->group('/api', function() use ($app, $container) {
 
         $this->post('/edit/{id}', 'App\Controllers\api\UserController:updateProfile')->setName('user.edit.account');
 
-        $this->get('/detail', 'App\Controllers\api\UserController:detailAccount')->setName('user.detail.account');
+        $this->post('/update', 'App\Controllers\api\UserController:updateProfile')->setName('user.edit.account');
+
+        $this->post('/change', 'App\Controllers\api\UserController:changePasswordNew')->setName('user.change.password');
+
+         $this->get('/detail', 'App\Controllers\api\UserController:detailAccount')->setName('user.detail.account');
     });
 
     $app->group('/group', function() use ($app, $container) {

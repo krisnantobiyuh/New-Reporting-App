@@ -27,6 +27,7 @@ class UserController extends BaseController
 
      public function login($request, $response)
     {
+        // var_dump($request->getParams());die();
         try {
             $result = $this->client->request('POST', 'login',
                 ['form_params' => [
@@ -38,7 +39,7 @@ class UserController extends BaseController
             $result = $e->getResponse();
         }
         $data = json_decode($result->getBody()->getContents(), true);
-        
+
         if ($data['code'] == 200) {
             $_SESSION['login'] = $data['data'];
             $_SESSION['key'] = $data['key'];
@@ -134,6 +135,8 @@ class UserController extends BaseController
 
     public function viewProfile($request, $response)
     {
+        $base = $request->getUri()->getBaseUrl();
+        $path = $base.'/assets/images/';
         try {
             $result = $this->client->request('GET', 'user/detail'. $request->getUri()->getQuery());
         } catch (GuzzleException $e) {
@@ -159,23 +162,24 @@ class UserController extends BaseController
 
     public function updateProfile($request, $response, $args)
     {
-       $this->validator
-            ->rule('required', ['name', 'username', 'email', 'address', 'phone', 'gender'])
-            ->message('{field} tidak boleh kosong')
-            ->label('Nama', 'Username', 'Email', 'Alamat', 'Nomor Telepon');
+        $this->validator
+        ->rule('required', ['name', 'username', 'email', 'address', 'phone', 'gender'])
+        ->message('{field} tidak boleh kosong')
+        ->label('Nama', 'Username', 'Email', 'Alamat', 'Nomor Telepon', 'Jenis kelamin');
         $this->validator->rule('email', 'email');
         $this->validator->rule('alphaNum', 'username');
         if ($this->validator->validate()) {
+        $id = $request->getParam('id');
 
             try {
-                $result = $this->client->request('POST', 'user/edit/'.$args['id']. $request->getUri()->getQuery(),
+                $result = $this->client->request('POST', 'user/update'.$args['id']. $request->getUri()->getQuery(),
                     ['form_params' => [
                         'name' => $request->getParam('name'),
                         'username' => $request->getParam('username'),
-                        'gender' => $request->getParam('gender'),
                         'email' => $request->getParam('email'),
                         'address' => $request->getParam('address'),
                         'phone' => $request->getParam('phone'),
+                        'gender' => $request->getParam('gender')
                     ]
                 ]);
             } catch (GuzzleException $e) {
@@ -183,7 +187,7 @@ class UserController extends BaseController
             }
 
             $data = json_decode($result->getBody()->getContents(), true);
-            // var_dump($data);die();   
+            // var_dump($data);die();
 
             if ($data['code'] == 200) {
                 $this->flash->addMessage('succes', 'Update profile success');
@@ -192,28 +196,100 @@ class UserController extends BaseController
             } else {
                 $_SESSION['old'] = $request->getParams();
                 $this->flash->addMessage('error', $data['message']);
-                return $response->withRedirect($this->router->pathFor('user.setting.profile', ['id' => $args['id']]));
+                return $response->withRedirect($this->router->pathFor('user.setting.profile'));
             }
 
         } else {
             $_SESSION['errors'] = $this->validator->errors();
             $_SESSION['old'] = $request->getParams();
 
-            $this->flash->addMessage('info');
-            return $response->withRedirect($this->router->pathFor('user.setting.profile', ['id' => $args['id']]));
+            // $this->flash->addMessage('info');
+            return $response->withRedirect($this->router->pathFor('user.setting.profile'));
+        }
+    }
+
+    public function changeImage($request, $response)
+    {
+        // var_dump($_FILES);die();
+        $path = $_FILES['image']['tmp_name'];
+        $mime = $_FILES['image']['type'];
+        $name  = $_FILES['image']['name'];
+        $id = $request->getParam('id');
+
+        try {
+            $result = $this->client->request('POST', 'user/'.$id.'/change-image', [
+                'multipart' => [
+                    [
+                        'name'     => 'image',
+                        'filename' => $name,
+                        'Mime-Type'=> $mime,
+                        'contents' => fopen( $path, 'r' )
+                    ]
+                ]
+            ]);
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
         }
 
+        try {
+            $user = $this->client->request('GET', 'user/'.$id);
+        } catch (GuzzleException $e) {
+            $user = $e->getResponse();
+        }
+
+        $data = json_decode($result->getBody()->getContents(), true);
+        $newUser = json_decode($user->getBody()->getContents(), true);
+
+        $_SESSION['login'] = $newUser['data'];
+        // var_dump($newUser);die();
+        if ($data['code'] == 201) {
+            $this->flash->addMessage('succes', 'Foto profil berhasil diubah');
+            return $response->withRedirect($this->router->pathFor('user.view.profile'));
+        } else {
+            $this->flash->addMessage('warning', $data['message']);
+            return $response->withRedirect($this->router->pathFor('user.view.profile'));
+        }
     }
-    
+
     public function getChangePassword($request, $response)
     {
-        return $this->view->render($response, 'users/change-password.twig', ['id' => $args['id']]);
+         return $this->view->render($response, 'users/change-password.twig');
     }
 
-    public function changePassword($request, $response, $args)
+    public function postChangePassword($request, $response, $args)
     {
-        
+        $user = new \App\Models\Users\UserModel($this->db);
+        $this->validator
+            ->rule('required', 'password')
+            ->message('{field} must not be empty');
+        $this->validator
+             ->rule('lengthMax', [
+                'password'
+             ], 30);
+        $this->validator
+             ->rule('equals', 'new_password', 'retype_password');
+        $this->validator
+             ->rule('lengthMin', [
+                'password'
+             ], 5);
+
+        if ($this->validator->validate()) {
+            $password = password_verify($request->getParam('password'), $_SESSION['login']['password']);
+            var_dump($password);die();
+            if ($password) {
+
+             $user->changePassword($request->getParams(), $_SESSION['login']['id']);
+            return $response->withRedirect($this->router->pathFor('user.view.profile'));
+            } else {
+                $this->flash->addMessage('warning', 'The old password you have entered is incorrect');
+                return $response->withRedirect($this->router->pathFor('user.change.password'));
+            }
+        } else {
+
+            $_SESSION['old'] = $request->getParams();
+            $_SESSION['errors'] = $this->validator->errors();
+
+            return $response->withRedirect($this->router->pathFor('user.change.password'));
+        }
     }
-
 }
-

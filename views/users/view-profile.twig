@@ -8,34 +8,118 @@
     <div class="span12">
         <div class="widget-box" style="margin-top:0px;">
             <a class="list-group-item active main-color-bg">
-              <span align="center" aria-hidden="true"><i class="icon-file"></i></span><i class="fa fa-address-book-o"></i>&nbsp; My Profile
+                <span align="center" aria-hidden="true"><i class="icon-file"></i></span><i class="fa fa-address-book-o"></i>&nbsp; My Profile
             </a>
-  
-              <div class="box box-primary">
-                <div class="box-header">
-                <div id="panel1">
-                <div class="col-lg-4">
-                <p class="text-center"><b>Photo</b><br>
-                <img style="width:300px" class="img-thumbnail"
-                 src="{{ base_url() }}/assets/images/avatar.png" alt="">
-            </div>
-              <div class="col-lg-4">
-                <br>
-                <p class="text-left"><b><span class="col1">Nama </span>:  </b> {{data.name}}<br><br>
-                <b><span class="col1">Username </span>:  </b> {{data.username}}<br><br>
-                <b><span class="col1">Email </span>:  </b> {{data.email}}<br><br>
-                <b><span class="col1">Jenis Kelamin </span>:  </b> {{data.gender}}<br><br>
-                <b><span class="col1">Alamat </span>:  </b> {{data.address}}<br><br>
-                <b><span class="col1">No.Telepon </span>:  </b> {{data.phone}}<br><br>
-                <b><span class="col1">Mulai Bergabung</span>:  </b>{{data.created_at | date("F jS Y ")}} <br><br>
-                <b><span class="col1">Terakhir Diperbarui</span>:  </b>{{data.updated_at | date("F jS \\a\\t g:ia", "Asia/Jakarta")}}</p>
-              </div>
-        </div>
+            <div class="box box-primary">
+                <div style="padding-bottom:20px;"class="box-header">
+                    <div id="panel1">
+                        <div class="col-lg-4">
+                            <!-- <p class="text-center"><b>Photo</b> -->
+                                <br>
+                                <img style="width:300px" class="img-thumbnail"
+                                src="{{ base_url() }}/assets/images/{{data.image}}" alt="">
+                            <br><br>
+                            <div class='wrapper text-center'>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-social-button btn-pinterest">
+                                    <a href="" data-toggle="modal" data-target="#{{data.id}}"
+                                    value="{{item.id}}" title="View Group Details"
+                                    style="color:#fff;"> Ubah foto
+                                </button>
 
-    <a href="{{path_for('user.setting.profile', {id:data.id})}}"><button type="submit"
-         class="btn btn-social-button btn-github pull-right">
-         <i class="fa fa-cogs"></i> Setting profile</button></a>
-                </ul>
+                                <button type="button" class="btn btn-social-button btn-github">
+                                    <a style="color:#fff;" href="{{path_for('user.setting.profile')}}">
+                                        <i class="fa fa-cogs"></i> Setting
+                                    </a></button>
+                                </div>
+                            </div>
+
+                            <!-- <a href="" data-toggle="modal" data-target="#{{item.id}}"
+                            value="{{item.id}}"title="View Group Details"
+                            style="margin-bottom:7px">
+                            <button class="btn btn-social-button btn-reddit"
+                            style="margin-right:10px">Ubah foto</button>
+                        </a>
+                        <a href="{{path_for('user.setting.profile')}}"><button type="submit"
+                            class="btn btn-social-button btn-github pull-right">
+                            <i class="fa fa-cogs"></i> Setting profile</button></a> -->
+                        </div>
+                        <div class="col-lg-4">
+                            <br>
+                            <p class="text-left"><b><span class="col1">Nama </span>:  </b> {{data.name}}<br><br>
+                            <b><span class="col1">Username </span>:  </b> {{data.username}}<br><br>
+                            <b><span class="col1">Email </span>:  </b> {{data.email}}<br><br>
+                            <b><span class="col1">Jenis Kelamin </span>:  </b> {{data.gender}}<br><br>
+                            <b><span class="col1">Alamat </span>:  </b> {{data.address}}<br><br>
+                            <b><span class="col1">No.Telepon </span>:  </b> {{data.phone}}<br><br>
+                            <b><span class="col1">Mulai Bergabung</span>:  </b>{{data.created_at | date("F jS Y ")}}</p>
+                        </div>
+                    </div>
+                    <!-- </ul> -->
+                </div>
+            </div>
+        </div>
     </div>
+</div>
+
+<div id="{{data.id}}" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                <h3 class="modal-title" id="lineModalLabel">Ubah foto profil</h3>
+            </div>
+            <div class="modal-body" style="width:85%; text-align:center; margin:0 auto;">
+
+            <!-- content goes here -->
+            <form  action="{{path_for('user.change.image', {id:data.id})}}"
+            method="POST" enctype="multipart/form-data" id="laporkan">
+                {% if errors %}
+                <div class="alert alert-danger">
+                    <a class="close" data-dismiss="alert" href="#">x</a>
+                    Mohon mengisi form dengan benar
+                </div>
+                {% endif %}
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-10">
+                        <div class="form-group {{ errors.image ? 'has-error' : '' }}">
+                            <div id="image_preview" align="center"><img id="previewing"
+                                src="{{ base_url() }}/assets/images/{{ data.image }}"
+                                class="img-thumbnail" style="width:200px" >
+                            </div><br />
+                            <label>Pilih foto :</label>
+                            <div class="input-group">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-image"></i>
+                                </div>
+                                <input type="file" id="file" class="form-control"
+                                name="image" placeholder="Item image">
+                                <input type="hidden" class="form-control" name="id" value="{{data.id}}">
+                            </div>
+                            {% if errors.image %}
+                            <span class="help-block">{{errors.image | first}}</span>
+                            {% endif %}<br />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="btn-group btn-group-justified" role="group" aria-label="group button">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-danger"
+                             data-dismiss="modal"  role="button"><b>Close</b></button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="submit" class="btn btn-success btn-hover-green">
+                                <b>Ubah foto profil</b></button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

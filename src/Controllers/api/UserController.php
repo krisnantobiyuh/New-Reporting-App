@@ -557,4 +557,39 @@ class UserController extends BaseController
         return $data;
     }
 
+    public function changePasswordNew($request, $response, $args)
+    {
+        $users = new UserModel($this->db);
+        $token = new \App\Models\Users\UserToken($this->container->db);
+
+        $findUser = $users->getUser('email', $request->getParsedBody()['email']);
+        
+        $findToken = $token->find('token', 'c8d292e9eddc00935c9a66c38e76418d');
+        // var_dump($findToken);die();
+
+        if ($findUser['id'] == $findToken['user_id']) {
+            $this->validator->rule('required', ['email', 'password']);
+            $this->validator->rule('equals', 'password2', 'password');
+            $this->validator->rule('email', 'email');
+            $this->validator->rule('lengthMin', ['password'], 5);
+
+            if ($this->validator->validate()) {
+                $newData = [
+                'password'  => password_hash($request->getParsedBody()['password'], PASSWORD_BCRYPT)
+                ];
+                $users->updateData($newData, $findUser['id']);
+                $data['result'] = $findUser;
+
+                $data = $this->responseDetail(200, false, 'Update Data Succes', [
+                    'data'  => $data
+                    ]);
+            } else {
+                $data = $this->responseDetail(400, true, $this->validator->errors());
+            }
+        } else {
+            $data = $this->responseDetail(404, true, 'Data Not Found');
+        }
+        return $data;
+    }
+
 }
