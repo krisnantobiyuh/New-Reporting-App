@@ -51,7 +51,7 @@ class ItemController extends BaseController
     }
 
     //Get group item unreported
-    public function getGroupItem($request, $response, $args)
+    public function getUnreportedGroupItem($request, $response, $args)
     {
         $item     = new Item($this->db);
 
@@ -74,6 +74,7 @@ class ItemController extends BaseController
 
         return $data;
     }
+
     //Get group item reported
     public function getReportedGroupItem($request, $response, $args)
     {
@@ -98,7 +99,7 @@ class ItemController extends BaseController
         return $data;
     }
     //Get user item (unreported)
-    public function getUnreportedItem($request, $response, $args)
+    public function getUnreportedUserItem($request, $response, $args)
     {
         $item     = new Item($this->db);
         $page = !$request->getQueryParam('page') ?  1 : $request->getQueryParam('page');
@@ -145,6 +146,52 @@ class ItemController extends BaseController
         }
 
         return $data;
+    }
+
+    //Get unreported item user in group
+    public function getUnreportedUserGroupItem($request, $response, $args)
+    {
+        $item     = new Item($this->db);
+
+        $token = $request->getHeader('Authorization')[0];
+        $groupId = $request->getQueryParam('group_id');
+        $userId = $request->getQueryParam('user_id');
+        $page = !$request->getQueryParam('page') ?  1 : $request->getQueryParam('page');
+        $perPage = $request->getQueryParam('perpage');
+        $findItem   = $item->getUnreportedUserItemInGroup($userId, $groupId);
+        $result = $this->paginateArray($findItem, $page, $perPage);
+
+        if ($findItem) {
+            return $this->responseDetail(200, false, 'Data tersedia', [
+                'data'          => $result['data'],
+                'pagination'    => $result['pagination']
+            ]);
+        } else {
+            return $this->responseDetail(200, false, 'Data kosong');
+        }
+    }
+
+    //Get reported item user in group
+    public function getReportedUserGroupItem($request, $response, $args)
+    {
+        $item     = new Item($this->db);
+
+        $token = $request->getHeader('Authorization')[0];
+        $groupId = $request->getQueryParam('group_id');
+        $userId = $request->getQueryParam('user_id');
+        $page = !$request->getQueryParam('page') ?  1 : $request->getQueryParam('page');
+        $perPage = $request->getQueryParam('perpage');
+        $findItem   = $item->getReportedUserItemInGroup($userId, $groupId);
+        $result = $this->paginateArray($findItem, $page, $perPage);
+
+        if ($findItem) {
+            return $this->responseDetail(200, false, 'Data tersedia', [
+                'data'          => $result['data'],
+                'pagination'    => $result['pagination']
+            ]);
+        } else {
+            return $this->responseDetail(200, false, 'Data kosong');
+        }
     }
 
     //Create item
@@ -343,7 +390,7 @@ class ItemController extends BaseController
         $userStatus = $user['status'];
         $groupId  = $findItem['group_id'];
 
-        $checkGuardian = $userGroup->finds('user_id', $userId, 'group_id', $groupId);
+        $checkGuardian = $userGroup->findTwo('user_id', $userId, 'group_id', $groupId);
         if (!empty($checkGuardian)) {
         $guardian = $checkGuardian[0]['status'];
         }
@@ -406,7 +453,7 @@ class ItemController extends BaseController
         $guardian = $guards->find('user_id', $userId);
         $guard = $users->find('id', $guardian['guard_id']);
         $findItem = $item->find('id', $args['item']);
-        $picGroup = $userGroups->finds('group_id', $findItem['group_id'], 'status', 1);
+        $picGroup = $userGroups->findTwo('group_id', $findItem['group_id'], 'status', 1);
         if (!empty($picGroup)) {
             $pic = $users->find('id', $picGroup[0]['user_id']);
         }
@@ -725,14 +772,14 @@ class ItemController extends BaseController
      public function getReportedByMonth($request, $response, $args)
      {
          $item = new Item($this->db);
+        //   var_dump($request->getQueryParams());die();
 
-         $month = $request->getParsedBody()['month'];
-         $year = $request->getParsedBody()['year'];
+         $month = $request->getQueryParam('month');
+         $year = $request->getQueryParam('year');
          $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
          $perPage = $request->getQueryParam('perpage');
          $findItem = $item->getByMonth($month, $year, $args['user']);
          $result = $this->paginateArray($findItem, $page, $perPage);
-        //  var_dump($result);die();
 
         if ($findItem) {
             $data = $this->responseDetail(200, false, 'Data Tersedia', [
@@ -751,7 +798,7 @@ class ItemController extends BaseController
      {
          $item = new Item($this->db);
 
-         $year = $request->getParsedBody()['year'];
+         $year = $request->getQueryParam('year');
          $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
          $perPage = $request->getQueryParam('perpage');
          $findItem = $item->getByYear($year, $args['user']);
@@ -766,7 +813,7 @@ class ItemController extends BaseController
             ]);
         } else {
             $data = $this->responseDetail(200, false, 'Data kosong');
-
         }
+        return $data;
      }
 }

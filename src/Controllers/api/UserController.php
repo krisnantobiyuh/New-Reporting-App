@@ -13,8 +13,8 @@ class UserController extends BaseController
         $user = new UserModel($this->db);
 
         $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
-        $perPage = $request->getQueryParam('perpage');
-        $getUser = $user->getAllUser()->setPaginate($page, $perPage);
+        $perPage = $request->getParsedBody()['perpage'];
+        $getUser = $user->getAllUser()->setPaginate($page, 2);
 
         if ($getUser) {
             $data = $this->responseDetail(200, false, 'Data tersedia', [
@@ -136,6 +136,7 @@ class UserController extends BaseController
         if (!$findUser) {
             return $this->responseDetail(404, true, 'Akun tidak ditemukan');
         }
+        if ($this->validator->validate()) {
 
             if (!empty($request->getUploadedFiles()['image'])) {
                 $storage = new \Upload\Storage\FileSystem('assets/images');
@@ -149,59 +150,25 @@ class UserController extends BaseController
                 ));
 
                 $image->upload();
-                unlink('assets/images/'.$findUser['image']);die();
                 $data['image'] = $image->getNameWithExtension();
 
                 $user->updateData($data, $args['id']);
                 $newUser = $user->getUser('id', $args['id']);
 
                 return  $this->responseDetail(200, false, 'Foto berhasil diunggah', [
-                    'data' => $newUser
+                    'result' => $newUser
                 ]);
 
             } else {
                 return $this->responseDetail(400, true, 'File foto belum dipilih');
 
             }
-
-    }
-
-    public function changeImage($request, $response, $args)
-    {
-        $user = new UserModel($this->db);
-
-        $findUser = $user->getUser('id', $args['id']);
-
-        if (!$findUser) {
-            return $this->responseDetail(404, true, 'Akun tidak ditemukan');
-        }
-        if (!empty($request->getUploadedFiles()['image'])) {
-            $storage = new \Upload\Storage\FileSystem('assets/images');
-            $image = new \Upload\File('image',$storage);
-
-            $image->setName(uniqid('img-'.date('Ymd').'-'));
-            $image->addValidations(array(
-                new \Upload\Validation\Mimetype(array('image/png', 'image/gif',
-                'image/jpg', 'image/jpeg')),
-                new \Upload\Validation\Size('5M')
-            ));
-
-            $image->upload();
-            $base = $request->getUri()->getBaseUrl();
-            if (file_exists('assets/images/'.$findUser['image'])) {
-                unlink('assets/images/'.$findUser['image']);die();
-            }
-            $data['image'] = $image->getNameWithExtension();
-
-            $user->updateData($data, $args['id']);
-            $newUser = $user->getUser('id', $args['id']);
-
-            return  $this->responseDetail(201, false, 'Foto berhasil diunggah', [
-                'data' => $newUser
-            ]);
         } else {
-            return $this->responseDetail(400, true, 'File foto belum dipilih');
+            $errors = $this->validator->errors();
+
+            return  $this->responseDetail(400, true, $errors);
         }
+
     }
 
     //Delete user account by id
@@ -216,7 +183,7 @@ class UserController extends BaseController
                 unlink('assets/images/'.$findUser['image']);die();
             }
             $user->hardDelete($args['id']);
-            // $data['id'] = $args['id'];
+            $data['id'] = $args['id'];
             $data = $this->responseDetail(200, false, 'Akun berhasil dihapus');
         } else {
             $data = $this->responseDetail(400, true, 'Akun tidak ditemukan');
@@ -253,19 +220,19 @@ class UserController extends BaseController
         $findUser = $user->find('id', $args['id']);
 
         if ($findUser) {
-            $this->validator->rule('required', ['name', 'email', 'username',
-            'password', 'gender', 'address', 'phone', 'image']);
+            $this->validator->rule('required', ['name', 'email',
+            'password', 'gender', 'address', 'phone']);
             $this->validator->rule('email', 'email');
-            $this->validator->rule('alphaNum', 'username');
+            // $this->validator->rule('alphaNum', 'username');
             $this->validator->rule('numeric', 'phone');
-            $this->validator->rule('lengthMin', ['name', 'email', 'username', 'password'], 5);
+            $this->validator->rule('lengthMin', ['name', 'email'], 5);
             $this->validator->rule('integer', 'id');
 
             if ($this->validator->validate()) {
-                $user->updateData($request->getParsedBody(), $args['id']);
-                $data['update data'] = $request->getParsedBody();
+                $user->updateData($request->getParams(), $args['id']);
+                $data = $user->getUser('id', $args['id']);
 
-                $data = $this->responseDetail(200, false, 'Data berhasil diperbarui', [
+                $data = $this->responseDetail(201, false, 'Data berhasil diperbarui', [
                     'data'  => $data,
                 ]);
             } else {
@@ -315,7 +282,7 @@ class UserController extends BaseController
     public function findUser($request, $response, $args)
     {
         $user = new UserModel($this->db);
-        $findUser = $user->getUser('id', $args['id']);
+        $findUser = $user->find('id', $args['id']);
 
         if ($findUser) {
             $data = $this->responseDetail(200, false, 'Data tersedia', [
@@ -480,11 +447,79 @@ class UserController extends BaseController
     public function changePassword($request, $response, $args)
     {
         $users = new UserModel($this->db);
+        $userToken = new \App\Models\Users\UserToken($this->container->db);
+
+        $token = $request->getHeader('Authorization')[0];
+        $findUser = $userToken->find('token', $token);
+        $user = $users->find('id', $findUser['user_id']);
+
+        $password = password_verify($request->getParam('password'), $user['password']);
+        // var_dump($request->getParams());die();
+
+        if ($password) {
+            $this->validator->rule('required', ['new_password', 'password']);
+            $this->validator->rule('lengthMin', ['new_password'], 5);
+
+            if ($this->validator->validate()) {
+                $newData = [
+                'password'  => password_hash($request->getParam('new_password'), PASSWORD_BCRYPT)
+                ];
+                $users->updateData($newData, $user['id']);
+                $data = $findUser;
+
+                return $this->responseDetail(200, false, 'Password berhasil diubah', [
+                    'data'  => $data
+                    ]);
+            } else {
+                return $this->responseDetail(400, true, $this->validator->errors());
+            }
+        } else {
+            return $this->responseDetail(400, true, 'Password lama tidak sesuai');
+        }
+    }
+
+      //Update profile account
+    public function updateProfile($request, $response)
+    {
+        $users = new UserModel($this->db);
+        $userToken = new \App\Models\Users\UserToken($this->container->db);
+
+        $token = $request->getHeader('Authorization')[0];
+        $user = $userToken->find('token', $token);
+        $findUser = $users->find('id', $user['user_id']);
+        // var_dump($findUser);die();
+        if ($findUser) {
+            $this->validator->rule('required', ['name', 'email', 'gender', 'address', 'phone']);
+            $this->validator->rule('email', 'email');
+            // $this->validator->rule('alphaNum', 'username');
+            $this->validator->rule('numeric', 'phone');
+            $this->validator->rule('lengthMin', ['name', 'email', 'username'], 5);
+            $this->validator->rule('integer', 'id');
+            if ($this->validator->validate()) {
+                $users->updateData($request->getParsedBody(), $user['user_id']);
+                $data['update data'] = $request->getParsedBody();
+
+                $data = $this->responseDetail(200, false, 'Data berhasil diupdate', [
+                    'data'  => $data
+                    ]);
+            } else {
+                $data = $this->responseDetail(400, true, $this->validator->errors());
+            }
+        } else {
+            $data = $this->responseDetail(400, true, 'Data tidak ditemukan');
+        }
+        return $data;
+    }
+
+    public function changePasswordNew($request, $response, $args)
+    {
+        $users = new UserModel($this->db);
         $token = new \App\Models\Users\UserToken($this->container->db);
 
         $findUser = $users->getUser('email', $request->getParsedBody()['email']);
-        $findToken = $token->find('token', $request->getParsedBody()['token']);
-        // var_dump($user);die();
+
+        $findToken = $token->find('token', 'c8d292e9eddc00935c9a66c38e76418d');
+        // var_dump($findToken);die();
 
         if ($findUser['id'] == $findToken['user_id']) {
             $this->validator->rule('required', ['email', 'password']);
@@ -510,4 +545,5 @@ class UserController extends BaseController
         }
         return $data;
     }
+
 }

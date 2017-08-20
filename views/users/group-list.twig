@@ -11,8 +11,8 @@
 <div style="padding:10px; background:#fff;"class="span12">
     <span style="float:right;">
         <div class="btn-group">
-            <a class="btn btn-primary" href="#"><i class="icon-collapse"></i> Lainnya</a>
-            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
+            <a class="btn btn-info" href="#"><i class="icon-collapse"></i> Lainnya</a>
+            <a class="btn btn-info dropdown-toggle" data-toggle="dropdown" href="#">
                 <i class="fa fa-caret-down"></i>
             </a>
             <ul class="dropdown-menu">
@@ -30,7 +30,8 @@
             <div class="row">
                 <div class="col-md-3" style="padding-right:0px;">
                     <div  style="line-height:4em;" class="panel box-body" >
-                        <a href="{{ path_for('group.item', {'group': data.id}) }}"
+                        <a href="{{ path_for('reported.item.user.group',
+                         {'group': data.id, 'user':login.id}) }}"
                          title="Masuk ke grup {{ data.name }}"><center>
                         <h1><img src="{{ base_url() }}/assets/images/{{ data.image }}"
                             align="center" alt="{{ data.name }}" width="234" height="234">

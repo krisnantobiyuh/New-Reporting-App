@@ -12,10 +12,13 @@
                 <div style="padding-bottom:0px; padding-top:0px; background:#24272E;" class="panel-heading">
                     <div class="widget-title span8">
                     <ul style="text-align:center" class="nav nav-tabs">
-                        <li class="active"><a data-toggle="tab" href="#tab1">Tugas belum dilaporkan</a></li>
-                        <li ><a  href="{{ base_url() }}/items/group/{{group.id}}/reported"
+                        <li class="active"><a data-toggle="tab" href="{{path_for('unreported.item.user.group',
+                         {'group': group.id, 'user':login.id})}}">Tugas belum dilaporkan</a></li>
+                        <li ><a  href="{{ path_for('reported.item.user.group',
+                         {'group': group.id, 'user':login.id}) }}"
                              class="btn btn-info">Tugas dilaporkan</a></li>
                     </ul>
+                    <!-- unreported.item.user.group -->
                     <span style="float:right; margin-top:5px;">
                         <div class="btn-group span4">
                             <a class="btn btn-info"><i class="icon-collapse"></i> Lainnya</a>
@@ -25,6 +28,11 @@
                             <ul class="dropdown-menu">
                                 <li><a href="#"><i class="icon-fixed-width icon-pencil">
                                      Buat tugas</i></a></li>
+                                <li><a href="#"><i class="icon-fixed-width icon-pencil">
+                                     Info grup</i></a></li>
+                                <li><a href="{{path_for('get.group.member',
+                                 {'id': group.id, 'user':login.id})}}"><i class="icon-fixed-width icon-pencil">
+                                     Member grup</i></a></li>
                                 <li class="divider"></li>
                                 <li><a href="#"><i class="i"> Lihat semua tugas</i></a></li>
                             </ul>
@@ -35,11 +43,9 @@
                 <div class="panel-body" style="padding-top:0px;">
                     <div class="widget-content tab-content">
                         <div id="tab1" class="tab-pane active">
-
                         <div class="widget-box">
-                          <br>
-                              <b><i class="fa fa-list-alt" aria-hidden="true">
-                                  Tugas belum dilaporkan </i></b>
+                              <h3><i class="fa fa-list-alt" aria-hidden="true">
+                                  {{ group.name}} </i></h3>
                           <div class="widget-content nopadding">
                             <table class="table table-striped table-bordered">
                               <thead>
@@ -250,22 +256,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- <div class="row">
-                    <div class="col-xs-10 col-sm-5 col-md-12">
-                        <div class="form-group {{ errors.public ? 'has-error' : '' }}">
-                            <label for="public">Item to :</label>
-                            <select class="form-control" name="public" >
-                                <option value="">Select Group</option>
-                                <option value="0">Public</option>
-                                <option value="1">Private</option>
-
-                            </select>
-                            {% if errors.public %}
-                            <span class="help-block">{{ errors.public | first }}</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div> -->
                 <div class="modal-footer">
                     <div class="btn-group btn-group-justified" role="group" aria-label="group button">
                         <div class="btn-group" role="group">

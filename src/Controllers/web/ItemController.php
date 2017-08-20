@@ -15,7 +15,7 @@ class ItemController extends BaseController
     public function getGroupItem($request, $response, $args)
 	{
         try {
-            $result = $this->client->request('GET', 'items/group/'.$args['group'],[
+            $result = $this->client->request('GET', 'item/group/'.$args['group'],[
                 'query' => [
                     'perpage' => 10,
                     'page' => $request->getQueryParam('page')
@@ -33,7 +33,7 @@ class ItemController extends BaseController
                 }
 
         $data = json_decode($result->getBody()->getContents(), true);
-        // var_dump($dataGroup);die();
+        var_dump($data);die();
         if (!isset($data['pagination'])) {
         $data['pagination'] = null;
         }
@@ -50,7 +50,7 @@ class ItemController extends BaseController
 		$query = $request->getQueryParams();
 
 		try {
-			$result = $this->client->request('POST', 'items/'.$args['group'], [
+			$result = $this->client->request('POST', 'item/'.$args['group'], [
 				'query' => [
 					'name'          => $request->getParam('name'),
 	                'description'   => $request->getParam('description'),
@@ -83,7 +83,7 @@ class ItemController extends BaseController
     public function getReportedGroupItem($request, $response, $args)
     {
     	try {
-    		$result = $this->client->request('GET', 'items/group/'.$args['group'].'/reported',[
+    		$result = $this->client->request('GET', 'item/group/'.$args['group'].'/reported',[
                 'query' => [
                     'perpage' => 10,
                     'page' => $request->getQueryParam('page')
@@ -111,8 +111,6 @@ class ItemController extends BaseController
     //create item by user
 	public function reportItem($request, $response, $args)
 	{
-		// var_dump($request->getParams());die();
-		// var_dump($request->getParam('public'));
 		try {
 			$result = $this->client->request('PUT', 'item/report/'.$args['item'],
                 ['form_params' => [
@@ -138,7 +136,7 @@ var_dump($content);die();
 
     	try {
     		// $item = $this->client->request('GET', '/items/group/'.$args['group']);
-    		$data = $this->client->request('GET', 'items/'.$args['item'].
+    		$data = $this->client->request('GET', 'item/'.$args['item'].
     			$request->getUri()->getQuery());
             $this->flash->addMessage('succes', 'Berhasil menghapus tugas');
     	} catch (GuzzleException $e) {
@@ -149,7 +147,7 @@ var_dump($content);die();
 		// var_dump($dataDetailItem['data']['group_id']);die();
 
     	try {
-    		$result = $this->client->request('DELETE', 'items/'.$args['item'].'/user'.
+    		$result = $this->client->request('DELETE', 'item/'.$args['item'].'/user'.
     			$request->getUri()->getQuery());
             $this->flash->addMessage('succes', 'Berhasil menghapus tugas');
     	} catch (GuzzleException $e) {
@@ -165,29 +163,115 @@ var_dump($content);die();
 
     }
 
-    public function getItembyMonth($request, $response, $args)
+    public function searchItemArchive($request, $response, $args)
     {
-        var_dump($_SESSION['back']);die();
-        $id = $_SESSION['login']['id'];
-        try {
-            $result = $this->client->request('GET', 'items/'.$id.'/month',[
-                'query' => [
-                    'perpage' => 10,
-                    'month' => 8,
-                    'year' => 2017
-                    ]]);
-        } catch (GuzzleException $e) {
-            $result = $e->getResponse();
+        // var_dump($request->getParams());die();
+        if ($request->getParam('month') == 'all') {
+            try {
+                $result = $this->client->request('GET', 'item/'.$args['id'].'/year',[
+                    'query' => [
+                        'perpage' => 999,
+                        'year' => $request->getParam('year')
+                        ]]);
+                    } catch (GuzzleException $e) {
+                        $result = $e->getResponse();
+                    }
+        } else {
+            try {
+                $result = $this->client->request('GET', 'item/'.$args['id'].'/month',[
+                    'query' => [
+                        'perpage' => 999,
+                        'month' => $request->getParam('month'),
+                        'year' => $request->getParam('year')
+                        ]]);
+                    } catch (GuzzleException $e) {
+                        $result = $e->getResponse();
+                    }
         }
 
         $data = json_decode($result->getBody()->getContents(), true);
-var_dump($data);die();
+        // var_dump($data);die();
+        return $this->view->render($response, 'users/guard/report-archives.twig', [
+            'data'		=>	$data['data'],
+            'pagination'=>	$data['pagination'],
+            'query' 	=> 	[
+                'year'  => $request->getParam('year'),
+                'month'  => $request->getParam('month')
+            ]
+        ]);
+    }
+
+    public function getItemArchive($request, $response, $args)
+    {
+        return  $this->view->render($response, 'users/guard/report-archives.twig');
+    }
+
+    //Get group item reported
+    public function getReportedUserGroupItem($request, $response, $args)
+    {
+        $userId = $_SESSION['login']['id'];
+        $groupId = $args['id'];
+        try {
+            $result = $this->client->request('GET', 'item/group/user/unreported',[
+                'query' => [
+                    'user_id' =>  $args['user'],
+                    'group_id' =>  $args['group'],
+                    'perpage' => 10,
+                    'page' => $request->getQueryParam('page')
+                    ]]);
+
+                try {
+                    $findGroup = $this->client->request('GET', 'group/find/'. $args['group']);
+                } catch (GuzzleException $e) {
+                    $findGroup = $e->getResponse();
+                }
+                $dataGroup = json_decode($findGroup->getBody()->getContents(), true);
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+         $data= json_decode($result->getBody()->getContents(), true);
+        //  var_dump($dataGroup['data']);die();
+
         return $this->view->render($response, 'users/group/reported-item.twig', [
             'data'			=>	$data['data'],
             'pagination'	=>	$data['pagination'],
             'group' 		=> 	$dataGroup['data'],
         ]);
     }
+
+
+        //Get group item reported
+        public function getUnreportedUserGroupItem($request, $response, $args)
+        {
+            // $userId = $_SESSION['login']['id'];
+            // $groupId = $args['id'];
+            try {
+                $result = $this->client->request('GET', 'item/group/user/reported',[
+                    'query' => [
+                        'user_id' =>  $args['user'],
+                        'group_id' =>  $args['group'],
+                        'perpage' => 10,
+                        'page' => $request->getQueryParam('page')
+                        ]]);
+
+                    try {
+                        $findGroup = $this->client->request('GET', 'group/find/'. $args['group']);
+                    } catch (GuzzleException $e) {
+                        $findGroup = $e->getResponse();
+                    }
+                    $dataGroup = json_decode($findGroup->getBody()->getContents(), true);
+            } catch (GuzzleException $e) {
+                $result = $e->getResponse();
+            }
+             $data= json_decode($result->getBody()->getContents(), true);
+            //  var_dump($data);die();
+
+            return $this->view->render($response, 'users/group/unreported-item.twig', [
+                'data'			=>	$data['data'],
+                'pagination'	=>	$data['pagination'],
+                'group' 		=> 	$dataGroup['data'],
+            ]);
+        }
 }
 
  ?>

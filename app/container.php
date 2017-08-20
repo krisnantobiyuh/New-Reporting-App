@@ -71,7 +71,7 @@ $container['client'] = function ($container) {
    $settings = $container->get('settings')['reporting'];
 
    return new GuzzleHttp\Client([
-       'base_uri' => 'http://localhost/Reporting-App/public/api/',
+       'base_uri' => $settings['base_uri'],
        'headers'  => $settings['headers']
    ]);
 };

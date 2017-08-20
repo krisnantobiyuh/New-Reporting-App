@@ -1,12 +1,61 @@
 
 {% extends 'templates/default.twig' %}
 
-{% block title %} Group {% endblock %}
+{% block title %}Anggota  Grup{% endblock %}
 
-{% block current %} Group {{group.name}} > Item dilaporkan{% endblock %}
+{% block current %} Grup {{group.name}} > Daftar Anggota{% endblock %}
 
 {% block content %}
-<div class="row-fluid">
+<div class="panel panel-default">
+    <a class="list-group-item active main-color-bg">
+      <span align="center" aria-hidden="true">
+          <i class="icon-file"></i></span> Daftar anggota {{group.name}}
+    </a>
+    <div class="panel-body">
+        {% for member in data %}
+
+        <div style="padding:5px;" class="col-md-4" >
+            <div class="well dash-box" style="background:#f2f2f2;">
+                {% if member.image != null %}
+                    <img  style="margin-right:10px;" width="75" height="75" alt="User"
+                    src="{{ base_url() }}/assets/images/{{ member.image }}">
+                {% else %}
+                    <img width="75" height="75" alt="User"
+                    src="{{ base_url() }}/assets/images/avatar.png">
+                {% endif %}
+                <span style="float: right; top: 1px; ">
+                    <div class="btn-group span4">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-sort-desc" aria-hidden="true"></i>
+                    </a>
+                    <ul style="left: -140px; top: 13px; " class="dropdown-menu">
+                        <li><a href="#"><i class="icon-fixed-width icon-pencil">
+                             Jadikan PIC</i></a></li>
+                        <li><a href="#"><i class="icon-fixed-width icon-pencil">
+                             Jadikan anggota</i></a></li>
+                        <li><a href="#"><i class="icon-fixed-width icon-pencil">
+                             Jadikan wali</i></a></li>
+                        <li class="divider"></li>
+                        <li><a href="#"><i class="i"> Keluarkan dari grup</i></a></li>
+                    </ul>
+                </div>
+                </span>
+                <span style="position: absolute; float: right; font-family: Franklin Gothic Medium;">
+                    <br><b>{{ member.username }}</b><br>
+                    {% if member.status_member == 0 %}
+                    Anggota
+                    {% elseif member.status_member == 1 %}
+                    PIC
+                    {% elseif member.status_member == 2 %}
+                    Wali
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<!-- <div class="row-fluid">
     <div class="span12">
         <div class="widget-box" style="margin-top:0px;">
             <div style="background:#ffffff" class="">
@@ -29,17 +78,16 @@
                                      Buat tugas</i></a></li>
                                 <li><a href="#"><i class="icon-fixed-width icon-pencil">
                                      Info grup</i></a></li>
-                                <li><a href="{{path_for('get.group.member',
-                                 {'id': group.id, 'user':login.id})}}"><i class="icon-fixed-width icon-pencil">
+                                <li><a href="#"><i class="icon-fixed-width icon-pencil">
                                      Member grup</i></a></li>
                                 <li class="divider"></li>
                                 <li><a href="#"><i class="i"> Lihat semua tugas</i></a></li>
                             </ul>
                         </div>
                     </span>
-                    </div>
                 </div>
-                <div class="panel-body" style="padding-top:0px;">
+            </div>
+            <div class="panel-body" style="padding-top:0px;">
                     <div class="widget-content tab-content">
                         <div id="tab2" class="tab-pane active">
                             <div class="widget-box">
@@ -51,24 +99,28 @@
                                                 <tr>
                                                     <th>No</th>
                                                     <th>Nama</th>
-                                                    <th>Pengulangan</th>
+                                                    <th>Jenis kelamin</th>
+                                                    <th>status</th>
                                                     <th>Opsi</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {% for key, item in data %}
+                                                {% for key, member in data %}
                                                 <tr>
                                                     <td class="taskDesc">
                                                         <i class="icon-info-sign"></i>
                                                         {{ (pagination.current - 1) * pagination.perpage + (key + 1) }}</td>
                                                     <td class="taskDesc">
                                                         <i class="icon-info-sign"></i>
-                                                        {{ item.name }}</td>
+                                                        {{ member.name }}</td>
                                                     <td class="taskStatus">
                                                         <span class="in-progress">
-                                                        {{ item.recurrent }}</span></td>
-                                                    <td class="taskOptions">
-                                                        <a href="{{ path_for('show.item', {'id': item.id}) }}" >
+                                                        {{ member.gender }}</span></td>
+                                                        <td class="taskStatus">
+                                                            <span class="in-progress">
+                                                            {{ member.status_member }}</span></td>
+                                                        <td class="taskOptions">
+                                                        <a href="{{ path_for('show.item', {'id': member.id}) }}" >
                                                             <span class="label label-primary"
                                                              aria-hidden="true">Detail</span></a>
                                                         <a href="#">
@@ -104,5 +156,5 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->
 {% endblock %}

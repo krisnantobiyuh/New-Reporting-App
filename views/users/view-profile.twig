@@ -1,35 +1,34 @@
 {% extends 'templates/default.twig' %}
 
-{% block title %} My profile {% endblock %}
-{% block current %} My Profile {% endblock %}
+{% block title %} Profil {% endblock %}
+{% block current %} Profil {% endblock %}
 {% block content %}
 
 <div class="row-fluid">
     <div class="span12">
         <div class="widget-box" style="margin-top:0px;">
             <a class="list-group-item active main-color-bg">
-                <span align="center" aria-hidden="true"><i class="icon-file"></i></span><i class="fa fa-address-book-o"></i>&nbsp; My Profile
+                <span align="center" aria-hidden="true"><i class="icon-file"></i></span><i class="fa fa-address-book-o"></i>&nbsp; Profil
             </a>
             <div class="box box-primary">
                 <div style="padding-bottom:20px;"class="box-header">
                     <div id="panel1">
                         <div class="col-lg-4">
-                            {% if login %}
                             <!-- <p class="text-center"><b>Photo</b> -->
                                 <br>
                                 <img style="width:300px" class="img-thumbnail"
-                                src="{{ base_url() }}/assets/images/{{login.image}}" alt="">
+                                src="{{ base_url() }}/assets/images/{{data.image}}" alt="">
                             <br><br>
                             <div class='wrapper text-center'>
                             <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-social-button btn-pinterest">
-                                    <a href="" data-toggle="modal" data-target="#{{login.id}}"
+                                    <a href="" data-toggle="modal" data-target="#{{data.id}}"
                                     value="{{item.id}}" title="View Group Details"
                                     style="color:#fff;"> Ubah foto
                                 </button>
 
                                 <button type="button" class="btn btn-social-button btn-github">
-                                    <a style="color:#fff;" href="{{path_for('user.setting.profile')}}">
+                                    <a style="color:#fff;" href="{{path_for('user.update.profile')}}">
                                         <i class="fa fa-cogs"></i> Setting
                                     </a></button>
                                 </div>
@@ -41,22 +40,21 @@
                             <button class="btn btn-social-button btn-reddit"
                             style="margin-right:10px">Ubah foto</button>
                         </a>
-                        <a href="{{path_for('user.setting.profile')}}"><button type="submit"
+                        <a href="{{path_for('user.update.profile')}}"><button type="submit"
                             class="btn btn-social-button btn-github pull-right">
                             <i class="fa fa-cogs"></i> Setting profile</button></a> -->
                         </div>
                         <div class="col-lg-4">
                             <br>
-                            <p class="text-left"><b><span class="col1">Nama </span>:  </b> {{login.name}}<br><br>
-                            <b><span class="col1">Username </span>:  </b> {{login.username}}<br><br>
-                            <b><span class="col1">Email </span>:  </b> {{login.email}}<br><br>
-                            <b><span class="col1">Jenis Kelamin </span>:  </b> {{login.gender}}<br><br>
-                            <b><span class="col1">Alamat </span>:  </b> {{login.address}}<br><br>
-                            <b><span class="col1">No.Telepon </span>:  </b> {{login.phone}}<br><br>
-                            <b><span class="col1">Mulai Bergabung</span>:  </b>{{login.created_at | date("F jS Y ")}}</p>
+                            <p class="text-left"><b><span class="col1">Nama </span>:  </b> {{data.name}}<br><br>
+                            <b><span class="col1">Username </span>:  </b> {{data.username}}<br><br>
+                            <b><span class="col1">Email </span>:  </b> {{data.email}}<br><br>
+                            <b><span class="col1">Jenis Kelamin </span>:  </b> {{data.gender}}<br><br>
+                            <b><span class="col1">Alamat </span>:  </b> {{data.address}}<br><br>
+                            <b><span class="col1">No.Telepon </span>:  </b> {{data.phone}}<br><br>
+                            <b><span class="col1">Mulai Bergabung</span>:  </b>{{data.created_at | date("F jS Y ")}}</p>
                         </div>
                     </div>
-                        {% endif %}
                     <!-- </ul> -->
                 </div>
             </div>
@@ -64,7 +62,7 @@
     </div>
 </div>
 
-<div id="{{login.id}}" class="modal fade" role="dialog">
+<div id="{{data.id}}" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content">
@@ -76,7 +74,7 @@
             <div class="modal-body" style="width:85%; text-align:center; margin:0 auto;">
 
             <!-- content goes here -->
-            <form  action="{{path_for('user.change.image', {id:login.id})}}"
+            <form  action="{{path_for('user.change.image', {id:data.id})}}"
             method="POST" enctype="multipart/form-data" id="laporkan">
                 {% if errors %}
                 <div class="alert alert-danger">
@@ -88,7 +86,7 @@
                     <div class="col-xs-12 col-sm-6 col-md-10">
                         <div class="form-group {{ errors.image ? 'has-error' : '' }}">
                             <div id="image_preview" align="center"><img id="previewing"
-                                src="{{ base_url() }}/assets/images/{{ login.image }}"
+                                src="{{ base_url() }}/assets/images/{{ data.image }}"
                                 class="img-thumbnail" style="width:200px" >
                             </div><br />
                             <label>Pilih foto :</label>
@@ -98,7 +96,7 @@
                                 </div>
                                 <input type="file" id="file" class="form-control"
                                 name="image" placeholder="Item image">
-                                <input type="hidden" class="form-control" name="id" value="{{login.id}}">
+                                <input type="hidden" class="form-control" name="id" value="{{data.id}}">
                             </div>
                             {% if errors.image %}
                             <span class="help-block">{{errors.image | first}}</span>

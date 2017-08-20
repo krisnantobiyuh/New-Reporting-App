@@ -66,10 +66,9 @@ class HomeController extends BaseController
         } catch (GuzzleException $e) {
             $comment = $e->getResponse();
         }
-
         $allComment = json_decode($comment->getBody()->getContents(), true);
 
-        // var_dump($allComment);die();
+        // var_dump($data['data']);die();
 
         if ($data['data']) {
             return $this->view->render($response, 'users/show-item.twig', [

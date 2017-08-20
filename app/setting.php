@@ -11,7 +11,7 @@ return [
 
 	//setting language
 	'lang'	=> [
-		'default'	=> 'en',
+		'default'	=> 'id',
 	],
 
 	//setting db (with doctrine)
@@ -20,11 +20,6 @@ return [
 	],
 
 	'determineRouteBeforeAppMiddleware' => true,
-
-	//setting language
-	'lang'	=> [
-		'default'	=> 'en',
-	],
 
 	'reporting' => [
        'base_uri' => 'http://localhost/Reporting-App/public/api/',

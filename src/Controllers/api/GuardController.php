@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Controllers\api;
 
@@ -16,7 +16,7 @@ class GuardController extends BaseController
         $token = $request->getHeader('Authorization')[0];
         $userToken = new \App\Models\Users\UserToken($this->db);
         $userId = $userToken->getUserId($token);
-        $findGuard = $guard->finds('guard_id', $args['id'], 'user_id', $userId);
+        $findGuard = $guard->findTwo('guard_id', $args['id'], 'user_id', $userId);
 
         $data = [
             'guard_id'  =>  $args['id'],
@@ -43,7 +43,7 @@ class GuardController extends BaseController
         $userToken = new \App\Models\Users\UserToken($this->db);
         $findUser = $userToken->find('token', '72af357cae642386ccaaf5c4e86b669a');
         $findGuard = $guard->findGuards('user_id', $findUser['user_id'], 'guard_id', $args['id']);
-           
+
            // var_dump($findGuard);die();
         $query = $request->getQueryParams();
 
@@ -60,13 +60,13 @@ class GuardController extends BaseController
            return $data;
 
     }
-    // Function show user by guard_id 
+    // Function show user by guard_id
     public function getUserByGuard(Request $request, Response $response, $args)
     {
         $guard = new GuardModel($this->db);
         $users = new \App\Models\Users\UserModel($this->container->db);
         $userToken = new \App\Models\Users\UserToken($this->container->db);
-        
+
         $findGuard = $guard->findGuard('guard_id', $args['id']);
         $token = $response->getHeader('Authorization');
         $findUser = $userToken->find('token', '4411c348e004615488e72b2fc7cf8144');
@@ -106,9 +106,9 @@ class GuardController extends BaseController
         $guard = new GuardModel($this->db);
         $userToken = new \App\Models\Users\UserToken($this->container->db);
         $token = $response->getHeader('Authorization');
-        $userId = $userToken->find('token', '1b4d9cf767403b166e81459af18ff694');
+        $userId = $userToken->find('token', $token);
         $guards = $guard->findGuards('guard_id', $args['id'], 'user_id', $userId['user_id']);
-// var_dump($guards);die();
+var_dump($guards);die();
         $query = $request->getQueryParams();
          if ($userId['user_id'] || $guards ) {
                 $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');

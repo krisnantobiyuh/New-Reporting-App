@@ -138,6 +138,7 @@ class UserModel extends BaseModel
         $this->updateData($dataPassword, $id);
     }
 
+
     public function search($val, $id)
     {
         $qb = $this->db->createQueryBuilder();

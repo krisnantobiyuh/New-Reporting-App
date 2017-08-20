@@ -45,7 +45,7 @@ class UserController extends BaseController
             $_SESSION['key'] = $data['key'];
             if ($_SESSION['login']['status'] == 2) {
                 $_SESSION['user_group'] = $groups;
-                $this->flash->addMessage('succes', 'Selamat datang, '. $login['name']);
+                $this->flash->addMessage('succes', 'Selamat datang, '. $login['username']);
                 return $response->withRedirect($this->router->pathFor('home'));
             } else {
                 $this->flash->addMessage('warning',
@@ -136,35 +136,51 @@ class UserController extends BaseController
     public function viewProfile($request, $response)
     {
         $base = $request->getUri()->getBaseUrl();
-$path = $base.'/assets/images/';
-// var_dump($path);die();
-        return $this->view->render($response, 'users/view-profile.twig');
+        $path = $base.'/assets/images/';
+        try {
+            $result = $this->client->request('GET', 'user/detail'. $request->getUri()->getQuery());
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+
+        $data = json_decode($result->getBody()->getContents(), true);
+// var_dump($data);die();
+        return $this->view->render($response, 'users/view-profile.twig', $data);
     }
 
     public function settingProfile($request, $response, $args)
     {
-        return $this->view->render($response, 'users/setting-profile.twig');
+         try {
+            $result = $this->client->request('GET', 'user/detail'. $request->getUri()->getQuery());
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+
+        $data = json_decode($result->getBody()->getContents(), true);
+        return $this->view->render($response, 'users/setting-profile.twig', $data);
     }
 
     public function updateProfile($request, $response, $args)
     {
-        $this->validator
-        ->rule('required', ['name', 'username', 'email', 'address', 'phone', 'gender'])
-        ->message('{field} tidak boleh kosong')
-        ->label('Nama', 'Username', 'Email', 'Alamat', 'Nomor Telepon', 'Jenis kelamin');
-        $this->validator->rule('email', 'email');
-        $this->validator->rule('alphaNum', 'username');
-        if ($this->validator->validate()) {
+        // var_dump($args['id']);die;
+        // $this->validator
+        //     ->rule('required', ['name', 'email', 'address', 'phone', 'gender'])
+        //     ->message('{field} tidak boleh kosong')
+        //     ->label('Nama', 'Email', 'Alamat', 'Nomor Telepon', 'Jenis kelamin');
+        // $this->validator->rule('email', 'email');
+        // $this->validator->rule('alphaNum', 'username');
+        // if ($this->validator->validate()) {
+        $id = $_SESSION['login']['id'];
 
             try {
-                $result = $this->client->request('POST', 'update/user'.$args['id']. $request->getUri()->getQuery(),
+                $result = $this->client->request('POST', 'user/update/'.$id,
                     ['form_params' => [
-                        'name' => $request->getParam('name'),
-                        'username' => $request->getParam('username'),
-                        'email' => $request->getParam('email'),
-                        'address' => $request->getParam('address'),
-                        'phone_number' => $request->getParam('phone_number'),
-                        'gender' => $request->getParam('gender')
+                        'name'      => $request->getParam('name'),
+                        'username'  => $request->getParam('username'),
+                        'email'     => $request->getParam('email'),
+                        'address'   => $request->getParam('address'),
+                        'phone'     => $request->getParam('phone'),
+                        'gender'    => $request->getParam('gender')
                     ]
                 ]);
             } catch (GuzzleException $e) {
@@ -174,23 +190,23 @@ $path = $base.'/assets/images/';
             $data = json_decode($result->getBody()->getContents(), true);
             // var_dump($data);die();
 
-            if ($data['code'] == 201) {
-                $this->flash->addMessage('succes', 'Update profile success');
-                return $response->withRedirect($this->router->pathFor('user.view.profile'));
-
+            if ($data['error'] == false) {
+                $this->flash->addMessage('succes', 'Info akun berhasil dipebarui');
+                return $response->withRedirect($this->router->pathFor('user.setting.profile'));
+                $_SESSION['login'] = $data['data'];
             } else {
                 $_SESSION['old'] = $request->getParams();
                 $this->flash->addMessage('error', $data['message']);
                 return $response->withRedirect($this->router->pathFor('user.setting.profile'));
             }
 
-        } else {
-            $_SESSION['errors'] = $this->validator->errors();
-            $_SESSION['old'] = $request->getParams();
-
-            // $this->flash->addMessage('info');
-            return $response->withRedirect($this->router->pathFor('user.setting.profile'));
-        }
+        // } else {
+        //     $_SESSION['errors'] = $this->validator->errors();
+        //     $_SESSION['old'] = $request->getParams();
+        //
+        //     // $this->flash->addMessage('info');
+        //     return $response->withRedirect($this->router->pathFor('user.update.profile'));
+        // }
     }
 
     public function changeImage($request, $response)
@@ -236,13 +252,26 @@ $path = $base.'/assets/images/';
         }
     }
 
-    public function resetPassword($request, $response)
+    public function getChangePassword($request, $response)
     {
-        // var_dump( $request->getParam('email'));die();
+         return $this->view->render($response, 'users/change-password.twig');
+    }
+
+    public function postChangePassword($request, $response, $args)
+    {
+        $password1 = $request->getParam('new_password');
+        $password2 = $request->getParam('confirm_password');
+        // var_dump( $request->getParams());die;
+        if ($password1 != $password2) {
+            $this->flash->addMessage('warning', 'Konfirmasi password baru tidak cocok');
+            return $response->withRedirect($this->router->pathFor('change.password'));
+        }
+
         try {
-            $result = $this->client->request('POST', 'reset',
+            $result = $this->client->request('POST', 'user/password/change',
                 ['form_params' => [
-                    'email' => $request->getParam('email')
+                    'password' => $request->getParam('password'),
+                    'new_password' => $request->getParam('new_password')
                 ]
             ]);
         } catch (GuzzleException $e) {
@@ -250,16 +279,13 @@ $path = $base.'/assets/images/';
         }
 
         $data = json_decode($result->getBody()->getContents(), true);
-
-        // var_dump($data);
-        if ($data['code'] == 200) {
+// var_dump($data);die;
+        if ($data['error'] == false) {
             $this->flash->addMessage('succes', $data['message']);
-            return $response->withRedirect($this->router->pathFor('login'));
+            return $response->withRedirect($this->router->pathFor('change.password'));
         } else {
-            $this->flash->addMessage('warning', $data['message']);
-            return $response->withRedirect($this->router->pathFor('login'));
+            $this->flash->addMessage('error', $data['message']);
+            return $response->withRedirect($this->router->pathFor('change.password'));
         }
     }
-
-
 }
