@@ -53,7 +53,7 @@ class UserController extends BaseController
                 return $response->withRedirect($this->router->pathFor('login'));
             }
         } else {
-            $this->flash->addMessage('warning', 'Email atau password tidak cocok');
+            $this->flash->addMessage('warning', 'Username atau password tidak cocok');
             return $response->withRedirect($this->router->pathFor('login'));
         }
     }
@@ -172,41 +172,32 @@ class UserController extends BaseController
         // if ($this->validator->validate()) {
         $id = $_SESSION['login']['id'];
 
-            try {
-                $result = $this->client->request('POST', 'user/update/'.$id,
-                    ['form_params' => [
-                        'name'      => $request->getParam('name'),
-                        'username'  => $request->getParam('username'),
-                        'email'     => $request->getParam('email'),
-                        'address'   => $request->getParam('address'),
-                        'phone'     => $request->getParam('phone'),
-                        'gender'    => $request->getParam('gender')
-                    ]
-                ]);
-            } catch (GuzzleException $e) {
-                $result = $e->getResponse();
-            }
+        try {
+            $result = $this->client->request('POST', 'user/update/'.$id,
+            ['form_params' => [
+                'name'      => $request->getParam('name'),
+                'username'  => $request->getParam('username'),
+                'email'     => $request->getParam('email'),
+                'address'   => $request->getParam('address'),
+                'phone'     => $request->getParam('phone'),
+                'gender'    => $request->getParam('gender')
+            ]
+        ]);
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
 
-            $data = json_decode($result->getBody()->getContents(), true);
-            // var_dump($data);die();
-
-            if ($data['error'] == false) {
-                $this->flash->addMessage('succes', 'Info akun berhasil dipebarui');
-                return $response->withRedirect($this->router->pathFor('user.setting.profile'));
-                $_SESSION['login'] = $data['data'];
-            } else {
-                $_SESSION['old'] = $request->getParams();
-                $this->flash->addMessage('error', $data['message']);
-                return $response->withRedirect($this->router->pathFor('user.setting.profile'));
-            }
-
-        // } else {
-        //     $_SESSION['errors'] = $this->validator->errors();
-        //     $_SESSION['old'] = $request->getParams();
-        //
-        //     // $this->flash->addMessage('info');
-        //     return $response->withRedirect($this->router->pathFor('user.update.profile'));
-        // }
+        $data = json_decode($result->getBody()->getContents(), true);
+        // var_dump($data);die();
+        if ($data['error'] == false) {
+            $this->flash->addMessage('succes', 'Info akun berhasil dipebarui');
+            return $response->withRedirect($this->router->pathFor('user.setting.profile'));
+            $_SESSION['login'] = $data['data'];
+        } else {
+            $_SESSION['old'] = $request->getParams();
+            $this->flash->addMessage('error', $data['message']);
+            return $response->withRedirect($this->router->pathFor('user.setting.profile'));
+        }
     }
 
     public function changeImage($request, $response)
@@ -241,11 +232,11 @@ class UserController extends BaseController
         $data = json_decode($result->getBody()->getContents(), true);
         $newUser = json_decode($user->getBody()->getContents(), true);
 
-        $_SESSION['login'] = $newUser['data'];
         // var_dump($newUser);die();
         if ($data['error'] == false) {
             $this->flash->addMessage('succes', 'Foto profil berhasil diubah');
             return $response->withRedirect($this->router->pathFor('user.view.profile'));
+            $_SESSION['login'] = $newUser['data'];
         } else {
             $this->flash->addMessage('warning', $data['message']);
             return $response->withRedirect($this->router->pathFor('user.view.profile'));

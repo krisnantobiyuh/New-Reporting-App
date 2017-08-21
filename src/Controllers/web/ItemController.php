@@ -212,7 +212,7 @@ var_dump($content);die();
         $userId = $_SESSION['login']['id'];
         $groupId = $args['id'];
         try {
-            $result = $this->client->request('GET', 'item/group/user/unreported',[
+            $result = $this->client->request('GET', 'item/group/user/reported',[
                 'query' => [
                     'user_id' =>  $args['user'],
                     'group_id' =>  $args['group'],
@@ -246,7 +246,7 @@ var_dump($content);die();
             // $userId = $_SESSION['login']['id'];
             // $groupId = $args['id'];
             try {
-                $result = $this->client->request('GET', 'item/group/user/reported',[
+                $result = $this->client->request('GET', 'item/group/user/unreported',[
                     'query' => [
                         'user_id' =>  $args['user'],
                         'group_id' =>  $args['group'],
@@ -264,7 +264,6 @@ var_dump($content);die();
                 $result = $e->getResponse();
             }
              $data= json_decode($result->getBody()->getContents(), true);
-            //  var_dump($data);die();
 
             return $this->view->render($response, 'users/group/unreported-item.twig', [
                 'data'			=>	$data['data'],

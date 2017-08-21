@@ -38,7 +38,6 @@ $app->group('/api', function() use ($app, $container) {
     $app->post('/comment', 'App\Controllers\api\CommentController:createComment')->setname('api.post.comment');
 
     // })->add(new \App\Middlewares\AuthToken($container));
-    $app->post('/change/{id}', 'App\Controllers\api\UserController:postImage')->setname('api.user.ima');
 
     $app->group('/user', function() use ($app, $container) {
         $this->get('', 'App\Controllers\api\UserController:index');
@@ -46,6 +45,7 @@ $app->group('/api', function() use ($app, $container) {
         $this->post('/password/change', 'App\Controllers\api\UserController:changePassword')->setName('api.change.password');
         $this->get('/detail', 'App\Controllers\api\UserController:detailAccount')->setName('api.detail.account');
         $this->get('/groups', 'App\Controllers\api\GroupController:getGeneralGroup');
+        $this->post('/{id}/change-image', 'App\Controllers\api\UserController:postImage')->setname('api.user.image');
     });
 
     $app->group('/group', function() use ($app, $container) {

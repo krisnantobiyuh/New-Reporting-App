@@ -1,6 +1,6 @@
 <?php
-ini_set('session.cookie_lifetime', 8);
-ini_set('session.gc_maxlifetime', 8);
+ini_set('session.cookie_lifetime', 83000);
+ini_set('session.gc_maxlifetime', 83000);
 session_start();
 
 require __DIR__. '/../vendor/autoload.php';

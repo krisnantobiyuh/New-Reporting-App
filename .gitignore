@@ -1,6 +1,7 @@
 /vendor
 /mysql_directory
 /public/assets/images/
+/app/setting.php
 docker-compose.yml
 phinx.yml
 composer.lock

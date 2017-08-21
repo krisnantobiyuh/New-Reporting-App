@@ -154,7 +154,9 @@ class UserController extends BaseController
 
                 $user->updateData($data, $args['id']);
                 $newUser = $user->getUser('id', $args['id']);
-
+                if (file_exists('assets/images/'.$findUser['image'])) {
+                    unlink('assets/images/'.$findUser['image']);die();
+                }
                 return  $this->responseDetail(200, false, 'Foto berhasil diunggah', [
                     'result' => $newUser
                 ]);
@@ -422,8 +424,8 @@ class UserController extends BaseController
             kemudian pilih menu \"Ubah Password\".  <br /> <br />
             Jika Anda tidak seharusnya menerima email ini, mungkin pengguna lain
             memasukkan alamat email Anda secara tidak sengaja saat mencoba menyetel
-            ulang sandi. Jika Anda tidak memulai permintaan ini, Anda tidak perlu
-            melakukan tindakan lebih lanjut dan dapat mengabaikan email ini dengan aman.
+            ulang sandi. Jika Anda tidak memulai permintaan ini, silakan login dengan password
+            di atas lalu ubahlah password Anda untuk keamanan akun.
             <br /><br />
             Terima kasih, <br /><br /> Admin Reporting App";
 
@@ -471,7 +473,7 @@ class UserController extends BaseController
                     'data'  => $data
                     ]);
             } else {
-                return $this->responseDetail(400, true, $this->validator->errors());
+                return $this->responseDetail(400, true, 'Password minimal 5 karakter');
             }
         } else {
             return $this->responseDetail(400, true, 'Password lama tidak sesuai');
@@ -493,7 +495,7 @@ class UserController extends BaseController
             $this->validator->rule('email', 'email');
             // $this->validator->rule('alphaNum', 'username');
             $this->validator->rule('numeric', 'phone');
-            $this->validator->rule('lengthMin', ['name', 'email', 'username'], 5);
+            $this->validator->rule('lengthMin', ['name', 'email'], 5);
             $this->validator->rule('integer', 'id');
             if ($this->validator->validate()) {
                 $users->updateData($request->getParsedBody(), $user['user_id']);
@@ -511,39 +513,39 @@ class UserController extends BaseController
         return $data;
     }
 
-    public function changePasswordNew($request, $response, $args)
-    {
-        $users = new UserModel($this->db);
-        $token = new \App\Models\Users\UserToken($this->container->db);
-
-        $findUser = $users->getUser('email', $request->getParsedBody()['email']);
-
-        $findToken = $token->find('token', 'c8d292e9eddc00935c9a66c38e76418d');
-        // var_dump($findToken);die();
-
-        if ($findUser['id'] == $findToken['user_id']) {
-            $this->validator->rule('required', ['email', 'password']);
-            $this->validator->rule('equals', 'password2', 'password');
-            $this->validator->rule('email', 'email');
-            $this->validator->rule('lengthMin', ['password'], 5);
-
-            if ($this->validator->validate()) {
-                $newData = [
-                'password'  => password_hash($request->getParsedBody()['password'], PASSWORD_BCRYPT)
-                ];
-                $users->updateData($newData, $findUser['id']);
-                $data['result'] = $findUser;
-
-                $data = $this->responseDetail(200, false, 'Update Data Succes', [
-                    'data'  => $data
-                    ]);
-            } else {
-                $data = $this->responseDetail(400, true, $this->validator->errors());
-            }
-        } else {
-            $data = $this->responseDetail(404, true, 'Data Not Found');
-        }
-        return $data;
-    }
+    // public function changePasswordNew($request, $response, $args)
+    // {
+    //     $users = new UserModel($this->db);
+    //     $token = new \App\Models\Users\UserToken($this->container->db);
+    //
+    //     $findUser = $users->getUser('email', $request->getParsedBody()['email']);
+    //
+    //     $findToken = $token->find('token', 'c8d292e9eddc00935c9a66c38e76418d');
+    //     // var_dump($findToken);die();
+    //
+    //     if ($findUser['id'] == $findToken['user_id']) {
+    //         $this->validator->rule('required', ['email', 'password']);
+    //         $this->validator->rule('equals', 'password2', 'password');
+    //         $this->validator->rule('email', 'email');
+    //         $this->validator->rule('lengthMin', ['password'], 5);
+    //
+    //         if ($this->validator->validate()) {
+    //             $newData = [
+    //             'password'  => password_hash($request->getParsedBody()['password'], PASSWORD_BCRYPT)
+    //             ];
+    //             $users->updateData($newData, $findUser['id']);
+    //             $data['result'] = $findUser;
+    //
+    //             $data = $this->responseDetail(200, false, 'Update Data Succes', [
+    //                 'data'  => $data
+    //                 ]);
+    //         } else {
+    //             $data = $this->responseDetail(400, true, $this->validator->errors());
+    //         }
+    //     } else {
+    //         $data = $this->responseDetail(404, true, 'Data Not Found');
+    //     }
+    //     return $data;
+    // }
 
 }
