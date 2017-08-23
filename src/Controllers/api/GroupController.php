@@ -183,12 +183,13 @@ class GroupController extends BaseController
 		$group = $userGroup->findUser('user_id', $findUser['user_id'], 'group_id', $args['id']);
 		$user = $users->find('id', $findUser['user_id']);
 		$query = $request->getQueryParams();
+		$perpage = $request->getQueryParam('perpage');
 
 		if ($group) {
 			if ($finduserGroup || $user['status'] == 1) {
 				$page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
 
-				$findAll = $userGroup->findAll($args['id'])->setPaginate($page, 3);
+				$findAll = $userGroup->findAll($args['id'])->setPaginate($page, $perpage);
 
 				$data = $this->responseDetail(200, false, 'Berhasil', [
 					'data'			=>	$findAll['data'],
@@ -238,7 +239,7 @@ class GroupController extends BaseController
 	{
 		$userGroup = new \App\Models\UserGroupModel($this->db);
 		$finduserGroup = $userGroup->findUser('user_id', $args['id'], 'group_id', $args['group']);
-		$finduserGroup = $userGroup->find('user_id', $args['id']);
+		$finduserGroup = $userGroup->find('id', $args['id']);
 		$query = $request->getQueryParams();
 
 		if ($finduserGroup) {
@@ -278,7 +279,8 @@ class GroupController extends BaseController
 	public function setAsPic(Request $request, Response $response, $args)
 	{
 		$userGroup = new \App\Models\UserGroupModel($this->db);
-		$finduserGroup = $userGroup->findUser('user_id', $args['id'], 'group_id', $args['group']);
+		// $finduserGroup = $userGroup->findUser('user_id', $args['id'], 'group_id', $args['group']);
+		$finduserGroup = $userGroup->find('id', $args['id']);
 		$query = $request->getQueryParams();
 
 		if ($finduserGroup) {
@@ -709,7 +711,7 @@ class GroupController extends BaseController
 					'data'	=>	$findMember
 				]);
 			} else {
-				return $this->responseDetail(400, true, 'Anda tidak memiliki akses !');
+				return $this->responseDetail(403, true, 'Anda tidak memiliki akses !');
 			}
 
 		}else {
@@ -725,13 +727,18 @@ class GroupController extends BaseController
         $token = $request->getHeader('Authorization')[0];
 		$userId = $userToken->getUserId($token);
 		$getGroup = $userGroup->generalGroup($userId);
-
+		$page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+		$perpage = $request->getQueryParam('perpage');
+// var_dump($page);die();
 		if ($getGroup) {
-			return $this->responseDetail(200, false, 'Berhasil menampilkan data', [
-				'data' 	=> 	$getGroup
+			$result = $this->paginateArray($getGroup, $page, $perpage);
+
+			return $this->responseDetail(200, false, 'Grup tersedia', [
+				'data' 			=> 	$result['data'],
+				'pagination' 	=> 	$result['pagination']
 			]);
 		} else {
-			return $this->responseDetail(400, true, 'Ada kesalahan saat menampilkan data');
+			return $this->responseDetail(404, true, 'Group tidak tersedia');
 		}
 	}
 

@@ -4,34 +4,32 @@ namespace App\Controllers\web;
 
 use GuzzleHttp\Exception\BadResponseException as GuzzleException;
 
-class UserController extends BaseController
+class CommentController extends BaseController
 {
 
-    public function getAllUser($request, $response)
+    public function getAllComment($request, $response)
     {
         try {
-            $result = $this->client->request('GET', 'user'. $request->getUri()->getQuery());
+            $result = $this->client->request('GET', 'comment'. $request->getUri()->getQuery());
         } catch (GuzzleException $e) {
             $result = $e->getResponse();
         }
 
         $data = json_decode($result->getBody()->getContents(), true);
 
-        // var_dump($data); die();
+        var_dump($data);
     }
 
-    public function getLogin($request, $response)
-    {
-        return  $this->view->render($response, 'auth/login.twig');
-    }
 
-     public function login($request, $response)
+    public function postComment($request, $response)
     {
+        // var_dump( $request->getParams());die();
         try {
-            $result = $this->client->request('POST', 'login',
+            $result = $this->client->request('POST', 'comment',
                 ['form_params' => [
-                    'username' => $request->getParam('username'),
-                    'password' => $request->getParam('password')
+                    'comment' => $request->getParam('comment'),
+                    'item_id' => $request->getParam('item_id'),
+                    'creator' => $_SESSION['login']['id']
                 ]
             ]);
         } catch (GuzzleException $e) {
@@ -39,21 +37,16 @@ class UserController extends BaseController
         }
         $data = json_decode($result->getBody()->getContents(), true);
 
-        if ($data['code'] == 200) {
-            $_SESSION['login'] = $data['data'];
-            $_SESSION['key'] = $data['key'];
-            if ($_SESSION['login']['status'] == 2) {
-                $_SESSION['user_group'] = $groups;
-                $this->flash->addMessage('succes', 'Selamat datang, '. $login['name']);
-                return $response->withRedirect($this->router->pathFor('home'));
-            } else {
-                $this->flash->addMessage('warning',
-                'Anda belum terdaftar sebagai user atau akun anda belum diverifikasi');
-                return $response->withRedirect($this->router->pathFor('login'));
-            }
+        if ($data['code'] == 201) {
+
+                $this->flash->addMessage('succes', $data['message']);
+                return $response->withRedirect($this->router->pathFor('show.item',
+                 ['id' => $request->getParam('item_id')]));
+
         } else {
-            $this->flash->addMessage('warning', 'Email atau password tidak cocok');
-            return $response->withRedirect($this->router->pathFor('login'));
+            $this->flash->addMessage('warning', 'Terjadi kesalahan');
+            return $response->withRedirect($this->router->pathFor('show.item',
+             ['id' => $request->getParam('item_id')]));
         }
     }
 
@@ -130,34 +123,6 @@ class UserController extends BaseController
             // $this->flash->addMessage('info');
             return $response->withRedirect($this->router->pathFor('signup'));
         }
-    }
-
-    public function searchUser($request, $response)
-    {
-        $user = new \App\Models\Users\UserModel($this->db);
-
-        $search = $request->getParam('search');
-
-        $userId = $_SESSION['login']['id'];
-        $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
-        $perpage = $request->getQueryParam('perpage');
-        $result = $user->search($search, $userId)->setPaginate($page, 8);
-        // $page = $result['pagination']['current_page'];
-        // $perpage = $result['pagination']['perpage'];
-
-        // var_dump($result); die();
-
-        $data['group'] = $request->getParam('group');
-        // $data['users']    = $this->paginateArray($result['data'], $page, $perpage
-        $data['users'] = $result['data'];
-        $data['count']    = count($data['users']);
-        $data['pagination'] = $result['pagination'];
-        $data['search'] = $search;
-        if (!empty($data['group'])) {
-
-            return $this->view->render($response, 'pic/search-result.twig', $data);
-        }
-
     }
 
 }

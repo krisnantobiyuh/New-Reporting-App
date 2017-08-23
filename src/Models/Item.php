@@ -19,7 +19,7 @@ class Item extends BaseModel
             'user_id'     => $data['user_id'],
             'image'       => $data['image'],
             'creator'     => $data['creator'],
-            'public'      => $data['public'],
+            'privacy'     => $data['public'],
             'status'      => $data['status'],
             'reported_at' => $data['reported_at'],
             'updated_at'  => $date
@@ -132,11 +132,11 @@ class Item extends BaseModel
         ->execute();
 
         $qb1 = $this->db->createQueryBuilder();
-        $query1 = $qb1->select('i.id', 'u.username as user', 'u.image as user_image', 'c.comment',
-                'us.username as creator', 'us.image as creator_image','gr.name as group_name',
-                 'i.name as item', 'i.description', 'img.image', 'i.created_at', 'i.reported_at')
+        $query1 = $qb1->select('i.*', 'u.username as user', 'u.image as user_image', 'c.comment',
+                'us.username as creator', 'us.image as creator_image','gr.name as group_name', 'img.image')
+                //  'i.name as item', 'i.description', 'img.image', 'i.created_at', 'i.reported_at')
                 ->from($this->table, 'i')
-                ->where('i.status = 0')
+                ->where('i.deleted = 0')
                 ->andWhere('i.privacy = 0')
                 ->join('i', 'user_group', 'ug', $qb1->expr()->in('i.group_id',$query))
                 ->leftJoin('i', 'users', 'u', 'i.user_id = u.id')
@@ -144,6 +144,7 @@ class Item extends BaseModel
                 ->leftJoin('i', 'groups', 'gr', 'i.group_id = gr.id')
                 ->leftJoin('i', 'image_item', 'img', 'i.id = img.item_id')
                 ->leftJoin('i', 'comments', 'c', 'i.id = c.item_id')
+                ->orderBy('i.updated_at', 'desc')
                 ->execute();
 
         return  $query1->fetchAll();
@@ -226,8 +227,9 @@ class Item extends BaseModel
     {
         $qb = $this->db->createQueryBuilder();
 
-        $qb->select('it.id', 'it.created_at as created', 'it.reported_at as reported',
-         'u.username as user', 'it.description', 'it.name as item', 'img.image',
+        $qb->select('it.*',
+        //  'it.created_at as created', 'it.reported_at as reported','it.description', 'it.name as item',
+         'u.username as user', 'img.image',
           'c.comment', 'u.image as user_image', 'us.image as creator_image',
            'us.username as creator', 'g.name as group_name', 'g.id as group_id')
         ->from($this->table, 'it')
@@ -250,8 +252,9 @@ class Item extends BaseModel
 
         $qb = $this->db->createQueryBuilder();
 
-        $qb->select('it.id', 'it.created_at as created', 'it.reported_at as reported',
-         'u.username as user', 'it.description', 'it.name as item', 'img.image',
+        $qb->select('it.*',
+        // 'it.created_at as created', 'it.reported_at as reported', 'it.description', 'it.name as item',
+         'u.username as user', 'img.image',
           'c.comment', 'u.image as user_image', 'us.image as creator_image',
            'us.username as creator', 'g.name as group_name', 'g.id as group_id')
         ->from($this->table, 'it')
@@ -264,6 +267,65 @@ class Item extends BaseModel
         ->andWhere('it.privacy = 0')
         ->andWhere('it.user_id is null')
         ->setParameter(':id', $id);
+
+        $result = $qb->execute();
+        return $result->fetchAll();
+
+    }
+
+    public function getByMonth($month, $year, $user_id)
+    {
+        $qb = $this->db->createQueryBuilder();
+        $qb->select('*')
+            ->from($this->table)
+            ->where('YEAR(updated_at) = :year')
+            ->andWhere('MONTH(updated_at) = :month')
+            ->andWhere('user_id = :id')
+            ->andWhere('status = 1');
+
+        $qb->setParameter('year', $year)
+            ->setParameter('month', $month)
+           ->setParameter('id', $user_id);
+
+        $query = $qb->execute();
+        return $query->fetchAll();
+    }
+
+    public function getByYear($year, $user_id)
+    {
+        $qb = $this->db->createQueryBuilder();
+        $qb->select('*')
+            ->from($this->table)
+            ->where('YEAR(updated_at) = :year')
+            ->andWhere('user_id = :id')
+            ->andWhere('status = 1');
+
+        $qb->setParameter('year', $year)
+           ->setParameter('id', $user_id);
+
+        $query = $qb->execute();
+        return $query->fetchAll();
+    }
+
+    public function reportedGroupItem($groupId)
+    {
+        $qb = $this->db->createQueryBuilder();
+
+        $qb->select('it.*',
+        //  'it.created_at as created', 'it.reported_at as reported','it.description', 'it.name as item',
+         'u.username as user', 'img.image',
+          'c.comment', 'u.image as user_image', 'us.image as creator_image',
+           'us.username as creator', 'g.name as group_name', 'g.id as group_id')
+        ->from($this->table, 'it')
+        ->join('it', 'users', 'u', 'u.id = it.user_id')
+        ->leftJoin('it', 'users', 'us', 'it.creator = us.id')
+        ->leftJoin('it', 'image_item', 'img', 'it.id = img.item_id')
+        ->leftJoin('it', 'comments', 'c', 'it.id = c.item_id')
+        ->leftJoin('it', 'groups', 'g', 'g.id = it.group_id')
+        ->where('it.group_id = :id')
+        ->andWhere('it.privacy = 0')
+        ->andWhere('it.status = 1')
+        ->setParameter(':id', $groupId);
 
         $result = $qb->execute();
         return $result->fetchAll();

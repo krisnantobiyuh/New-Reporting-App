@@ -150,10 +150,11 @@ class UserModel extends BaseModel
                  ->andWhere('status != 1')
                  ->andWhere('deleted = 0')
                  ->setParameter('val', '%'.$val.'%');
+                //  ->execute();
 
-        $result = $this->query->execute();
+        // $result = $this->query->execute();
 
-        return $result->fetchAll();
+        return $this;
     }
 
     //Set active user account

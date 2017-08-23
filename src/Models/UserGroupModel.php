@@ -187,14 +187,14 @@ class UserGroupModel extends BaseModel
 	{
 		$qb = $this->db->createQueryBuilder();
 
-		$qb->select('groups.*', 'user_group.*')
-			 ->from('groups', 'groups')
-			 ->join('groups', $this->table, 'user_group', 'groups.id = user_group.group_id')
-			 ->where('user_group.user_id = :id')
-			 ->andWhere('user_group.status = 0')
-			 ->orWhere('user_group.status = 1')
+		$qb->select('g.*')
+			 ->from('groups', 'g')
+			 ->join('g', $this->table, 'ug', 'g.id = ug.group_id')
+			 ->where('ug.user_id = :id')
+			 ->andWhere('ug.status = 0 or ug.status = 1')
+			 ->andWhere('g.deleted = 0')
 			 ->setParameter(':id', $userId)
-			 ->orderBy('user_group.id', 'desc');
+			 ->orderBy('g.name', 'asc');
 
 			 $result = $qb->execute();
 			return $result->fetchAll();

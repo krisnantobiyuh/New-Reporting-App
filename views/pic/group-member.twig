@@ -1,0 +1,141 @@
+
+{% extends 'templates/default.twig' %}
+
+{% block title %} Group {% endblock %}
+
+{% block current %} Group {% endblock %}
+
+{% block content %}
+<div class="row-fluid">
+    <div class="span12">
+        <div class="widget-box" style="margin-top:0px;">
+            <div style="background:#ffffff" class="">
+                <div style="padding-bottom:0px; padding-top:0px; background:#24272E;" class="panel-heading">
+                    <div class="widget-title span8">
+                    <ul style="text-align:center" class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#tab1">Anggota Group ({{ pagination.total_data }})</a></li>
+                        <li><a href="{{ base_url()}}/pic/items/group/{{ group }}" class="btn btn-info">Tugas</a></li>
+                        <li ><a  href="{{ base_url() }}/pic/items/group/{{group}}/reported"
+                             class="btn btn-info">Laporan Anggota</a></li>
+                    </ul>
+
+                    </div>
+
+                    <span style="float:right; margin-top:5px;">
+                        <div class="btn-group span4">
+                            <button class="btn btn-info" href="" data-toggle="modal" data-target="#search"><i class="glyphicon glyphicon-plus"></i>
+                    		Tambah Anggota</button>
+                            <!-- <a class="btn btn-info dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-sort-desc" aria-hidden="true"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#"><i class="icon-fixed-width icon-pencil">
+                                     Tambah Anggota</i></a></li>
+                                <li class="divider"></li>
+                                <li><a href="#"><i class="i"> Lihat semua tugas</i></a></li>
+                            </ul> -->
+                        </div>
+                    </span>
+                </div>
+                <div class="panel-body" style="padding-top:40px;">
+                    <div class="widget-content tab-content">
+                        <div id="tab1" class="tab-pane active">
+                            <div class="row">
+                            	{% for user in members %}
+                            		<div class="col-sm-2 col-md-3">
+                            			<div class="panel box-body" style="box-sizing:border-box; width:100%">
+                            			<center><a href="#"><img src="{{ base_url() }}/assets/images/{{ user.image }}"
+                            				 height="151" width="151" style="margin-bottom:5px"></a></center>
+                                             <center>
+                            			  	<div class="text-center" style="padding:0">
+                                                <div class="col-lg-12" style="padding-top:4px; padding-bottom:4px">
+                                                    <!-- <p class="text-center"> -->
+                                                    <span class="text-center">
+                                                        {% if user.name == null %} <b>Anonim</b>
+                                                        {% else %}
+                                                        <b>{{user.name}}</b>
+                                                        {% endif %}
+                            							<!-- <i class="fa fa-phone" aria-hidden="true"></i> {{user.phone}}<br> -->
+                                                    <!-- </p> -->
+                                                    </span>
+                                                </div>
+                            			  	</div>
+                                            <br>
+                                            <form class="" action="{{ path_for('web.pic.set.status')}}" method="post">
+                                            <input type="hidden" name="group" value="{{ group }}">
+                                            <button type="submit" class="btn  btn-success" name="user" value="{{ user.id}}">Atur sebagai PIC</button>
+                                                    </span>
+                                        </form>
+                                        </center>
+                            			</div>
+                            	  	</div>
+                                    {% endfor %}
+
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                {% if members != null %}
+                    <nav aria-label="...">
+                        <ul class="pager">
+                            <div class="pagination">
+                                <ul>
+                                    <li class="{% if pagination.current == 1 %}disabled{% endif %}">
+                                        <a href="{{ base_url() }}/pic/group/{{group}}/member?page={{ pagination.current - 1 }}">
+                                            Sebelumnya</a></li>
+                                            <li class="active"> <a>{{ pagination.current }}</a></li>
+                                            <li class="{% if pagination.current == pagination.total_page %}disabled{% endif %}">
+                                                <a href="{{ base_url() }}/pic/group/{{group}}/member?page={{ pagination.current + 1 }}">
+                                                    Selanjutnya</a></li>
+                                                </ul>
+                                            </div>
+                                        </ul>
+                                    </nav>
+                {% else %}
+                    <center><em> Silahkan tambahkan anggota </em></center>
+                    <br>
+                {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bs-modal-sm" id="search" tabindex="-1" role="dialog" aria-hidden="true" >
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="tab-pane fade active in" id="sigin">
+                    <fieldset>
+                        <form class="form-horizontal" action="{{ path_for('web.pic.search.user')}}" method="get">
+                            <div class="control-group">
+                                <div class="controls">
+                                    <input type="text" name="search" class="form-control" placeholder="Nama atau No Handphone" required value="">
+
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label" for="search" ></label>
+                                <div class="controls">
+                                    <input type="hidden" name="group" value="{{ group }}">
+                                    <button type="submit" class="btn btn-primary btn-block btn-default"><i class="glyphicon glyphicon-search"></i> Cari</button>
+
+                                </div>
+
+                            </div>
+                        </form>
+                        <div class="control-group">
+                            <label class="control-label" for="sigin"></label>
+                            <center>
+                                <div class="controls">
+                                    <button type="button" class="btn btn-large btn-block btn-default" data-dismiss="modal">Tutup</button>
+
+                                </div>
+                            </center>
+
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -5,12 +5,12 @@ namespace App\Models;
 class CommentModel extends BaseModel
 {
 	protected $table = 'comments';
-	protected $column = ['comment', 'creator', 'item_id', 'created_at', 'updated_at'];
+	protected $column = ['comment', 'creator', 'item_id'];
 
 	function add(array $data)
 	{
 		$data = [
-			'comment' 	=> 	$data['name'],
+			'comment' 	=> 	$data['comment'],
 			'creator'	=>	$data['creator'],
 			'item_id'	=>	$data['item_id'],
 		];

@@ -15,21 +15,31 @@ class ItemController extends BaseController
     //Get group item unreported
     public function getGroupItem($request, $response, $args)
 	{
-		$query = $request->getQueryParams();
-		try {
-			$result = $this->client->request('GET', 'items/group/'.$args['group'].
-				$request->getUri()->getQuery());
-		} catch (GuzzleException $e) {
-			$result = $e->getResponse();
-		}
+        try {
+            $result = $this->client->request('GET', 'items/group/'.$args['group'],[
+                'query' => [
+                    'perpage' => 10,
+                    'page' => $request->getQueryParam('page')
+                    ]]);
+
+                    try {
+                        $findGroup = $this->client->request('GET', 'group/find/'.$args['group']);
+                    } catch (GuzzleException $e) {
+                        $findGroup = $e->getResponse();
+                    }
+                    $dataGroup = json_decode($findGroup->getBody()->getContents(), true);
+
+                } catch (GuzzleException $e) {
+                    $result = $e->getResponse();
+                }
 
         $data = json_decode($result->getBody()->getContents(), true);
+// var_dump($dataGroup);die();
 
-
-		return $this->view->render($response, 'users/item-list.twig', [
+		return $this->view->render($response, 'users/group/unreported-item.twig', [
 			'data'			=>	$data['data'],
 			'pagination'  	=>	$data['pagination'],
-			'group_id' 		=> 	$args['group'],
+			'group' 		=> 	$dataGroup['data']
 		]);
 	}
 
@@ -71,39 +81,46 @@ class ItemController extends BaseController
     {
     	$query = $request->getQueryParams();
     	try {
-    		$result = $this->client->request('GET', 'items/group/'.$args['group'].'/reported'.
-    			$request->getUri()->getQuery());
+    		$result = $this->client->request('GET', 'items/group/'.$args['group'].'/reported',[
+                'query' => [
+                    'perpage' => 10,
+                    'page' => $request->getQueryParam('page')
+                    ]]);
+
+                try {
+                    $findGroup = $this->client->request('GET', 'group/find/'.$args['group']);
+                } catch (GuzzleException $e) {
+                    $findGroup = $e->getResponse();
+                }
+                $dataGroup = json_decode($findGroup->getBody()->getContents(), true);
     	} catch (GuzzleException $e) {
     		$result = $e->getResponse();
     	}
 
 		$data = json_decode($result->getBody()->getContents(), true);
 
-		return $this->view->render($response, 'users/item-list-reported.twig', [
+		return $this->view->render($response, 'users/group/reported-item.twig', [
 			'data'			=>	$data['data'],
 			'pagination'	=>	$data['pagination'],
-			'group_id' 		=> 	$args['group'],
+			'group' 		=> 	$dataGroup['data'],
 		]);
     }
 
     //create item by user
 	public function reportItem($request, $response, $args)
 	{
-		$query = $request->getQueryParams();
-
-		var_dump($request->getParam('description'));
-		var_dump($request->getParam('public'));
+		// var_dump($request->getParams());die();
+		// var_dump($request->getParam('public'));
 		try {
-			$result = $this->client->request('POST', 'items/report/'.$args['item'], [
-				'query' => [
-	                'description'   => $request->getParam('description'),
-	                'public'        => $request->getParam('public')
-				]
-			]);
-            $this->flash->addMessage('succes', 'Berhasil melaporkan tugas');
+			$result = $this->client->request('PUT', 'item/report/'.$args['item'],
+                ['form_params' => [
+                    'description'   => $request->getParam('description'),
+                ]
+            ]);
+            // $this->flash->addMessage('succes', 'Berhasil melaporkan tugas');
 		} catch (GuzzleException $e) {
 			$result = $e->getResponse();
-            $this->flash->addMessage('error', 'Ada kesalahan saat melaporkan tugas');
+            // $this->flash->addMessage('error', 'Ada kesalahan saat melaporkan tugas');
 		}
 
 		$content = $result->getBody()->getContents();
@@ -147,6 +164,13 @@ class ItemController extends BaseController
 
     	// return $response->withRedirect("http://localhost/New-Reporting-App/public/items/group/".$args['group_id']);
     }
+
+    // public function byMonth($request, $response, $args)
+    // {
+    //     $item = new Item($this->db);
+    //     $result= $item->getByMonth('08','2017',$args['id']);
+    //     var_dump($result);die();
+    // }
 }
 
  ?>
