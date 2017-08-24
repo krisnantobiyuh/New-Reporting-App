@@ -47,6 +47,12 @@
                             <i class="fa fa-login"></i>Masuk</button>
                 </div>
             </form>
+            <br>
+            <div style="color:#fff; margin:20px;">
+                <span class="pull-right">Belum mempunyai akun? &nbsp&nbsp&nbsp
+                <a href="{{path_for('signup')}}" class="flip-link btn btn-primary" id="to-recover">
+                    Daftar</a></span>
+            </div>
             <form id="recoverform" action="{{path_for('password.reset')}}"
             method="post" class="form-vertical">
 				<p class="normal_text">Silakan masukkan email anda. Kami akan

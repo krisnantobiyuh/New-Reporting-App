@@ -28,7 +28,7 @@ class UpdateItemTable extends AbstractMigration
     public function change()
     {
         $table = $this->table('items');
-        $table->addColumn('public', 'integer', ['after' => 'status', 'default' => 0])
+        $table->addColumn('privacy', 'integer', ['after' => 'status', 'default' => 0])
         ->update();
     }
 }

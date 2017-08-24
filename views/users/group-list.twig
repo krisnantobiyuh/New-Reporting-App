@@ -30,7 +30,7 @@
             <div class="row">
                 <div class="col-md-3" style="padding-right:0px;">
                     <div  style="line-height:4em;" class="panel box-body" >
-                        <a href="{{ path_for('reported.item.user.group',
+                        <a href="{{ path_for('unreported.item.user.group',
                          {'group': data.id, 'user':login.id}) }}"
                          title="Masuk ke grup {{ data.name }}"><center>
                         <h1><img src="{{ base_url() }}/assets/images/{{ data.image }}"
@@ -125,7 +125,7 @@
             <div class="modal-body">
 
                 <!-- modal content -->
-                <form action="{{ base_url() }}/group/create" method='POST'>
+                <form action="{{ base_url() }}/group/create" method="POST">
                     <div class="form-group">
                         <label for="exampleInputEmail1">Nama</label>
                         <input type="text" name="name" class="form-control" placeholder="Nama grup">

@@ -29,10 +29,20 @@
                             src="{{ base_url() }}/assets/images/avatar.png">
                             {% endif %}
                             {% if item.reported_at == null  %}
-                            &nbsp&nbsp&nbsp<b>{{ item.creator }}</b>
+                            &nbsp&nbsp&nbsp<b>
+                                {% if item.creator == login.username %}
+                                Anda
+                                {% else %}
+                                {{ item.creator }}
+                                {% endif %}</b>
                             <i>membuat item di grup</i> <b>{{ item.group_name }}</b>
                             {% else %}
-                            &nbsp&nbsp&nbsp <b>{{ item.user }}</b>
+                            &nbsp&nbsp&nbsp <b>
+                                {% if item.user == login.username %}
+                                Anda
+                                {% else %}
+                                {{ item.user }}
+                                {% endif %}</b>
                             <i>melaporkan item di grup</i> <b>{{ item.group_name }}</b>
                             {% endif %}
                         </div>
@@ -65,7 +75,14 @@
                         src="{{ base_url() }}/assets/images/{{ item.image[0] }}">
                         <br><br>
                         {% endif %}
-                        <p>{{ item.description }}</p>
+                        <p>
+                        {% if item.description|length > 155 %}
+                            {{ item.description|slice(0, 155) ~ '...'}}
+                             <a href="{{ base_url() }}/item/show/{{item.id}}">selengkapnya</a>
+                        {% else %}
+                            {{ item.description }}
+                        {% endif %}
+                        </p>
                          <p style="font-size: 10pt;"><i class="fa fa-clock-o" aria-hidden="true"></i>
                          {{ item.updated_at | date('j F Y | H:i')}}</p>
                          <br><a href="{{ base_url() }}/item/show/{{item.id}}" title="Lihat detail item"
@@ -82,12 +99,12 @@
                         <div class="pagination alternate">
                             <ul>
                                 {% if pagination.current > 1 %}
-                                <li><a href="{{ base_url() }}/home/?page={{ pagination.current - 1 }}">
+                                <li><a href="{{ base_url() }}/home?page={{ pagination.current - 1 }}">
                                         Sebelumnya</a></li>
                                 {% endif %}
                                 <li class="active"> <a>{{ pagination.current }}</a></li>
                                 {% if pagination.current < pagination.total_page %}
-                                <li><a href="{{ base_url() }}/home/?page={{ pagination.current + 1 }}">
+                                <li><a href="{{ base_url() }}/home?page={{ pagination.current + 1 }}">
                                         Selanjutnya</a></li>
                                 {% endif %}
                             </ul>

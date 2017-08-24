@@ -21,7 +21,7 @@ $app->group('/api', function() use ($app, $container) {
         $app->get('/image/{item}', 'App\Controllers\api\ItemController:getImageItem')->setname('api.item.image');
         $app->delete('/image/{image}', 'App\Controllers\api\ItemController:deleteImageItem')->setname('api.delete.image');
         $app->post('', 'App\Controllers\api\ItemController:createItem')->setname('api.item.create');
-        $app->post('/{group}', 'App\Controllers\api\ItemController:createItemUser')->setname('api.item.user.create');
+        $app->post('/create/{group}', 'App\Controllers\api\ItemController:createItemUser')->setname('api.item.user.create');
         $app->get('/group/{group}', 'App\Controllers\api\ItemController:getUserInGroupItem')->setname('api.group.item');
         // $app->get('/group/{group}/reported', 'App\Controllers\api\ItemController:getReportedGroupItem')->setname('api.reported.group.item');
         $app->get('/{user}/unreported', 'App\Controllers\api\ItemController:getUnreportedUserItem')->setname('api.unreported.item');
@@ -30,7 +30,7 @@ $app->group('/api', function() use ($app, $container) {
         $app->get('/{user}/year', 'App\Controllers\api\ItemController:getReportedByYear')->setname('api.reported.user.year');
         $app->get('/group/user/reported', 'App\Controllers\api\ItemController:getReportedUserGroupItem')->setname('api.reported.user.group');
         $app->get('/group/user/unreported', 'App\Controllers\api\ItemController:getUnreportedUserGroupItem')->setname('api.unreported.user.group');
-        $app->put('/report/{item}', 'App\Controllers\api\ItemController:reportItem')->setname('api.report.item');
+        $app->post('/report/{item}', 'App\Controllers\api\ItemController:reportItem')->setname('api.report.item');
         $app->get('/show/{id}', 'App\Controllers\api\ItemController:showItemDetail')->setname('api.item.show');
         $app->get('/comment/{id}', 'App\Controllers\api\CommentController:getItemComment')->setname('api.item.comment');
     });

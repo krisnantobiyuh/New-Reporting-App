@@ -58,9 +58,7 @@ class GroupController extends BaseController
 	{
 		$rules = [
 			'required' => [
-				['name'],
-				['description'],
-				['image'],
+				['name']
 			]
 		];
 
@@ -72,26 +70,28 @@ class GroupController extends BaseController
 
 		$this->validator->rules($rules);
 		if ($this->validator->validate()) {
+			$groups = new \App\Models\GroupModel($this->db);
+			$userGroups = new \App\Models\UserGroupModel($this->db);
 
-			$post = $request->getParams();
-
+			$data = $request->getParams();
 			$token = $request->getHeader('Authorization')[0];
-			$userToken = new \App\Models\Users\UserToken($this->db);
-			$post['creator'] = $userToken->getUserId($token);
-			$query = $request->getQueryParams();
-			$group = new \App\Models\GroupModel($this->db);
-			$addGroup = $group->add($post, $imageName);
+			$data['creator'] = $groups->getUserByToken($token)['id'];
+			$addGroup = $groups->add($data);
+			$findGroup = $groups->find('id', $addGroup);
 
-			$findNewGroup = $group->find('id', $addGroup);
+			$dataPic = [
+				'user_id'	=> $data['creator'],
+				'group_id'	=> $addGroup,
+				'status'	=> 1
+			];
+			$setPicGroup = $userGroups->add($dataPic);
 
-			$data = $this->responseDetail(201, false, 'Berhasil ditambahkan', [
-					'data'	=>	$findNewGroup
+			return $this->responseDetail(201, false, 'Grup '.$findGroup['name'].' berhasil dibuat', [
+					'data'	=>	$findGroup
 				]);
 		} else {
-			$data = $this->responseDetail(400, true, $this->validator->errors());
+			return $this->responseDetail(400, true, $this->validator->errors());
 		}
-
-		return $data;
 	}
 
 	//Edit group

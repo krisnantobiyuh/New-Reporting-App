@@ -3,17 +3,23 @@
 
 {% block title %} {{ items.name }} {% endblock %}
 
-{% block current %} Lihat tugas {% endblock %}
+{% block current %} Lihat detail tugas {% endblock %}
 
 {% block content %}
 <a class="list-group-item active main-color-bg">
-    <span class="" aria-hidden="true">lihat item</span>
+    <span class="" aria-hidden="true">Lihat tugas</span>
 </a>
 <div style="padding:20px; background:#fff;"class="span12">
 {% if items.reported_at == null and items.creator_image != null %}
 <div class="user-thumb"> <img width="70" height="70" alt="Photo"
     src="{{ base_url() }}/assets/images/{{ items.creator_image }}">
-    &nbsp&nbsp&nbsp<b>{{ items.creator }}</b>
+    &nbsp&nbsp&nbsp<b>
+        {% if items.creator == login.username %}
+        Anda
+        {% else %}
+        {{ items.creator }}
+        {% endif %}
+    </b>
     <i>membuat item di grup</i> <b>{{ items.group_name }}</b><br>
 
     <span class="user-info">
@@ -23,7 +29,12 @@
 {% elseif items.reported_at != null and items.user_image != null %}
 <div class="user-thumb"> <img width="70" height="70" alt="Photo"
     src="{{ base_url() }}/assets/images/{{ items.user_image }}">
-    &nbsp&nbsp&nbsp<b>{{ items.user }}</b>
+    &nbsp&nbsp&nbsp<b>
+        {% if items.user == login.username %}
+        Anda
+        {% else %}
+        {{ items.user }}
+        {% endif %}</b>
     <i>membuat item di grup</i> <b>{{ items.group_name }}</b><br>
 
 </div>
@@ -56,10 +67,16 @@
         <div>
             <p> {{ items.description }} </p>
         </div>
+        {% if items.image is iterable %}
         {% for image in items.image %}
-        <img height="200px" style="max-width: 300px;"alt="Image item"
+        <img height="200px" style="max-width: 300px;"
         src="{{ base_url() }}/assets/images/{{ image }}">
         {% endfor %}
+        {% else %}
+        <img height="200px" style="max-width: 300px;"
+        src="{{ base_url() }}/assets/images/{{ items.image }}">
+        {% endif %}
+
         <hr style="border-top: 4px double #8c8b8b;">
         <div style="background:#F6F7F9; padding: 15px;">
             {% for comment in comment %}

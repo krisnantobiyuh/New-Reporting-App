@@ -11,7 +11,7 @@ class HomeController extends BaseController
         try {
             $result = $this->client->request('GET', 'all-item/'.$id.'?',[
                  'query' => [
-                     'perpage' => 10,
+                     'perpage' => 5,
                      'page' => $request->getQueryParam('page')
  			]]);
         } catch (GuzzleException $e) {
@@ -68,14 +68,15 @@ class HomeController extends BaseController
         }
         $allComment = json_decode($comment->getBody()->getContents(), true);
 
-        // var_dump($data['data']);die();
+        // var_dump($data['error']);die();
 
-        if ($data['data']) {
+        if ($data['error'] == false) {
             return $this->view->render($response, 'users/show-item.twig', [
                 'items' => $data['data'],
                 'comment' => $allComment['data'],
             ]);
         } else {
+            $this->flash->addMessage('error', $data['message']);
             return $response->withRedirect($this->router->pathFor('home'));
         }
     }

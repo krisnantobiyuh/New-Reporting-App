@@ -37,7 +37,7 @@ class Item extends BaseModel
             'start_date'  => $data['start_date'],
             'group_id'    => $data['group_id'],
             'user_id'     => $data['user_id'],
-            'public'      => $data['public'],
+            'privacy'      => $data['privacy'],
             'updated_at'  => $date
         ];
         $this->updateData($data, $id);
@@ -74,21 +74,23 @@ class Item extends BaseModel
         ->execute();
 
         $qb1 = $this->db->createQueryBuilder();
-        if ($query1->fetchAll()[0] != NULL) {
+        if (!empty($query1->fetchAll()[0])) {
             $this->query = $qb1->select('i.*')
             ->from($this->table, 'i')
             ->join('i', 'reported_item', 'r', $qb1->expr()->notIn('i.id', $query1))
-            ->where('i.user_id = '. $userId .'&&'. 'i.group_id = '. $groupId)
-            ->orWhere('i.group_id = '. $groupId)
+            ->where(('i.user_id = '. $userId || 'i.user_id = NULL').'&&'. 'i.group_id = '. $groupId)
             ->andWhere('i.deleted = 0 && i.status = 0')
             ->groupBy('i.id');
         } else {
             $this->query = $qb1->select('*')
             ->from($this->table)
-            ->where('user_id = '. $userId .'&&'. 'group_id = '. $groupId)
-            ->orWhere('group_id = '. $groupId)
-            ->andWhere('deleted = 0 && status = 0');
+            ->where(('user_id = '. $userId || 'user_id = NULL').'&&'. 'group_id = '. $groupId)
+            // ->where('user_id = '. $userId .'&& group_id = '. $groupId)
+            // ->orWhere('group_id = '. $groupId . '&& user_id = NULL')
+            ->andWhere('deleted = 0 && status = 0')
+            ->groupBy('id');
         }
+        // var_dump($this->fetchAll());die;
         return $this->fetchAll();
     }
 
@@ -98,7 +100,9 @@ class Item extends BaseModel
         $this->query = $qb->select('*')
         ->from($this->table)
         ->where('user_id = '. $userId .'&&'. 'group_id = '. $groupId)
-        ->andWhere('deleted = 0 && status = 1');
+        ->andWhere('deleted = 0 && status = 1')
+        ->groupBy('id');
+
         return $this->fetchAll();
     }
 
@@ -235,7 +239,7 @@ class Item extends BaseModel
         ->leftJoin('it', 'comments', 'c', 'it.id = c.item_id')
         ->leftJoin('it', 'groups', 'g', 'g.id = it.group_id')
         ->where('it.id = :id')
-        ->andWhere('it.privacy = 0')
+        // ->andWhere('it.privacy = 0')
         ->setParameter(':id', $id);
 
         $result = $qb->execute();
@@ -260,7 +264,7 @@ class Item extends BaseModel
         ->leftJoin('it', 'comments', 'c', 'it.id = c.item_id')
         ->leftJoin('it', 'groups', 'g', 'g.id = it.group_id')
         ->where('it.id = :id')
-        ->andWhere('it.privacy = 0')
+        // ->andWhere('it.privacy = 0')
         ->andWhere('it.user_id is null')
         ->setParameter(':id', $id);
 
