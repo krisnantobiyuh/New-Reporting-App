@@ -27,6 +27,17 @@ class GuardModel extends BaseModel
 		$this->updateData($data, $id);
 	}
 
+	 public function getAllUser()
+	    {
+
+	        $qb = $this->db->createQueryBuilder();
+
+	        $this->query = $qb->select('id', 'guard_id', 'user_id')
+	                        ->from($this->table)
+	                        ->where('id', $id);
+
+	        return $this;
+	    }
 	public function getUser($id)
     {
         $qb = $this->db->createQueryBuilder();
@@ -44,14 +55,14 @@ class GuardModel extends BaseModel
 	{
 		$qb = $this->db->createQueryBuilder();
 
-		$qb->select('users.*')
+		$this->query = $qb->select('users.*')
 			 ->from('users', 'users')
 			 ->join('users', $this->table, 'guard', 'users.id = guard.user_id')
 			 ->where('guard.guard_id = :id')
 			 ->setParameter(':id', $guardId);
 
-			 $result = $qb->execute();
- 			return $result->fetchAll();
+			 // $result = $qb->execute();
+ 			return $this;
 	}
 
 	//Get all users are not registered to guard
@@ -78,7 +89,7 @@ class GuardModel extends BaseModel
 	}
 
 	//Find id guardian table by column
-	public function findGuard($column1, $val1, $column2, $val2)
+	public function findGuards($column1, $val1, $column2, $val2)
 	{
 		$param1 = ':'.$column1;
 		$param2 = ':'.$column2;
@@ -91,6 +102,41 @@ class GuardModel extends BaseModel
 		$result = $qb->execute();
 		return $result->fetch();
 	}
+
+	//Find all user user by column
+	public function findGuard($column, $value)
+    {
+        $param = ':'.$column;
+        $qb = $this->db->createQueryBuilder();
+        $qb->select('*')
+            ->from($this->table)
+            ->setParameter($param, $value)
+            ->where($column . ' = '. $param);
+        $result = $qb->execute();
+        return $result->fetchAll();
+    }
+
+    public function getUserId($id)
+    {
+        $qb = $this->db->createQueryBuilder();
+
+		$this->query = $qb->select('*')
+            ->from($this->table)
+            ->where('user_id ='. $id);
+		$query = $qb->execute();
+
+	    return $this;
+    }
+
+    //HardDelete
+    public function deleteGuard($guardId)
+    {
+        $qb = $this->db->createQueryBuilder();
+
+         $qb->delete($this->table)
+            ->where('guard_id = ' . $guardId)
+            ->execute();
+    }
 }
 
 ?>

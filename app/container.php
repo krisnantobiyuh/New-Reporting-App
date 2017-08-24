@@ -43,7 +43,12 @@ $container['view'] = function ($container) {
 	if (@$_SESSION['search']) {
 		$view->getEnvironment()->addGlobal('search', $_SESSION['search']);
 		unset($_SESSION['search']);
-}
+	}
+
+	if (@$_SESSION['back']) {
+		$view->getEnvironment()->addGlobal('back', $_SESSION['back']);
+	}
+
 	$view->getEnvironment()->addGlobal('flash', $container->flash);
 
 	return $view;
@@ -51,15 +56,6 @@ $container['view'] = function ($container) {
 
 $container['flash'] = function ($container) {
 	return new \Slim\Flash\Messages;
-};
-
-$container['client'] = function ($container) {
-    $settings = $container->get('settings')['reporting'];
-
-    return new GuzzleHttp\Client([
-        'base_uri' => 'http://localhost/Reporting-App/public/api/',
-        'headers'  => $settings['headers']
-    ]);
 };
 
 // monolog
@@ -71,9 +67,24 @@ $container['logger'] = function ($c) {
     return $logger;
 };
 
+$container['client'] = function ($container) {
+   $settings = $container->get('settings')['reporting'];
+
+   return new GuzzleHttp\Client([
+       'base_uri' => $settings['base_uri'],
+       'headers'  => $settings['headers']
+   ]);
+};
 $container['fs'] = function ($c) {
 	$setting = $c->get('settings')['flysystem'];
     $adapter = new \League\Flysystem\Adapter\Local($setting['path']);
     $filesystem = new \League\Flysystem\Filesystem($adapter);
     return $filesystem;
+};
+
+//Override the default Not Found Handler
+$container['notFoundHandler'] = function ($c) {
+    return function ($request, $response) use ($c) {
+		return $response->withRedirect($request->getUri()->getBasePath().'/404');
+    };
 };

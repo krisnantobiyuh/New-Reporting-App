@@ -11,8 +11,8 @@
 <div style="padding:10px; background:#fff;"class="span12">
     <span style="float:right;">
         <div class="btn-group">
-            <a class="btn btn-primary" href="#"><i class="icon-collapse"></i> Lainnya</a>
-            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
+            <a class="btn btn-info" href="#"><i class="icon-collapse"></i> Lainnya</a>
+            <a class="btn btn-info dropdown-toggle" data-toggle="dropdown" href="#">
                 <i class="fa fa-caret-down"></i>
             </a>
             <ul class="dropdown-menu">
@@ -30,7 +30,8 @@
             <div class="row">
                 <div class="col-md-3" style="padding-right:0px;">
                     <div  style="line-height:4em;" class="panel box-body" >
-                        <a href="{{ path_for('group.item', {'group': data.id}) }}"
+                        <a href="{{ path_for('reported.item.user.group',
+                         {'group': data.id, 'user':login.id}) }}"
                          title="Masuk ke grup {{ data.name }}"><center>
                         <h1><img src="{{ base_url() }}/assets/images/{{ data.image }}"
                             align="center" alt="{{ data.name }}" width="234" height="234">
@@ -89,13 +90,15 @@
                 <ul class="pager">
                     <div class="pagination alternate">
                         <ul>
-                            <li class="{% if pagination.current <= 1 %}disabled{% endif %}">
-                            <a href="{{ base_url() }}/group/user/join?page={{ pagination.current - 1 }}">
+                            {% if pagination.current > 1 %}
+                            <li><a href="{{ base_url() }}/home/?page={{ pagination.current - 1 }}">
                                     Sebelumnya</a></li>
+                            {% endif %}
                             <li class="active"> <a>{{ pagination.current }}</a></li>
-                            <li class="{% if pagination.current == pagination.total_page %}disabled{% endif %}">
-                            <a href="{{ base_url() }}/group/user/join?page={{ pagination.current + 1 }}">
-                                Selanjutnya</a></li>
+                            {% if pagination.current < pagination.total_page %}
+                            <li><a href="{{ base_url() }}/home/?page={{ pagination.current + 1 }}">
+                                    Selanjutnya</a></li>
+                            {% endif %}
                         </ul>
                     </div>
                 </ul>
@@ -108,38 +111,21 @@
         </div>
     </div>
 
-    <!-- <div class="row">
-        <div class=" col-md-4">
-            <div class="thumb1">
-                <center>
-                    <h1><a href="">
-                        <img src="{{ base_url() }}/assets/images/{{ data.image }}"
-                        alt="{{ data.name }}" height="234" width="234" style="margin:20px">
-                    </a><h1>
-                </center>
-            </div>
-        </div>
-        <div class="col-md-8">
-            <ul>
-                <li><a href="{{ path_for('group.item', {'group': data.id}) }}"><span class="badge">{{ data.name }}</span></a></li>
-                <li>{{ data.description }}</li>
-            </ul>
-        </div>
-    </div> -->
-
 <!-- Modal -->
 <!-- line modal -->
-<div class="modal fade" id="squarespaceModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+<div class="modal fade" id="squarespaceModal" tabindex="-1" role="dialog"
+ aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
                 <h3 class="modal-title" id="lineModalLabel">Buat Group</h3>
             </div>
             <div class="modal-body">
 
                 <!-- modal content -->
-                <form action="{{ base_url() }}/pic/create" method='POST'>
+                <form action="{{ base_url() }}/group/create" method='POST'>
                     <div class="form-group">
                         <label for="exampleInputEmail1">Nama</label>
                         <input type="text" name="name" class="form-control" placeholder="Nama grup">
@@ -152,7 +138,8 @@
                 <div class="modal-footer">
                     <div class="btn-group btn-group-justified" role="group" aria-label="group button">
                         <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-danger" data-dismiss="modal" role="button">Close</button>
+                            <button type="button" class="btn btn-danger"
+                            data-dismiss="modal" role="button">Close</button>
                         </div>
                         <div class="btn-group" role="group">
                             <button type="submit" class="btn btn-success btn-hover-green" >Save</button>

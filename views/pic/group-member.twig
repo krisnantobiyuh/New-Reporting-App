@@ -25,55 +25,60 @@
                         <div class="btn-group span4">
                             <button class="btn btn-info" href="" data-toggle="modal" data-target="#search"><i class="glyphicon glyphicon-plus"></i>
                     		Tambah Anggota</button>
-                            <!-- <a class="btn btn-info dropdown-toggle" data-toggle="dropdown" href="#">
-                                <i class="fa fa-sort-desc" aria-hidden="true"></i>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a href="#"><i class="icon-fixed-width icon-pencil">
-                                     Tambah Anggota</i></a></li>
-                                <li class="divider"></li>
-                                <li><a href="#"><i class="i"> Lihat semua tugas</i></a></li>
-                            </ul> -->
                         </div>
                     </span>
                 </div>
                 <div class="panel-body" style="padding-top:40px;">
-                    <div class="widget-content tab-content">
-                        <div id="tab1" class="tab-pane active">
-                            <div class="row">
-                            	{% for user in members %}
-                            		<div class="col-sm-2 col-md-3">
-                            			<div class="panel box-body" style="box-sizing:border-box; width:100%">
-                            			<center><a href="#"><img src="{{ base_url() }}/assets/images/{{ user.image }}"
-                            				 height="151" width="151" style="margin-bottom:5px"></a></center>
-                                             <center>
-                            			  	<div class="text-center" style="padding:0">
-                                                <div class="col-lg-12" style="padding-top:4px; padding-bottom:4px">
-                                                    <!-- <p class="text-center"> -->
-                                                    <span class="text-center">
-                                                        {% if user.name == null %} <b>Anonim</b>
-                                                        {% else %}
-                                                        <b>{{user.name}}</b>
-                                                        {% endif %}
-                            							<!-- <i class="fa fa-phone" aria-hidden="true"></i> {{user.phone}}<br> -->
-                                                    <!-- </p> -->
-                                                    </span>
-                                                </div>
-                            			  	</div>
-                                            <br>
-                                            <form class="" action="{{ path_for('web.pic.set.status')}}" method="post">
-                                            <input type="hidden" name="group" value="{{ group }}">
-                                            <button type="submit" class="btn  btn-success" name="user" value="{{ user.id}}">Atur sebagai PIC</button>
-                                                    </span>
-                                        </form>
-                                        </center>
-                            			</div>
-                            	  	</div>
+
+                            	{% for member in members %}
+                                <div style="padding:5px;" class="col-md-4" >
+                                    <div class="well dash-box" style="background:#f2f2f2;">
+                                        {% if member.image != null %}
+                                            <img  style="margin-right:10px;" width="75" height="75" alt="User"
+                                            src="{{ base_url() }}/assets/images/{{ member.image }}">
+                                        {% else %}
+                                            <img style="margin-right:10px;" width="75" height="75" alt="User"
+                                            src="{{ base_url() }}/assets/images/avatar.png">
+                                        {% endif %}
+                                        <span style="float: right; top: 1px; ">
+                                            <div class="btn-group span4">
+                                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                                <i class="fa fa-sort-desc" aria-hidden="true"></i>
+                                            </a>
+                                            <ul style="left: -140px; top: 13px; "class="dropdown-menu">
+                                                <li>
+                                                    <a href="{{path_for('web.pic.set.status', {'id':member.id, 'group':group})}}"><i  class="icon-fixed-width icon-pencil">
+                                                     Jadikan PIC</i></a>
+                                                 </li>
+                                                <li>
+                                                    <a href="{{ path_for('web.pic.set.as.member', {'id':member.id, 'group':group})}}"><i class="icon-fixed-width icon-pencil">
+                                                     Jadikan anggota</i></a>
+                                                 </li>
+                                                <li>
+                                                    <a href="#"><i class="icon-fixed-width icon-pencil">
+                                                     Jadikan wali</i></a></li>
+
+                                                <li class="divider"></li>
+                                                <li>
+                                                    <a href="{{ path_for('web.pic.delete.member', {'id': member.id, 'group': group })}}"><i class="i"> Keluarkan dari grup</i></a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        </span>
+                                        <span style="position: absolute; float: right; font-family: Franklin Gothic Medium;">
+                                            <br><b>{{ member.username }}</b><br>
+                                            {% if member.status == 0 %}
+                                            Anggota
+                                            {% elseif member.status == 1 %}
+                                            PIC
+                                            {% elseif member.status == 2 %}
+                                            Wali
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
                                     {% endfor %}
 
-                            </div>
-                            </div>
-                        </div>
                     </div>
                 {% if members != null %}
                     <nav aria-label="...">

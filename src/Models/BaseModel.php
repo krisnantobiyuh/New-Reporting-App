@@ -177,7 +177,7 @@ abstract class BaseModel
         return $this->query->execute()->fetch();
     }
 
-    public function finds($column1, $val1, $column2, $val2)
+    public function findTwo($column1, $val1, $column2, $val2)
     {
         $param1 = ':'.$column1;
         $param2 = ':'.$column2;
@@ -187,6 +187,22 @@ abstract class BaseModel
             ->setParameter($param1, $val1)
             ->setParameter($param2, $val2)
             ->where($column1 . ' = '. $param1 .'&&'. $column2 . ' = '. $param2);
+        $result = $qb->execute();
+        return $result->fetchAll();
+    }
+
+    public function findThree($col1, $val1, $col2, $val2, $col3, $val3)
+    {
+        $param1 = ':'.$col1;
+        $param2 = ':'.$col2;
+        $param3 = ':'.$col3;
+        $qb = $this->db->createQueryBuilder();
+        $qb->select('*')
+            ->from($this->table)
+            ->setParameter($param1, $val1)
+            ->setParameter($param2, $val2)
+            ->setParameter($param3, $val3)
+            ->where($col1.'='.$param1.'&&'.$col2.'='.$param2.'&&'.$col3.'='.$param3);
         $result = $qb->execute();
         return $result->fetchAll();
     }

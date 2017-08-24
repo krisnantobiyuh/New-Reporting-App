@@ -27,6 +27,7 @@ class UserController extends BaseController
 
      public function login($request, $response)
     {
+        // var_dump($request->getParams());die();
         try {
             $result = $this->client->request('POST', 'login',
                 ['form_params' => [
@@ -44,7 +45,7 @@ class UserController extends BaseController
             $_SESSION['key'] = $data['key'];
             if ($_SESSION['login']['status'] == 2) {
                 $_SESSION['user_group'] = $groups;
-                $this->flash->addMessage('succes', 'Selamat datang, '. $login['name']);
+                $this->flash->addMessage('succes', 'Selamat datang, '. $login['username']);
                 return $response->withRedirect($this->router->pathFor('home'));
             } else {
                 $this->flash->addMessage('warning',
@@ -52,7 +53,7 @@ class UserController extends BaseController
                 return $response->withRedirect($this->router->pathFor('login'));
             }
         } else {
-            $this->flash->addMessage('warning', 'Email atau password tidak cocok');
+            $this->flash->addMessage('warning', 'Username atau password tidak cocok');
             return $response->withRedirect($this->router->pathFor('login'));
         }
     }
@@ -160,4 +161,150 @@ class UserController extends BaseController
 
     }
 
+    public function viewProfile($request, $response)
+    {
+        $base = $request->getUri()->getBaseUrl();
+        $path = $base.'/assets/images/';
+        try {
+            $result = $this->client->request('GET', 'user/detail'. $request->getUri()->getQuery());
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+
+        $data = json_decode($result->getBody()->getContents(), true);
+// var_dump($data);die();
+        return $this->view->render($response, 'users/view-profile.twig', $data);
+    }
+
+    public function settingProfile($request, $response, $args)
+    {
+         try {
+            $result = $this->client->request('GET', 'user/detail'. $request->getUri()->getQuery());
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+
+        $data = json_decode($result->getBody()->getContents(), true);
+        return $this->view->render($response, 'users/setting-profile.twig', $data);
+    }
+
+    public function updateProfile($request, $response, $args)
+    {
+        // var_dump($args['id']);die;
+        // $this->validator
+        //     ->rule('required', ['name', 'email', 'address', 'phone', 'gender'])
+        //     ->message('{field} tidak boleh kosong')
+        //     ->label('Nama', 'Email', 'Alamat', 'Nomor Telepon', 'Jenis kelamin');
+        // $this->validator->rule('email', 'email');
+        // $this->validator->rule('alphaNum', 'username');
+        // if ($this->validator->validate()) {
+        $id = $_SESSION['login']['id'];
+
+        try {
+            $result = $this->client->request('POST', 'user/update/'.$id,
+            ['form_params' => [
+                'name'      => $request->getParam('name'),
+                'username'  => $request->getParam('username'),
+                'email'     => $request->getParam('email'),
+                'address'   => $request->getParam('address'),
+                'phone'     => $request->getParam('phone'),
+                'gender'    => $request->getParam('gender')
+            ]
+        ]);
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+
+        $data = json_decode($result->getBody()->getContents(), true);
+        // var_dump($data);die();
+        if ($data['error'] == false) {
+            $this->flash->addMessage('succes', 'Info akun berhasil dipebarui');
+            return $response->withRedirect($this->router->pathFor('user.setting.profile'));
+            $_SESSION['login'] = $data['data'];
+        } else {
+            $_SESSION['old'] = $request->getParams();
+            $this->flash->addMessage('error', $data['message']);
+            return $response->withRedirect($this->router->pathFor('user.setting.profile'));
+        }
+    }
+
+    public function changeImage($request, $response)
+    {
+        // var_dump($_FILES);die();
+        $path = $_FILES['image']['tmp_name'];
+        $mime = $_FILES['image']['type'];
+        $name  = $_FILES['image']['name'];
+        $id = $request->getParam('id');
+
+        try {
+            $result = $this->client->request('POST', 'user/'.$id.'/change-image', [
+                'multipart' => [
+                    [
+                        'name'     => 'image',
+                        'filename' => $name,
+                        'Mime-Type'=> $mime,
+                        'contents' => fopen( $path, 'r' )
+                    ]
+                ]
+            ]);
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+
+        try {
+            $user = $this->client->request('GET', 'user/'.$id);
+        } catch (GuzzleException $e) {
+            $user = $e->getResponse();
+        }
+
+        $data = json_decode($result->getBody()->getContents(), true);
+        $newUser = json_decode($user->getBody()->getContents(), true);
+
+        // var_dump($newUser);die();
+        if ($data['error'] == false) {
+            $this->flash->addMessage('succes', 'Foto profil berhasil diubah');
+            return $response->withRedirect($this->router->pathFor('user.view.profile'));
+            $_SESSION['login'] = $newUser['data'];
+        } else {
+            $this->flash->addMessage('warning', $data['message']);
+            return $response->withRedirect($this->router->pathFor('user.view.profile'));
+        }
+    }
+
+    public function getChangePassword($request, $response)
+    {
+         return $this->view->render($response, 'users/change-password.twig');
+    }
+
+    public function postChangePassword($request, $response, $args)
+    {
+        $password1 = $request->getParam('new_password');
+        $password2 = $request->getParam('confirm_password');
+        // var_dump( $request->getParams());die;
+        if ($password1 != $password2) {
+            $this->flash->addMessage('warning', 'Konfirmasi password baru tidak cocok');
+            return $response->withRedirect($this->router->pathFor('change.password'));
+        }
+
+        try {
+            $result = $this->client->request('POST', 'user/password/change',
+                ['form_params' => [
+                    'password' => $request->getParam('password'),
+                    'new_password' => $request->getParam('new_password')
+                ]
+            ]);
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+
+        $data = json_decode($result->getBody()->getContents(), true);
+// var_dump($data);die;
+        if ($data['error'] == false) {
+            $this->flash->addMessage('succes', $data['message']);
+            return $response->withRedirect($this->router->pathFor('change.password'));
+        } else {
+            $this->flash->addMessage('error', $data['message']);
+            return $response->withRedirect($this->router->pathFor('change.password'));
+        }
+    }
 }

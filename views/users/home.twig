@@ -68,7 +68,7 @@
                         <p>{{ item.description }}</p>
                          <p style="font-size: 10pt;"><i class="fa fa-clock-o" aria-hidden="true"></i>
                          {{ item.updated_at | date('j F Y | H:i')}}</p>
-                         <br><a href="{{ base_url() }}/item/{{item.id}}" title="Lihat detail item"
+                         <br><a href="{{ base_url() }}/item/show/{{item.id}}" title="Lihat detail item"
                          class="btn btn-primary btn-mini">{{ item.comment|length }} komentar</a>
                          <hr style="height: 30px; margin-top: -11px; margin-bottom: 10px; border-style: solid;
                          border-color: #8c8b8b; border-width: 0 0 1px 0; border-radius: 20px;">
@@ -81,13 +81,15 @@
                     <ul class="pager">
                         <div class="pagination alternate">
                             <ul>
-                                <li class="{% if pagination.current <= 1 %}disabled{% endif %}">
-                                    <a href="{{ base_url() }}/home/?page={{ pagination.current - 1 }}">
+                                {% if pagination.current > 1 %}
+                                <li><a href="{{ base_url() }}/home/?page={{ pagination.current - 1 }}">
                                         Sebelumnya</a></li>
+                                {% endif %}
                                 <li class="active"> <a>{{ pagination.current }}</a></li>
-                                <li class="{% if pagination.current == pagination.total_page %}disabled{% endif %}">
-                                    <a href="{{ base_url() }}/home/?page={{ pagination.current + 1 }}">
+                                {% if pagination.current < pagination.total_page %}
+                                <li><a href="{{ base_url() }}/home/?page={{ pagination.current + 1 }}">
                                         Selanjutnya</a></li>
+                                {% endif %}
                             </ul>
                         </div>
                     </ul>

@@ -33,8 +33,6 @@ abstract class BaseController
         }
     }
 
-
-
     function paginateArray($data, $page, $per_page)
     {
         $total = count($data);

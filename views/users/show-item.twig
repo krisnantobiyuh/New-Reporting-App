@@ -3,7 +3,7 @@
 
 {% block title %} {{ items.name }} {% endblock %}
 
-{% block current %} Beranda > Item {% endblock %}
+{% block current %} Lihat tugas {% endblock %}
 
 {% block content %}
 <a class="list-group-item active main-color-bg">
@@ -13,8 +13,8 @@
 {% if items.reported_at == null and items.creator_image != null %}
 <div class="user-thumb"> <img width="70" height="70" alt="Photo"
     src="{{ base_url() }}/assets/images/{{ items.creator_image }}">
-    &nbsp&nbsp&nbsp<b>{{ item.creator }}</b>
-    <i>membuat item di grup</i> <b>{{ item.group_name }}</b><br>
+    &nbsp&nbsp&nbsp<b>{{ items.creator }}</b>
+    <i>membuat item di grup</i> <b>{{ items.group_name }}</b><br>
 
     <span class="user-info">
         <b> {{ items.item }} </b> <br> {{ items.reported }}
@@ -23,7 +23,7 @@
 {% elseif items.reported_at != null and items.user_image != null %}
 <div class="user-thumb"> <img width="70" height="70" alt="Photo"
     src="{{ base_url() }}/assets/images/{{ items.user_image }}">
-    &nbsp&nbsp&nbsp<b>{{ item.usee }}</b>
+    &nbsp&nbsp&nbsp<b>{{ items.user }}</b>
     <i>membuat item di grup</i> <b>{{ items.group_name }}</b><br>
 
 </div>
@@ -87,8 +87,5 @@
         </div>
     </div>
 </div>
-<!-- </ul> -->
 </div>
-
-
 {% endblock %}

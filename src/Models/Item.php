@@ -65,7 +65,7 @@ class Item extends BaseModel
         return $result->fetchAll();
     }
 
-    public function getUserItem($userId, $groupId)
+    public function getUnreportedUserItemInGroup($userId, $groupId)
     {
         $qb = $this->db->createQueryBuilder();
         $query1 = $qb->select('item_id')
@@ -92,27 +92,24 @@ class Item extends BaseModel
         return $this->fetchAll();
     }
 
-    public function getItemDone($userId, $groupId)
+    public function getReportedUserItemInGroup($userId, $groupId)
     {
         $qb = $this->db->createQueryBuilder();
         $this->query = $qb->select('*')
         ->from($this->table)
         ->where('user_id = '. $userId .'&&'. 'group_id = '. $groupId)
-        ->orWhere('group_id = '. $groupId)
         ->andWhere('deleted = 0 && status = 1');
         return $this->fetchAll();
     }
 
-    public function getGroupItem($userId)
+    public function getUserInGroupItem($userId)
     {
         $qb = $this->db->createQueryBuilder();
         $query = $qb->select('group_id')
         ->from('user_group')
         ->where('user_id =' . $userId)
         ->execute();
-        //    $result = $query1->execute();
-        //    $result1 = $result->fetchAll();
-        //    var_dump($result1); die()
+
         $qb1 = $this->db->createQueryBuilder();
         $query1 = $qb1->select('i.*')
         ->from($this->table, 'i')
@@ -134,7 +131,6 @@ class Item extends BaseModel
         $qb1 = $this->db->createQueryBuilder();
         $query1 = $qb1->select('i.*', 'u.username as user', 'u.image as user_image', 'c.comment',
                 'us.username as creator', 'us.image as creator_image','gr.name as group_name', 'img.image')
-                //  'i.name as item', 'i.description', 'img.image', 'i.created_at', 'i.reported_at')
                 ->from($this->table, 'i')
                 ->where('i.deleted = 0')
                 ->andWhere('i.privacy = 0')

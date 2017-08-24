@@ -10,11 +10,11 @@ class PicController extends BaseController
     public function getMemberGroup($request, $response, $args)
 	{
 		$query = $request->getQueryParams();
-
+        $userGroup = new \App\Models\UserGroupModel($this->db);
         try {
             $result = $this->client->request('GET', 'group/'.$args['id'].'/member', [
                 'query' => [
-                    'perpage' => 8,
+                    'perpage' => 9,
                     'page'    => $request->getQueryParam('page')
                 ]
             ]);
@@ -27,6 +27,7 @@ class PicController extends BaseController
 
         $data = json_decode($result->getBody()->getContents(), true);
         $count = count($data['data']);
+        // $findUser =
         // var_dump($data); die();
 		// var_dump($data); die();
 
@@ -41,7 +42,7 @@ class PicController extends BaseController
     public function getUnreportedItem($request, $response, $args)
     {
         try {
-            $result = $this->client->request('GET', 'items/group/'. $args['id'], [
+            $result = $this->client->request('GET', 'item/group/'. $args['id'], [
                 'query' => [
                     'page'    => $request->getQueryparam('page'),
                     'perpage' => 10,
@@ -64,7 +65,7 @@ class PicController extends BaseController
     public function getReportedItem($request, $response, $args)
     {
         try {
-            $result = $this->client->request('GET', 'items/group/'. $args['id'].'/reported', [
+            $result = $this->client->request('GET', 'item/group/'. $args['id'].'/all-reported', [
                 'query' => [
                     'page'    => $request->getQueryparam('page'),
                     'perpage' => 5,
@@ -88,7 +89,7 @@ class PicController extends BaseController
         $item = new \App\Models\Item($this->db);
         $findItem = $item->find('id', $args['id']);
 		try {
-			$client = $this->client->request('DELETE', 'items/'.$args['id']);
+			$client = $this->client->request('DELETE', 'item/'.$args['id']);
 
 			$content = json_decode($client->getBody()->getContents(), true);
             $this->flash->addMessage('succes', 'Tugas telah berhasil dihapus');

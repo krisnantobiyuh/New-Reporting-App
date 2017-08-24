@@ -46,3 +46,11 @@
 			<strong><span class="glyphicon glyphicon-check"></strong>
 		</div></center>
 {% endif %}
+
+<script>
+	window.setTimeout(function() {
+    $(".alert-dismissible").fadeTo(700, 0).slideUp(700, function(){
+        $(this).remove(); 
+    });
+}, 1700);
+</script>

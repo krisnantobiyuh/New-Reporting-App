@@ -11,7 +11,7 @@ return [
 
 	//setting language
 	'lang'	=> [
-		'default'	=> 'idn',
+		'default'	=> 'id',
 	],
 
 	//setting db (with doctrine)
@@ -21,11 +21,15 @@ return [
 
 	'determineRouteBeforeAppMiddleware' => true,
 
-	//setting language
-	'lang'	=> [
-		'default'	=> 'en',
-	],
-
+	'reporting' => [
+       'base_uri' => 'http://localhost/Reporting-App/public/api/',
+       'headers' => [
+           'key' => @$_ENV['REPORTING_API_KEY'],
+           'Accept' => 'application/json',
+           'Content-Type' => 'application/json',
+           'Authorization' => @$_SESSION['key']['key_token']
+       ],
+  ],
 	// Setting View
 	'view' => [
 		'path'	=>	__DIR__ . '/../views',
@@ -33,14 +37,4 @@ return [
 			'cache'	=>	false,
 		]
 	],
-
-	'reporting' => [
-	       'base_uri' => 'http://localhost/Reporting-App/public/api/',
-	       'headers' => [
-	           'key' 			=> $_ENV['REPORTING_API_KEY'],
-	           'Accept' 		=> 'application/json',
-	           'Content-Type' 	=> 'application/json',
-	           'Authorization'  => @$_SESSION['key']['key_token']
-	       ],
-	  ],
 ];
