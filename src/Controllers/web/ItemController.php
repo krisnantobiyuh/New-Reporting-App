@@ -47,11 +47,12 @@ class ItemController extends BaseController
 	//create item by user
 	public function createItemUser($request, $response, $args)
 	{
-		$query = $request->getQueryParams();
+        // $userId = $_SESSION['login']['id'];
 
+		$query = $request->getQueryParams();
 		try {
 			$result = $this->client->request('POST', 'item/'.$args['group'], [
-				'query' => [
+				'json' => [
 					'name'          => $request->getParam('name'),
 	                'description'   => $request->getParam('description'),
 	                'recurrent'     => $request->getParam('recurrent'),
@@ -65,6 +66,7 @@ class ItemController extends BaseController
 	                'reported_at'   => null,
 				]
 			]);
+
             $this->flash->addMessage('succes', 'Berhasil membuat item');
 		} catch (GuzzleException $e) {
 			$result = $e->getResponse();
@@ -72,11 +74,12 @@ class ItemController extends BaseController
 		}
 
 		$content = $result->getBody()->getContents();
-        $content = json_decode($content, true);
+        $content = json_decode($content);
 
-    	return $response->withRedirect($this->router->pathFor('group.user'), [
-            'group' 		=> 	$args['group']
-        ]);
+        return $response->withRedirect($this->router->pathFor('unreported.item.user.group', [
+            'user' 		=> 	$_SESSION['login']['id'],
+            'group'     =>  $args['group']
+        ]));
     }
 
 	//Get group item reported
@@ -209,10 +212,10 @@ var_dump($content);die();
     //Get group item reported
     public function getReportedUserGroupItem($request, $response, $args)
     {
-        $userId = $_SESSION['login']['id'];
-        $groupId = $args['id'];
+        // $userId = $_SESSION['login']['id'];
+        // $groupId = $args['id'];
         try {
-            $result = $this->client->request('GET', 'item/group/user/unreported',[
+            $result = $this->client->request('GET', 'item/group/user/reported',[
                 'query' => [
                     'user_id' =>  $args['user'],
                     'group_id' =>  $args['group'],
@@ -246,7 +249,7 @@ var_dump($content);die();
             // $userId = $_SESSION['login']['id'];
             // $groupId = $args['id'];
             try {
-                $result = $this->client->request('GET', 'item/group/user/reported',[
+                $result = $this->client->request('GET', 'item/group/user/unreported',[
                     'query' => [
                         'user_id' =>  $args['user'],
                         'group_id' =>  $args['group'],
