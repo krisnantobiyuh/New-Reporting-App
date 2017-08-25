@@ -41,8 +41,11 @@ class UserController extends BaseController
         $data = json_decode($result->getBody()->getContents(), true);
 
         if ($data['code'] == 200) {
-            $_SESSION['login'] = $data['data'];
             $_SESSION['key'] = $data['key'];
+            $_SESSION['login'] = $data['data'];
+            if (!empty($request->getParams()['guard'])) {
+                $_SESSION['guard'] = $_SESSION['login']['id'];
+            }
             if ($_SESSION['login']['status'] == 2) {
                 $_SESSION['user_group'] = $groups;
                 $this->flash->addMessage('success', 'Selamat datang, '. $login['username']);

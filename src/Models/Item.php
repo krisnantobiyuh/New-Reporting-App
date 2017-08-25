@@ -279,7 +279,7 @@ class Item extends BaseModel
         $qb->select('*')
             ->from($this->table)
             ->where('YEAR(updated_at) = :year')
-            ->andWhere('MONTH(updated_at) = :month')
+            ->andWhere('MONTH(reported_at) = :month')
             ->andWhere('user_id = :id')
             ->andWhere('status = 1');
 
@@ -296,7 +296,7 @@ class Item extends BaseModel
         $qb = $this->db->createQueryBuilder();
         $qb->select('*')
             ->from($this->table)
-            ->where('YEAR(updated_at) = :year')
+            ->where('YEAR(reported_at) = :year')
             ->andWhere('user_id = :id')
             ->andWhere('status = 1');
 
@@ -307,5 +307,31 @@ class Item extends BaseModel
         return $query->fetchAll();
     }
 
+    public function getUserGuardItem($guardId)
+    {
+        $qb = $this->db->createQueryBuilder();
+        $query = $qb->select('user_id')
+        ->from('guardian')
+        ->where('guard_id =' . $guardId)
+        ->execute();
+
+        $qb1 = $this->db->createQueryBuilder();
+        $query1 = $qb1->select('i.*', 'u.username as user', 'u.image as user_image', 'c.comment',
+                'us.username as creator', 'us.image as creator_image','gr.name as group_name', 'img.image')
+                ->from($this->table, 'i')
+                ->where('i.deleted = 0')
+                ->andWhere('i.privacy = 0')
+                ->join('i', 'guardian', 'gu', $qb1->expr()->in('i.user_id',$query))
+                ->leftJoin('i', 'users', 'u', 'i.user_id = u.id')
+                ->leftJoin('i', 'users', 'us', 'i.creator = us.id')
+                ->leftJoin('i', 'groups', 'gr', 'i.group_id = gr.id')
+                ->leftJoin('i', 'image_item', 'img', 'i.id = img.item_id')
+                ->leftJoin('i', 'comments', 'c', 'i.id = c.item_id')
+                ->orderBy('i.updated_at', 'desc')
+                ->execute();
+
+        return  $query1->fetchAll();
+
+    }
 
 }

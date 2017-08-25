@@ -8,14 +8,27 @@ class HomeController extends BaseController
     public function index($request, $response)
     {
         $id = $_SESSION['login']['id'];
-        try {
-            $result = $this->client->request('GET', 'all-item/'.$id.'?',[
-                 'query' => [
-                     'perpage' => 5,
-                     'page' => $request->getQueryParam('page')
- 			]]);
-        } catch (GuzzleException $e) {
-            $result = $e->getResponse();
+        if (!empty($_SESSION['guard'])) {
+            try {
+                $result = $this->client->request('GET', 'guard/timeline/'.$id.'?',[
+                     'query' => [
+                         'perpage' => 5,
+                         'page' => $request->getQueryParam('page')
+     			]]);
+            } catch (GuzzleException $e) {
+                $result = $e->getResponse();
+            }
+
+        } else {
+            try {
+                $result = $this->client->request('GET', 'user/timeline/'.$id.'?',[
+                    'query' => [
+                        'perpage' => 5,
+                        'page' => $request->getQueryParam('page')
+                        ]]);
+                } catch (GuzzleException $e) {
+                    $result = $e->getResponse();
+                }
         }
 
         $data = json_decode($result->getBody()->getContents(), true);

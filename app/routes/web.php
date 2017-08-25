@@ -11,9 +11,9 @@ $app->get('/user', 'App\Controllers\web\UserController:getAllUser');
 $app->get('/', 'App\Controllers\web\UserController:getLogin')->setName('login');
 $app->post('/', 'App\Controllers\web\UserController:login')->setName('post.login');
 
-$app->get('/guard/show', 'App\Controllers\web\GuardController:showGuardByUser');
-$app->get('/guard/show/{id}', 'App\Controllers\web\GuardController:showUserByGuard');
-$app->get('/guard/delete/{id}', 'App\Controllers\web\GuardController:deleteGuardian');
+// $app->get('/guard/show', 'App\Controllers\web\GuardController:showGuardByUser');
+// $app->get('/guard/show/{id}', 'App\Controllers\web\GuardController:showUserByGuard');
+// $app->get('/guard/delete/{id}', 'App\Controllers\web\GuardController:deleteGuardian');
 $app->group('', function() use ($app, $container) {
     $app->get('/home', 'App\Controllers\web\HomeController:index')->setName('home');
     $app->get('/logout', 'App\Controllers\web\UserController:logout')->setName('logout');
@@ -24,6 +24,7 @@ $app->group('', function() use ($app, $container) {
     $app->group('/group', function() use ($app, $container) {
         $app->get('', 'App\Controllers\web\GroupController:index')->setName('group');
         $app->get('/{id}', 'App\Controllers\web\GroupController:enter')->setName('pic.group');
+        $app->get('/enter/{id}', 'App\Controllers\web\GroupController:enterGroup')->setName('enter.group');
         $app->post('/create', 'App\Controllers\web\GroupController:add')->setName('web.group.add');
         $app->post('/group/create', 'App\Controllers\web\GroupController:createByUser')->setName('pic.create.group');
         $app->get('/{id}/leave', 'App\Controllers\web\GroupController:leaveGroup')->setName('web.leave.group');
@@ -45,7 +46,7 @@ $app->group('', function() use ($app, $container) {
         $app->post('/report/{item}', 'App\Controllers\web\ItemController:reportItem')->setname('report.item');
         $app->get('/{item}/user', 'App\Controllers\web\ItemController:deleteItemByUser')->setname('web.user.delete.item');
         $app->post('/comment', 'App\Controllers\web\CommentController:postComment')->setName('post.comment');
-        $app->get('/archive', 'App\Controllers\web\ItemController:getItemArchive')->setName('item.archive');
+        $app->get('/archive/{id}', 'App\Controllers\web\ItemController:getItemArchive')->setName('item.archive');
         $app->post('/archive/{id}', 'App\Controllers\web\ItemController:searchItemArchive')->setName('search.item.archive');
     });
 
@@ -57,6 +58,13 @@ $app->group('', function() use ($app, $container) {
         $app->post('/image/change', 'App\Controllers\web\UserController:changeImage')->setName('user.change.image');
         $app->get('/change/password', 'App\Controllers\web\UserController:getChangePassword')->setName('change.password');
         $app->post('/change/password', 'App\Controllers\web\UserController:postChangePassword')->setName('post.change.password');
+    });
+
+    $app->group('/guard', function() use ($app, $container) {
+        // $app->get('/show/user', 'App\Controllers\web\GuardController:showGuardByUser');
+        $app->get('/user', 'App\Controllers\web\GuardController:getUser');
+        $app->get('/show/user', 'App\Controllers\web\GuardController:getUserByGuard')->setName('guard.show.user');
+        $app->delete('/delete/{id}', 'App\Controllers\web\GuardController:deleteGuardian');
     });
     // ->add(new \App\Middlewares\web\GuardMiddleware($container));
     // )->add(new \App\Middlewares\web\AuthMiddleware($container)

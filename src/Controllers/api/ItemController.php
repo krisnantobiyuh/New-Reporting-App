@@ -127,9 +127,9 @@ class ItemController extends BaseController
         $item       = new Item($this->db);
         $groupId    = $args['group'];
         $page = !$request->getQueryParam('page') ?  1 : $request->getQueryParam('page');
+        $perPage = $request->getQueryParam('perpage');
         $findItem   = $item->getItem('user_id',
-            $args['user'], 'status', 1)
-            ->setPaginate($page,5);
+            $args['user'], 'status', 1)->setPaginate($page, $perPage);
         $countItem  = count($findItem);
         $query      = $request->getQueryParams();
 
@@ -688,7 +688,7 @@ class ItemController extends BaseController
 
     }
 
-    public function itemTimeline($request, $response, $args)
+    public function userTimeline($request, $response, $args)
     {
         $items = new Item($this->db);
 
@@ -712,6 +712,43 @@ class ItemController extends BaseController
             }
 
             $result = $this->paginateArray($newItem, $page, $perPage);
+            $data = $this->responseDetail(200, false, 'Data tersedia', [
+                'data'        => $result['data'],
+                'pagination'  => $result['pagination']
+            ]);
+
+        } else {
+            $data = $this->responseDetail(404, true, 'Data tidak ditemukan');
+        }
+
+        return $data;
+    }
+
+    public function guardTimeline($request, $response, $args)
+    {
+        $items = new Item($this->db);
+
+        $findItem = $items->getUserGuardItem($args['id']);
+        $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+        $perPage = $request->getQueryParam('perpage');
+
+        $newItem = array();
+        if ($findItem){
+            foreach ($findItem as $item) {
+                if (!empty($newItem[$item['id']])) {
+                    $currentValue1 = (array) $newItem[$item['id']]['image'];
+                    $currentValue2 = (array) $newItem[$item['id']]['comment'];
+                    $newItem[$item['id']]['image'] =
+                     array_unique(array_merge($currentValue1, (array) $item['image']));
+                    $newItem[$item['id']]['comment'] =
+                     array_unique(array_merge($currentValue2, (array) $item['comment']));
+                } else {
+                    $newItem[$item['id']] = $item;
+                }
+            }
+
+            $result = $this->paginateArray($newItem, $page, $perPage);
+            // var_dump($result);die;
             $data = $this->responseDetail(200, false, 'Data tersedia', [
                 'data'        => $result['data'],
                 'pagination'  => $result['pagination']

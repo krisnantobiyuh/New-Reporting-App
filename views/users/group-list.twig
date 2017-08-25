@@ -30,8 +30,7 @@
             <div class="row">
                 <div class="col-md-3" style="padding-right:0px;">
                     <div  style="line-height:4em;" class="panel box-body" >
-                        <a href="{{ path_for('unreported.item.user.group',
-                         {'group': data.id, 'user':login.id}) }}"
+                        <a href="{{ path_for('enter.group', {'id': data.id})}}"
                          title="Masuk ke grup {{ data.name }}"><center>
                         <h1><img src="{{ base_url() }}/assets/images/{{ data.image }}"
                             align="center" alt="{{ data.name }}" width="234" height="234">

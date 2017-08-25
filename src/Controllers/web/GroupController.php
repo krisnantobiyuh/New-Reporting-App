@@ -512,6 +512,33 @@ class GroupController extends BaseController
 		}
 		return $this->view->render($response, '', $content->reporting);
 	}
+
+	public function enterGroup($request, $response, $args)
+	{
+		try {
+			$result = $this->client->request('GET', 'group/enter/'.$args['id']);
+		} catch (GuzzleException $e) {
+			$result = $e->getResponse();
+		}
+
+		$content = $result->getBody()->getContents();
+		$data = json_decode($content, true);
+
+		if ($data['error'] == true) {
+			$this->flash->addMessage('error', $data['message']);
+			return $response->withRedirect($this->router->pathFor('group.user'));
+		} elseif ($data['data'] == 'PIC') {
+			// die('PIC GRUP');
+			$this->flash->addMessage('success', $data['message']);
+			return $response->withRedirect($this->router->pathFor('group.user'));
+		}  elseif ($data['data'] == 'member') {
+			$this->flash->addMessage('success', $data['message']);
+			return $response->withRedirect($this->router->pathFor('unreported.item.user.group', [
+				'user'	=> $_SESSION['login']['id'],
+				'group'	=> $args['group']
+			]));
+		}
+	}
 }
 
 ?>

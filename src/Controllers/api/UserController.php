@@ -13,8 +13,8 @@ class UserController extends BaseController
         $user = new UserModel($this->db);
 
         $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
-        $perPage = $request->getParsedBody()['perpage'];
-        $getUser = $user->getAllUser()->setPaginate($page, 2);
+        $perPage = $request->getQueryParam('perpage');
+        $getUser = $user->getAllUser()->setPaginate($page, $perPage);
 
         if ($getUser) {
             $data = $this->responseDetail(200, false, 'Data tersedia', [

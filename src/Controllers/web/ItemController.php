@@ -237,10 +237,20 @@ class ItemController extends BaseController
                     }
         }
 
+        try {
+            $user = $this->client->request('GET', 'user/detail/'. $args['id']);
+        } catch (GuzzleException $e) {
+            $user = $e->getResponse();
+        }
+
         $data = json_decode($result->getBody()->getContents(), true);
-        // var_dump($data);die();
+        $dataUser = json_decode($user->getBody()->getContents(), true);
+
         return $this->view->render($response, 'users/guard/report-archives.twig', [
+        // var_dump($data);die();
             'data'		=>	$data['data'],
+            'user_id'	=>	$args['id'],
+            'user'      => $dataUser['data'],
             'pagination'=>	$data['pagination'],
             'query' 	=> 	[
                 'year'  => $request->getParam('year'),
@@ -251,7 +261,9 @@ class ItemController extends BaseController
 
     public function getItemArchive($request, $response, $args)
     {
-        return  $this->view->render($response, 'users/guard/report-archives.twig');
+        return  $this->view->render($response, 'users/guard/report-archives.twig', [
+            'user_id'		=>	$args['id']
+        ]);
     }
 
     //Get group item reported

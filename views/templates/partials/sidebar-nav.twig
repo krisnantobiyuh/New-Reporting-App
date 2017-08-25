@@ -1,18 +1,26 @@
   <div class="list-group">
     <a class="list-group-item active main-color-bg">
       <span class="" aria-hidden="true">&#9776;</span> Menu
+      {% if guard is not null %}Wali{% endif %}
     </a>
     <!-- {{ base_url() }}/home -->
     <a href="{{path_for('home') }}" class="list-group-item"><span class="glyphicon glyphicon-home"
      aria-hidden="true"></span>&nbsp&nbsp Beranda </a>
     <a href="{{path_for('user.view.profile') }}" class="list-group-item"><span class="glyphicon glyphicon-user"
       aria-hidden="true"></span>&nbsp&nbsp Profil <span class="badge"></span></a>
-    <a href="{{ path_for('group.user') }}" class="list-group-item"><span class="glyphicon glyphicon-th-large"
+
+      {% if guard is not null %}
+      <a href="{{ path_for('guard.show.user') }}" class="list-group-item"><span class="glyphicon glyphicon-th-large"
+      aria-hidden="true"></span>&nbsp&nbsp Anak <span class="badge"></span></a>
+      {% else %}
+      <a href="{{ path_for('group.user') }}" class="list-group-item"><span class="glyphicon glyphicon-th-large"
       aria-hidden="true"></span>&nbsp&nbsp Grup <span class="badge"></span></a>
+      <a href="{{ path_for('item.archive', {'id': login.id }) }}" class="list-group-item"><span class="glyphicon glyphicon-tasks"
+          aria-hidden="true"></span>&nbsp&nbsp Arsip Tugas <span class="badge"></span></a>
+      {% endif %}
+
     <a href="{{ base_url() }}/user/profile/setting" class="list-group-item"><span class="glyphicon glyphicon-cog"
      aria-hidden="true"></span>&nbsp&nbsp Pengaturan <span class="badge"></span></a>
-     <a href="{{ path_for('item.archive') }}" class="list-group-item"><span class="glyphicon glyphicon-tasks"
-         aria-hidden="true"></span>&nbsp&nbsp Arsip Tugas <span class="badge"></span></a>
   </div>
 
   <div class="well">
