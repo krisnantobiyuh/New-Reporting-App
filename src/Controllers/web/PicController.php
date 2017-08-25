@@ -41,6 +41,10 @@ class PicController extends BaseController
 
     public function getUnreportedItem($request, $response, $args)
     {
+        $userGroup = new \App\Models\UserGroupModel($this->db);
+        $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+        $getMember = $userGroup->findAll($args['id'])->setPaginate($page,40);
+        // var_dump($getMember); die();
         try {
             $result = $this->client->request('GET', 'item/group/'. $args['id'], [
                 'query' => [
@@ -58,6 +62,7 @@ class PicController extends BaseController
         return $this->view->render($response, 'pic/tugas.twig', [
             'items'	=> $data['data'],
             'group'	=> $args['id'],
+            'member' => $getMember['data'],
             'pagination'	=> $data['pagination'],
         ]);
     }
@@ -109,13 +114,13 @@ class PicController extends BaseController
             $group = $request->getParam('group');
             // var_dump($_SESSION['login']); die();
             try {
-                $result = $this->client->request('POST', 'items', [
+                $result = $this->client->request('POST', 'item', [
                     'form_params' => [
                         'name'          => $request->getParam('name'),
                         'description'   => $request->getParam('description'),
                         'recurrent'     => $request->getParam('recurrent'),
                         'start_date'    => $request->getParam('start_date'),
-                        'user_id'    	=> null,
+                        'user_id'    	=> $request->getParam('user_id'),
                         'group_id'      => $request->getParam('group'),
                         'creator'    	=> $_SESSION['login']['id'],
                         'public'        => $request->getParam('public'),
@@ -145,6 +150,7 @@ class PicController extends BaseController
 
     public function showItem($request, $response, $args)
     {
+        $user = new \App\Models\Users\UserModel($this->db);
         // $id = $_SESSION['login']['id'];
         try {
             $result = $this->client->request('GET', 'item/show/'.$args['id'].'?'
@@ -164,18 +170,57 @@ class PicController extends BaseController
 
         $allComment = json_decode($comment->getBody()->getContents(), true);
 
-        // var_dump($allComment);die();
+        $userId = $data['data']['user_id'];
+        $findUser = $user->find('id', $userId);
+        // var_dump($data['data']);die();
+
 
         if ($data['data']) {
 
-            return $this->view->render($response, 'users/show-item.twig', [
+            return $this->view->render($response, 'pic/show-item-tugas.twig', [
                 'items' => $data['data'],
                 'comment' => $allComment['data'],
+                'user'    => $findUser['username'],
             ]);
         } else {
             return $response->withRedirect($this->router->pathFor('home'));
             // return $this->view->render($response, 'users/home.twig');
 
+        }
+
+    }
+
+    public function getSearchUser($request, $response, $args)
+    {
+        $user = new \App\Models\Users\UserModel($this->db);
+        $findUser = $user->find('id', $args['id']);
+        $userId['id']   = $findUser['id'];
+        $_SESSION['guard'] = $userId['id'];
+        return $this->view->render($response, 'pic/search-user.twig', $userId);
+
+    }
+
+    public function searchUser($request, $response, $args)
+    {
+        $user = new \App\Models\Users\UserModel($this->db);
+
+        $search = $request->getParam('search');
+        $_SESSION['search'] = $search;
+        // $userId = $_SESSION['login']['id'];
+        $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+        $perpage = $request->getQueryParam('perpage');
+        $result = $user->search($search, $_SESSION['guard'])->setPaginate($page, 8);
+
+
+        $data['guard'] = $_SESSION['guard'];
+        $data['users'] = $result['data'];
+        $data['count']    = count($data['users']);
+        $data['pagination'] = $result['pagination'];
+        $data['search'] = $_SESSION['search'];
+        // var_dump($data['users']); die();
+        if (!empty($search)) {
+
+            return $this->view->render($response, 'pic/search-user.twig', $data);
         }
 
     }

@@ -15,22 +15,24 @@ class GuardController extends BaseController
         $guard = new \App\Models\GuardModel($this->db);
         $token = $request->getHeader('Authorization')[0];
         $userToken = new \App\Models\Users\UserToken($this->db);
-        $userId = $userToken->getUserId($token);
-        $findGuard = $guard->findTwo('guard_id', $args['id'], 'user_id', $userId);
+        // $userId = $userToken->getUserId($token);
+        $userId = $args['user'];
+        $guardId = $args['guard'];
+        $findGuard = $guard->findTwo('guard_id', $guardId, 'user_id', $userId);
 
         $data = [
-            'guard_id'  =>  $args['id'],
+            'guard_id'  =>  $guardId,
             'user_id' => $userId,
         ];
 
-        if ($findGuard) {
-            $data = $this->responseDetail(404, true, 'Data tidak ditemukan');
-        } else {
+        if (!$findGuard) {
             $addGuardian = $guard->add($data);
 
-            $data = $this->responseDetail(200, false, 'Berhasilkan menambahkan guardian', [
-                    'data' => $data
-                ]);
+            $data = $this->responseDetail(200, false, 'Pengguna berhasil ditambahkan ', [
+                'data' => $data
+            ]);
+        } else {
+            $data = $this->responseDetail(404, true, 'Pengguna sudah ditambahkan');
         }
         return $data;
 

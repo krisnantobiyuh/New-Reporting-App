@@ -60,13 +60,17 @@ $app->group('', function() use ($app, $container) {
         $app->get('/items/group/{id}/reported', 'App\Controllers\web\PicController:getReportedItem')->setName('web.pic.group.reported');
         $app->get('/items/delete/{id}', 'App\Controllers\web\PicController:deleteTugas')->setName('web.pic.delete.tugas');
         $app->get('/search/user', 'App\Controllers\web\UserController:searchUser')->setName('web.pic.search.user');
+        $app->get('/search/{id}', 'App\Controllers\web\PicController:getSearchUser')->setName('web.pic.search');
+        $app->get('/search/user/guard', 'App\Controllers\web\PicController:searchUser')->setName('web.pic.search.user2');
         $app->get('/group/{id}/member', 'App\Controllers\web\PicController:getMemberGroup')->setName('pic.group.member');
         $app->post('/set/member', 'App\Controllers\web\GroupController:setMemberGroup')->setName('web.pic.set.member');
         $app->get('/delete/member/{id}/{group}', 'App\Controllers\web\GroupController:deleteUser')->setName('web.pic.delete.member');
         $app->get('/set/status/{id}/{group}', 'App\Controllers\web\GroupController:setAsPicGroup')->setName('web.pic.set.status');
         $app->get('/set/member/{id}/{group}', 'App\Controllers\web\GroupController:setAsMemberGroup')->setName('web.pic.set.as.member');
         $app->post('/create/item', 'App\Controllers\web\PicController:createItem')->setName('web.pic.create.item');
-        $app->get('/show/item/{id}', 'App\Controllers\web\PicController:showItem')->setName('web.pic.show   .item');
+        $app->get('/show/item/{id}', 'App\Controllers\web\PicController:showItem')->setName('web.pic.show.item');
+        $app->post('/set/guardian', 'App\Controllers\web\GuardController:createGuardian')->setName('web.pic.set.guardian');
+        $app->post('/comment', 'App\Controllers\web\CommentController:postPicComment')->setName('pic.post.comment');
     });
     // ->add(new \App\Middlewares\web\GuardMiddleware($container));
     // )->add(new \App\Middlewares\web\AuthMiddleware($container)

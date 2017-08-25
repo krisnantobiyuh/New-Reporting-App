@@ -79,7 +79,7 @@ $app->group('/api', function() use ($app, $container) {
         // $app->get('/items/group/{group}', 'App\Controllers\web\ItemController:getUserInGroupItem')->setName('api.group.item');
     });
     $app->group('/guard', function() use ($app, $container) {
-        $app->post('/create/{id}', 'App\Controllers\api\GuardController:createGuardian')->setName('api.guard.add');
+        $app->post('/create/{guard}/{user}', 'App\Controllers\api\GuardController:createGuardian')->setName('api.guard.add');
         $app->get('/delete/{id}', 'App\Controllers\api\GuardController:deleteGuardian')->setName('api.guard.delete');
         $app->get('/show/user/{id}', 'App\Controllers\api\GuardController:getUserByGuard')->setName('api.guard.show.user');
         $app->get('/show', 'App\Controllers\api\GuardController:getGuardByUser')->setName('api.guard.show');

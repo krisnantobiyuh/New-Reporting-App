@@ -125,4 +125,33 @@ class CommentController extends BaseController
         }
     }
 
+    public function postPicComment($request, $response)
+    {
+        // var_dump( $request->getParams());die();
+        try {
+            $result = $this->client->request('POST', 'comment',
+                ['form_params' => [
+                    'comment' => $request->getParam('comment'),
+                    'item_id' => $request->getParam('item_id'),
+                    'creator' => $_SESSION['login']['id']
+                ]
+            ]);
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+        $data = json_decode($result->getBody()->getContents(), true);
+
+        if ($data['code'] == 201) {
+
+                $this->flash->addMessage('succes', $data['message']);
+                return $response->withRedirect($this->router->pathFor('web.pic.show.item',
+                 ['id' => $request->getParam('item_id')]));
+
+        } else {
+            $this->flash->addMessage('warning', 'Terjadi kesalahan');
+            return $response->withRedirect($this->router->pathFor('web.pic.show.item',
+             ['id' => $request->getParam('item_id')]));
+        }
+    }
+
 }
