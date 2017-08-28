@@ -49,6 +49,11 @@ $container['view'] = function ($container) {
 		unset($_SESSION['search']);
 	}
 
+	if (@$_SESSION['guard']) {
+		$view->getEnvironment()->addGlobal('search', $_SESSION['guard']);
+		unset($_SESSION['search']);
+	}
+
 	if (@$_SESSION['back']) {
 		$view->getEnvironment()->addGlobal('back', $_SESSION['back']);
 	}

@@ -1,5 +1,4 @@
 <?php
-
 $app->get('/activateaccount/{token}', 'App\Controllers\api\UserController:activateAccount')->setName('api.activate');
 $app->group('/api', function() use ($app, $container) {
     $app->get('/', 'App\Controllers\api\UserController:index');
@@ -10,7 +9,6 @@ $app->group('/api', function() use ($app, $container) {
     $app->post('/reset', 'App\Controllers\api\UserController:forgotPassword')->setName('api.reset');
     $app->post('/reset/{token}', 'App\Controllers\api\UserController:reset')->setName('api.recovery');
     $app->post('/test', 'App\Controllers\api\UserController:changePassword')->setName('api.reset.password');
-
     $app->group('/item', function() use ($app, $container) {
         $app->get('', 'App\Controllers\api\ItemController:all')->setname('api.item.all');
         $app->get('/{id}', 'App\Controllers\api\ItemController:getItemDetail')->setname('api.item.Detail');
@@ -21,9 +19,9 @@ $app->group('/api', function() use ($app, $container) {
         $app->get('/image/{item}', 'App\Controllers\api\ItemController:getImageItem')->setname('api.item.image');
         $app->delete('/image/{image}', 'App\Controllers\api\ItemController:deleteImageItem')->setname('api.delete.image');
         $app->post('', 'App\Controllers\api\ItemController:createItem')->setname('api.item.create');
-        $app->post('/create/{group}', 'App\Controllers\api\ItemController:createItemUser')->setname('api.item.user.create');
-        $app->get('/group/{group}', 'App\Controllers\api\ItemController:getUserInGroupItem')->setname('api.group.item');
-        // $app->get('/group/{group}/reported', 'App\Controllers\api\ItemController:getReportedGroupItem')->setname('api.reported.group.item');
+        $app->post('/{group}', 'App\Controllers\api\ItemController:createItemUser')->setname('api.item.user.create');
+        $app->get('/group/{group}', 'App\Controllers\api\ItemController:getUnreportedGroupItem')->setname('api.group.item');
+        $app->get('/group/{group}/all-reported', 'App\Controllers\api\ItemController:getReportedGroupItem')->setname('api.reported.group.item');
         $app->get('/{user}/unreported', 'App\Controllers\api\ItemController:getUnreportedUserItem')->setname('api.unreported.item');
         $app->get('/{user}/reported', 'App\Controllers\api\ItemController:getReportedUserItem')->setname('api.reported.user.item');
         $app->get('/{user}/month', 'App\Controllers\api\ItemController:getReportedByMonth')->setname('api.reported.user.month');
@@ -35,9 +33,7 @@ $app->group('/api', function() use ($app, $container) {
         $app->get('/comment/{id}', 'App\Controllers\api\CommentController:getItemComment')->setname('api.item.comment');
     });
     $app->post('/comment', 'App\Controllers\api\CommentController:createComment')->setname('api.post.comment');
-
     // })->add(new \App\Middlewares\AuthToken($container));
-
     $app->group('/user', function() use ($app, $container) {
         $this->get('', 'App\Controllers\api\UserController:index');
         $this->post('/update/{id}', 'App\Controllers\api\UserController:updateProfile')->setName('api.edit.account');
@@ -48,7 +44,6 @@ $app->group('/api', function() use ($app, $container) {
         $this->post('/{id}/change-image', 'App\Controllers\api\UserController:postImage')->setname('api.user.image');
         $app->get('/timeline/{id}', 'App\Controllers\api\ItemController:userTimeline')->setname('api.item.timeline');
     });
-
     $app->group('/group', function() use ($app, $container) {
         $app->post('/create', 'App\Controllers\api\GroupController:add')->setName('api.group.add');
         $app->put('/edit/{id}', 'App\Controllers\api\GroupController:update');
@@ -78,13 +73,15 @@ $app->group('/api', function() use ($app, $container) {
         $app->post('/pic/addusers', 'App\Controllers\api\GroupController:setMemberGroup')->setName('pic.member.group.set');
         $app->put('/upload/image', 'App\Controllers\api\FileSystemController:upload')->setName('api.upload.image');
         $app->get('/{id}/member', 'App\Controllers\api\GroupController:getAllUserGroup');
+        $app->put('/pic/set/status/{id}', 'App\Controllers\api\GroupController:setAsPic');
+        $app->delete('/member/{id}', 'App\Controllers\api\GroupController:deleteUser');
+        $app->put('/pic/set/member/{id}', 'App\Controllers\api\GroupController:setAsMember');
         // $app->get('/user/join', 'App\Controllers\api\GroupController:getUserGroup');
         // $app->get('/items/group/{group}', 'App\Controllers\web\ItemController:getUserInGroupItem')->setName('api.group.item');
-
+        // $app->get('/items/group/{group}', 'App\Controllers\web\ItemController:getUserInGroupItem')->setName('api.group.item');
     });
-
     $app->group('/guard', function() use ($app, $container) {
-        $app->post('/create/{id}', 'App\Controllers\api\GuardController:createGuardian')->setName('api.guard.add');
+        $app->post('/create/{guard}/{user}', 'App\Controllers\api\GuardController:createGuardian')->setName('api.guard.add');
         $app->get('/delete/{id}', 'App\Controllers\api\GuardController:deleteGuardian')->setName('api.guard.delete');
         $app->get('/show/user', 'App\Controllers\api\GuardController:getUserByGuard')->setName('api.guard.show.user');
         $app->get('/show', 'App\Controllers\api\GuardController:getGuardByUser')->setName('api.guard.show');

@@ -17,7 +17,7 @@ class UserController extends BaseController
 
         $data = json_decode($result->getBody()->getContents(), true);
 
-        var_dump($data);
+        // var_dump($data); die();
     }
 
     public function getLogin($request, $response)
@@ -134,6 +134,34 @@ class UserController extends BaseController
             // $this->flash->addMessage('info');
             return $response->withRedirect($this->router->pathFor('signup'));
         }
+    }
+
+    public function searchUser($request, $response)
+    {
+        $user = new \App\Models\Users\UserModel($this->db);
+
+        $search = $request->getParam('search');
+
+        $userId = $_SESSION['login']['id'];
+        $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+        $perpage = $request->getQueryParam('perpage');
+        $result = $user->search($search, $userId)->setPaginate($page, 8);
+        // $page = $result['pagination']['current_page'];
+        // $perpage = $result['pagination']['perpage'];
+
+        // var_dump($result); die();
+
+        $data['group'] = $request->getParam('group');
+        // $data['users']    = $this->paginateArray($result['data'], $page, $perpage
+        $data['users'] = $result['data'];
+        $data['count']    = count($data['users']);
+        $data['pagination'] = $result['pagination'];
+        $data['search'] = $search;
+        // var_dump($data['users']); die();
+        if (!empty($data['group'])) {
+            return $this->view->render($response, 'pic/search-result.twig', $data);
+        }
+
     }
 
     public function viewProfile($request, $response)

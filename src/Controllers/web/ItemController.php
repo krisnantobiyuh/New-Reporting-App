@@ -1,6 +1,7 @@
 <?php
 namespace App\Controllers\web;
 
+use GuzzleHttp\Exception\BadResponseException as GuzzleException;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use App\Models\Item as Item;
@@ -179,6 +180,12 @@ class ItemController extends BaseController
         }
     }
 
+    //     $content = json_decode($result->getBody()->getContents(), true);
+    //     // var_dump($content);die();
+    // 	return $response->withRedirect($this->router->pathFor('group.user'), [
+    //         'group' 		=> 	$args['group']
+    //     ]);
+	// }
 	//Delete item by user
     public function deleteItemByUser($request, $response, $args)
     {

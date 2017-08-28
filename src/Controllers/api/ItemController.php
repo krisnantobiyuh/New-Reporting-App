@@ -13,8 +13,8 @@ class ItemController extends BaseController
     {
         $item = new Item($this->db);
         $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
-        $perPage = $request->getQueryParam('perpage');
-        $getItems = $item->getAllItem()->setPaginate($page, $perPage);
+        $perPage = $request->getParsedBody()['perpage'];
+        $getItems = $item->getAllItem()->setPaginate($page,5);
         $countItems = count($getItems);
         $query = $request->getQueryParams();
 
@@ -56,8 +56,12 @@ class ItemController extends BaseController
 
         $groupId    = $args['group'];
         $page = !$request->getQueryParam('page') ?  1 : $request->getQueryParam('page');
-        $perPage = $request->getQueryParam('perpage');
-        $findItem   = $item->getItem('group_id', $groupId, 'status', 0)->setPaginate($page, $perPage);
+        $perpage = $request->getQueryParam('perpage');
+        if (empty($perpage))
+        {
+            $perpage = 5;
+        }
+        $findItem   = $item->getItem('group_id', $groupId, 'status', 0)->setPaginate($page, $perpage);
         // $countItem  = count($findItem);
         $query      = $request->getQueryParams();
         if ($findItem['data']) {
@@ -81,14 +85,19 @@ class ItemController extends BaseController
 
         $groupId    = $args['group'];
         $page = !$request->getQueryParam('page') ?  1 : $request->getQueryParam('page');
-        $perPage = $request->getQueryParam('perpage');
-        $findItem   = $item->getItem('group_id', $groupId, 'status', 1)->setPaginate($page, $perPage);
+        $perpage = $request->getQueryParam('perpage');
+        $findItem   = $item->reportedGroupItem($groupId);
+        if (empty($perpage))
+        {
+            $perpage = 5;
+        }
+        $result = $this->paginateArray($findItem, $page, $perpage);
         $countItem  = count($findItem);
         $query      = $request->getQueryParams();
-        if ($findItem['data']) {
+        if ($findItem) {
             $data = $this->responseDetail(200, false, 'Data tersedia', [
-                'data'         => $findItem['data'],
-                'pagination'   => $findItem['pagination']
+                'data'         => $result['data'],
+                'pagination'   => $result['pagination']
             ]);
 
         } else {
@@ -131,7 +140,6 @@ class ItemController extends BaseController
         $findItem   = $item->getItem('user_id',
             $args['user'], 'status', 1)->setPaginate($page, $perPage);
         $countItem  = count($findItem);
-        $query      = $request->getQueryParams();
 
         // var_dump($findItem); die();
         if ($findItem['data']) {
@@ -202,7 +210,6 @@ class ItemController extends BaseController
                 ['recurrent'],
                 ['description'],
                 ['start_date'],
-                ['user_id'],
                 ['group_id'],
                 ['creator'],
                 ['privacy'],
@@ -217,7 +224,6 @@ class ItemController extends BaseController
             'recurrent'   => 'Recurrent',
             'description' => 'Description',
             'start_date'  => 'Start date',
-            'user_id'     => 'User id',
             'group_id'    => 'Group id',
             'creator '    => 'Creator',
             'privacy'      => 'privacy'
@@ -710,8 +716,10 @@ class ItemController extends BaseController
                     $newItem[$item['id']] = $item;
                 }
             }
-
-            $result = $this->paginateArray($newItem, $page, $perPage);
+            if (empty($perpage)) {
+                $perpage = 5;
+            }
+            $result = $this->paginateArray($newItem, $page, $perpage);
             $data = $this->responseDetail(200, false, 'Data tersedia', [
                 'data'        => $result['data'],
                 'pagination'  => $result['pagination']
@@ -957,7 +965,7 @@ class ItemController extends BaseController
                          'receiver'	=>	$findGuard['username'],
                          'content'	=>	$content,
                      ];
-                    //  $mailer->send($dataGuard);
+                     $mailer->send($dataGuard);
                  }
              }
 
@@ -972,7 +980,7 @@ class ItemController extends BaseController
                  ];
 
                  //  $this->sendWebNotif($report, $pic['id']);
-                //  $mailer->send($dataPic);
+                 $mailer->send($dataPic);
              }
 
              return $this->responseDetail(200, false, 'Item telah dilaporkan');

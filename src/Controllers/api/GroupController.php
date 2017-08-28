@@ -178,11 +178,13 @@ class GroupController extends BaseController
 		$userToken = new \App\Models\Users\UserToken($this->container->db);
 
 		$finduserGroup = $userGroup->findUsers('group_id', $args['id']);
-		$token = $response->getHeader('Authorization');
-		$findUser = $userToken->find('token', '7e505da11dd87b99ba9a4ed644a20ba4');
+		$token = $request->getHeader('Authorization')[0];
+		$findUser = $userToken->find('token', $token);
+		// var_dump($findUser); die();
 		$group = $userGroup->findUser('user_id', $findUser['user_id'], 'group_id', $args['id']);
 		$user = $users->find('id', $findUser['user_id']);
 		$query = $request->getQueryParams();
+		$perpage = $request->getQueryParam('perpage');
 
 		if ($group) {
 			if ($finduserGroup || $user['status'] == 1) {
@@ -238,13 +240,13 @@ class GroupController extends BaseController
 	{
 		$userGroup = new \App\Models\UserGroupModel($this->db);
 		$finduserGroup = $userGroup->findUser('user_id', $args['id'], 'group_id', $args['group']);
-		$finduserGroup = $userGroup->find('user_id', $args['id']);
+		$finduserGroup = $userGroup->find('id', $args['id']);
 		$query = $request->getQueryParams();
 
 		if ($finduserGroup) {
 			$userGroup->hardDelete($finduserGroup['id']);
 
-			$data = $this->responseDetail(200, false, 'User berhasil dihapus dari group', [
+			$data = $this->responseDetail(200, false, 'User berhasil dikeluarkan dari group', [
 					'data'	=>	$userGroup
 				]);
 		} else {
@@ -258,13 +260,14 @@ class GroupController extends BaseController
 	public function setAsMember(Request $request, Response $response, $args)
 	{
 		$userGroup = new \App\Models\UserGroupModel($this->db);
-		$finduserGroup = $userGroup->findUser('user_id', $args['id'], 'group_id', $args['group']);
+		// $finduserGroup = $userGroup->findUser('user_id', $args['id'], 'group_id', $args['group']);
+		$finduserGroup = $userGroup->find('id', $args['id']);
 		$query = $request->getQueryParams();
 
 		if ($finduserGroup) {
 			$userGroup->setUser($finduserGroup['id']);
 
-			$data = $this->responseDetail(200, false, 'User berhasil dijadikan member',  [
+			$data = $this->responseDetail(200, false, 'Pengguna berhasil dijadikan Anggota	',  [
 					'data'	=>	$userGroup
 				]);
 		} else {
@@ -278,7 +281,8 @@ class GroupController extends BaseController
 	public function setAsPic(Request $request, Response $response, $args)
 	{
 		$userGroup = new \App\Models\UserGroupModel($this->db);
-		$finduserGroup = $userGroup->findUser('user_id', $args['id'], 'group_id', $args['group']);
+		// $finduserGroup = $userGroup->findUser('user_id', $args['id'], 'group_id', $args['group']);
+		$finduserGroup = $userGroup->find('id', $args['id']);
 		$query = $request->getQueryParams();
 
 		if ($finduserGroup) {
@@ -769,7 +773,7 @@ class GroupController extends BaseController
 					'data'	=>	$findMember
 				]);
 			} else {
-				return $this->responseDetail(400, true, 'Anda tidak memiliki akses !');
+				return $this->responseDetail(403, true, 'Anda tidak memiliki akses !');
 			}
 
 		}else {

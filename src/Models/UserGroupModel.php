@@ -83,10 +83,10 @@ class UserGroupModel extends BaseModel
     {
         $qb = $this->db->createQueryBuilder();
 
-        $this->query = $qb->select('users.*', 'user_group.*')
-         	 ->from('users', 'users')
-        	 ->join('users', $this->table, 'user_group', 'users.id = user_group.user_id')
-        	 ->where('user_group.group_id = :id')
+        $this->query = $qb->select('u.id', 'u.name', 'u.username', 'u.image', 'u.email', 'u.created_at', 'u.address', 'u.gender', 'u.phone', 'ug.status' )
+         	 ->from('users', 'u')
+        	 ->join('u', $this->table, 'ug', 'u.id = ug.user_id')
+        	 ->where('ug.group_id = :id')
         	 ->setParameter(':id', $groupId);
 
         return $this;

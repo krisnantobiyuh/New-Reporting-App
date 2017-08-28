@@ -28,6 +28,8 @@
                             <img width="60" height="60" alt="User"
                             src="{{ base_url() }}/assets/images/avatar.png">
                             {% endif %}
+                        </div>
+                            <span class="user-info" style="margin-left: 20px; font-size:14px;">
                             {% if item.reported_at == null  %}
                             &nbsp&nbsp&nbsp<b>
                                 {% if item.creator == login.username %}
@@ -45,21 +47,20 @@
                                 {% endif %}</b>
                             <i>melaporkan item di grup</i> <b>{{ item.group_name }}</b>
                             {% endif %}
-                        </div>
+                            </span>
 
 
                         <div class="article-post">
-
                             <br>
                             {% if item.reported_at == null %}
-                            <span style="font-size: 14pt;" class="user-info"> <b>
+                            <span style="font-size: 14pt;margin-left: 30px;" class="user-info"> <b>
                                 <span class="label label-warning">{{ item.name }}
                                 </span>&nbsp > &nbsp
                                 <span class="label label-success">{{ item.group_name }}
                                 </span></b>
                             </span>
                             {% else %}
-                            <span style="font-size: 14pt;" class="user-info"> <b>
+                            <span style="font-size: 14pt;margin-left: 30px;" class="user-info"> <b>
                                 <span class="label label-warning">{{ item.name }}
                                 </span>&nbsp > &nbsp
                                 <span class="label label-success">{{ item.group_name }}
@@ -67,7 +68,6 @@
                             </span>
                             {% endif %}
                             <br>
-
                             <br>
                         {% if item.image != null %}
 
@@ -114,7 +114,7 @@
                 {% else %}
                 <center>Tidak ada kiriman</center>
                 {% endif %}
-            </li>
+            <!-- </li> -->
         </ul>
     </div>
 </div>

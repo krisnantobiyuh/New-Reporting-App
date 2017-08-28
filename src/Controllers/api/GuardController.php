@@ -14,21 +14,24 @@ class GuardController extends BaseController
     {
         $guard = new \App\Models\GuardModel($this->db);
         $userToken = new \App\Models\Users\UserToken($this->db);
+        // $userId = $userToken->getUserId($token);
+        $userId = $args['user'];
+        $guardId = $args['guard'];
+        $findGuard = $guard->findTwo('guard_id', $guardId, 'user_id', $userId);
 
-        $token = $request->getHeader('Authorization')[0];
-        $userId = $userToken->getUserId($token);
-        $findGuard = $guard->findTwo('guard_id', $args['id'], 'user_id', $userId);
         $data = [
-            'guard_id'  =>  $args['id'],
+            'guard_id'  =>  $guardId,
             'user_id' => $userId,
         ];
-        if ($findGuard) {
-            $data = $this->responseDetail(404, true, 'Data tidak ditemukan');
-        } else {
+
+        if (!$findGuard) {
             $addGuardian = $guard->add($data);
-            $data = $this->responseDetail(200, false, 'Berhasilkan menambahkan guardian', [
-                    'data' => $data
-                ]);
+
+            $data = $this->responseDetail(200, false, 'Pengguna berhasil ditambahkan ', [
+                'data' => $data
+            ]);
+        } else {
+            $data = $this->responseDetail(404, true, 'Pengguna sudah ditambahkan');
         }
         return $data;
     }
@@ -70,7 +73,7 @@ class GuardController extends BaseController
             $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
             $perPage = $request->getQueryParam('perpage');
             $findAll = $guards->findAllUser($guardId)->setPaginate($page, $perPage);
-    
+
             return $this->responseDetail(200, false, 'Berhasil menampilkan user', [
                 'data'          =>  $findAll['data'],
                 'pagination'    =>  $findAll['pagination']

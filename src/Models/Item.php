@@ -17,8 +17,9 @@ class Item extends BaseModel
             'start_date'  => $data['start_date'],
             'group_id'    => $data['group_id'],
             'user_id'     => $data['user_id'],
+            'image'       => $data['image'],
             'creator'     => $data['creator'],
-            'privacy'     => $data['privacy'],
+            'privacy'     => $data['public'],
             'status'      => $data['status'],
             'reported_at' => $data['reported_at'],
             'updated_at'  => $date
@@ -333,5 +334,31 @@ class Item extends BaseModel
         return  $query1->fetchAll();
 
     }
+    
+    public function reportedGroupItem($groupId)
+    {
+        $qb = $this->db->createQueryBuilder();
+
+        $qb->select('it.*',
+        //  'it.created_at as created', 'it.reported_at as reported','it.description', 'it.name as item',
+         'u.username as user', 'img.image',
+          'c.comment', 'u.image as user_image', 'us.image as creator_image',
+           'us.username as creator', 'g.name as group_name', 'g.id as group_id')
+        ->from($this->table, 'it')
+        ->join('it', 'users', 'u', 'u.id = it.user_id')
+        ->leftJoin('it', 'users', 'us', 'it.creator = us.id')
+        ->leftJoin('it', 'image_item', 'img', 'it.id = img.item_id')
+        ->leftJoin('it', 'comments', 'c', 'it.id = c.item_id')
+        ->leftJoin('it', 'groups', 'g', 'g.id = it.group_id')
+        ->where('it.group_id = :id')
+        ->andWhere('it.privacy = 0')
+        ->andWhere('it.status = 1')
+        ->setParameter(':id', $groupId);
+
+        $result = $qb->execute();
+        return $result->fetchAll();
+
+    }
+
 
 }

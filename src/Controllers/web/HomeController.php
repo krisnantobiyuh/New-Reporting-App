@@ -1,7 +1,9 @@
 <?php
+
 namespace App\Controllers\web;
 
 use GuzzleHttp\Exception\BadResponseException as GuzzleException;
+
 
 class HomeController extends BaseController
 {
@@ -130,6 +132,66 @@ class HomeController extends BaseController
     public function notFound($request, $response)
     {
         return $this->view->render($response, 'response/404.twig');
+    }
+
+    public function test($request, $response)
+    {
+
+
+            $id = $_SESSION['login']['id'];
+            if (!empty($_SESSION['guard'])) {
+                try {
+                    $result = $this->client->request('GET', 'guard/timeline/'.$id.'?',[
+                         'query' => [
+                             'perpage' => 5,
+                             'page' => $request->getQueryParam('page')
+         			]]);
+                } catch (GuzzleException $e) {
+                    $result = $e->getResponse();
+                }
+
+            } else {
+                try {
+                    $result = $this->client->request('GET', 'user/timeline/'.$id.'?',[
+                        'query' => [
+                            'perpage' => 5,
+                            'page' => $request->getQueryParam('page')
+                            ]]);
+                    } catch (GuzzleException $e) {
+                        $result = $e->getResponse();
+                    }
+            }
+
+            $data = json_decode($result->getBody()->getContents(), true);
+            // var_dump($data['pagination']);die();
+            if (!isset($data['pagination'])) {
+            $data['pagination'] = null;
+            }
+            if ($_SESSION['login']['status'] == 2) {
+                $data = $this->view->render($response, 'users/test.twig', [
+                    'data'       =>	$data['data'],
+                    'pagination' =>	$data['pagination']
+        		]);
+
+            } elseif ($_SESSION['login']['status'] == 1) {
+                $allArticle = count($article->getAll());
+                $search = $request->getQueryParam('search');
+
+                $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+
+                if (!empty($search)) {
+                    $findAll = $article->search($request->getQueryParam('search'));
+                } else {
+                    $findAll = $article->getArticle()->setPaginate($page, 3);
+                }
+    // var_dump($findAll);die();
+                $data = $this->view->render($response, 'users/test.twig', [
+                    'items' => $item->getAll()]);
+            }
+
+            return $data;
+
+        return $this->view->render($response, 'users/test.twig');
     }
 }
 //
