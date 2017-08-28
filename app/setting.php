@@ -16,7 +16,7 @@ return [
 
 	//setting db (with doctrine)
 	'db'	=> [
-		'url'	=> 'mysql://root:root@localhost/report',
+		'url'	=> 'mysql://root:apple@localhost/new-reporting',
 	],
 
 	'determineRouteBeforeAppMiddleware' => true,

@@ -18,7 +18,7 @@ class Item extends BaseModel
             'group_id'    => $data['group_id'],
             'user_id'     => $data['user_id'],
             'creator'     => $data['creator'],
-            'privacy'     => $data['privacy'],
+            'public'      => $data['public'],
             'status'      => $data['status'],
             'reported_at' => $data['reported_at'],
             'updated_at'  => $date

@@ -151,14 +151,14 @@ class ItemController extends BaseController
     //Get unreported item user in group
     public function getUnreportedUserGroupItem($request, $response, $args)
     {
-        $item     = new Item($this->db);
+        $item = new Item($this->db);
 
         $token = $request->getHeader('Authorization')[0];
         $groupId = $request->getQueryParam('group_id');
         $userId = $request->getQueryParam('user_id');
         $page = !$request->getQueryParam('page') ?  1 : $request->getQueryParam('page');
         $perPage = $request->getQueryParam('perpage');
-        $findItem   = $item->getUnreportedUserItemInGroup($userId, $groupId);
+        $findItem  = $item->getUnreportedUserItemInGroup($userId, $groupId);
         $result = $this->paginateArray($findItem, $page, $perPage);
 
         if ($findItem) {
@@ -271,7 +271,7 @@ class ItemController extends BaseController
                 ['description'],
                 ['start_date'],
                 // ['user_id'],
-                ['group_id'],
+                // ['group_id'],
                 // ['creator'],
                 ['public'],
             ],
@@ -319,7 +319,7 @@ class ItemController extends BaseController
 
         } else {
 
-            $data = $this->responseDetail(400, true, $this->validator->errors());
+            $data = $this->responseDetail(401, true, $this->validator->errors());
         }
 
         return $data;

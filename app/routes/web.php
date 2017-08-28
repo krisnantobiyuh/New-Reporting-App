@@ -4,13 +4,11 @@ $app->post('/signup', 'App\Controllers\web\UserController:signUp')->setName('pos
 $app->post('/reset', 'App\Controllers\web\UserController:resetPassword')->setName('password.reset');
 $app->get('/test', 'App\Controllers\web\HomeController:index')->setName('timeline');
 $app->get('/404', 'App\Controllers\web\HomeController:notFound')->setName('not.found');
-
 $app->get('/admin', 'App\Controllers\web\UserController:getLoginAsAdmin')->setName('login.admin');
 $app->post('/admin', 'App\Controllers\web\UserController:loginAsAdmin');
 $app->get('/user', 'App\Controllers\web\UserController:getAllUser');
 $app->get('/', 'App\Controllers\web\UserController:getLogin')->setName('login');
 $app->post('/', 'App\Controllers\web\UserController:login')->setName('post.login');
-
 $app->get('/guard/show', 'App\Controllers\web\GuardController:showGuardByUser');
 $app->get('/guard/show/{id}', 'App\Controllers\web\GuardController:showUserByGuard');
 $app->get('/guard/delete/{id}', 'App\Controllers\web\GuardController:deleteGuardian');
@@ -20,7 +18,6 @@ $app->group('', function() use ($app, $container) {
     // $app->get('/profile', 'App\Controllers\web\UserController:viewProfile')->setName('user.profile');
     // $app->get('/setting', 'App\Controllers\web\UserController:getSettingAccount')->setName('user.setting');
     // $app->post('/setting', 'App\Controllers\web\UserController:settingAccount');
-
     $app->group('/group', function() use ($app, $container) {
         $app->get('', 'App\Controllers\web\GroupController:index')->setName('group');
         $app->get('/{id}', 'App\Controllers\web\GroupController:enter')->setName('pic.group');
@@ -48,7 +45,6 @@ $app->group('', function() use ($app, $container) {
         $app->get('/archive', 'App\Controllers\web\ItemController:getItemArchive')->setName('item.archive');
         $app->post('/archive/{id}', 'App\Controllers\web\ItemController:searchItemArchive')->setName('search.item.archive');
     });
-
     $app->group('/user', function() use ($app, $container) {
         $app->get('/groups', 'App\Controllers\web\GroupController:getGeneralGroup')->setName('group.user');
         $app->get('/profile', 'App\Controllers\web\UserController:viewProfile')->setName('user.view.profile');

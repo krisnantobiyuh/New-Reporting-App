@@ -114,8 +114,8 @@
 
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <!-- Include a polyfill for ES6 Promises (optional) for IE11 and Android browser -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.3.11/js/app.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.3.11/js/demo.js"></script>
 
@@ -186,28 +186,6 @@ $('#previewing').attr('height', '230px');
 $(document).ready(function() {
     $('#example2').DataTable();
 } );
-</script>
-<script type="text/javascript">
-// $(document).ready(function(){
-//    $(".laporkan").click(function(){ // Click to only happen on announce links
-//      $('#reportedModal').modal('show');
-//      $("#data-id").val($(this).data('id'));
-//      $('#laporkan').attr('action', '{{ base_url() }}/items/report/'$(this).data('id'));
-//    });
-// });
-
-
-// $(document).on("click", ".laporkan", function () {
-//      var myBookId = $(this).data('id');
-//      $(".#laporkan").attr('title', '/items/report/'+myBookId);
-//      $(".#coba").attr('title', '/items/report/'+myBookId);
-// });
-
-
-// $(document).on("click", ".open-AddBookDialog", function () {
-//      var myBookId = $(this).data('id');
-//      $(".modal-body #bookId").attr('title', '/items/report/'+myBookId);
-// });
 </script>
 
 {% block script %} {% endblock %}
