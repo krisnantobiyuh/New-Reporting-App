@@ -27,7 +27,7 @@ class GuardController extends BaseController
             $result = $e->getResponse();
         }
         $data = json_decode($result->getBody()->getContents(), true);
-        var_dump($data);die();
+        // var_dump($data);die();
         return $this->view->render($response, 'users/guard/all-user.twig', [
             'data'          =>  $data['data'] ,
             'pagination'    =>  $data['pagination']
