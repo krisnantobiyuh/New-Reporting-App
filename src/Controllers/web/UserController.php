@@ -17,7 +17,7 @@ class UserController extends BaseController
 
         $data = json_decode($result->getBody()->getContents(), true);
 
-        var_dump($data);
+        // var_dump($data); die();
     }
 
     public function getLogin($request, $response)
@@ -41,8 +41,11 @@ class UserController extends BaseController
         $data = json_decode($result->getBody()->getContents(), true);
 
         if ($data['code'] == 200) {
-            $_SESSION['login'] = $data['data'];
             $_SESSION['key'] = $data['key'];
+            $_SESSION['login'] = $data['data'];
+            if (!empty($request->getParams()['guard'])) {
+                $_SESSION['guard'] = $_SESSION['login']['id'];
+            }
             if ($_SESSION['login']['status'] == 2) {
                 $_SESSION['user_group'] = $groups;
                 $this->flash->addMessage('succes', 'Selamat datang, '. $_SESSION['login']['username']);
@@ -53,7 +56,7 @@ class UserController extends BaseController
                 return $response->withRedirect($this->router->pathFor('login'));
             }
         } else {
-            $this->flash->addMessage('warning', 'Email atau password tidak cocok');
+            $this->flash->addMessage('warning', 'Username atau password tidak cocok');
             return $response->withRedirect($this->router->pathFor('login'));
         }
     }
@@ -115,7 +118,7 @@ class UserController extends BaseController
             // var_dump($data);die();
 
             if ($data['code'] == 201) {
-                $this->flash->addMessage('succes', 'Pendaftaran berhasil,
+                $this->flash->addMessage('success', 'Pendaftaran berhasil,
                 silakan cek email anda untuk mengaktifkan akun');
                 return $response->withRedirect($this->router->pathFor('signup'));
             } else {
@@ -131,6 +134,34 @@ class UserController extends BaseController
             // $this->flash->addMessage('info');
             return $response->withRedirect($this->router->pathFor('signup'));
         }
+    }
+
+    public function searchUser($request, $response)
+    {
+        $user = new \App\Models\Users\UserModel($this->db);
+
+        $search = $request->getParam('search');
+
+        $userId = $_SESSION['login']['id'];
+        $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+        $perpage = $request->getQueryParam('perpage');
+        $result = $user->search($search, $userId)->setPaginate($page, 8);
+        // $page = $result['pagination']['current_page'];
+        // $perpage = $result['pagination']['perpage'];
+
+        // var_dump($result); die();
+
+        $data['group'] = $request->getParam('group');
+        // $data['users']    = $this->paginateArray($result['data'], $page, $perpage
+        $data['users'] = $result['data'];
+        $data['count']    = count($data['users']);
+        $data['pagination'] = $result['pagination'];
+        $data['search'] = $search;
+        // var_dump($data['users']); die();
+        if (!empty($data['group'])) {
+            return $this->view->render($response, 'pic/search-result.twig', $data);
+        }
+
     }
 
     public function viewProfile($request, $response)
@@ -172,41 +203,32 @@ class UserController extends BaseController
         // if ($this->validator->validate()) {
         $id = $_SESSION['login']['id'];
 
-            try {
-                $result = $this->client->request('POST', 'user/update/'.$id,
-                    ['form_params' => [
-                        'name'      => $request->getParam('name'),
-                        'username'  => $request->getParam('username'),
-                        'email'     => $request->getParam('email'),
-                        'address'   => $request->getParam('address'),
-                        'phone'     => $request->getParam('phone'),
-                        'gender'    => $request->getParam('gender')
-                    ]
-                ]);
-            } catch (GuzzleException $e) {
-                $result = $e->getResponse();
-            }
+        try {
+            $result = $this->client->request('POST', 'user/update/'.$id,
+            ['form_params' => [
+                'name'      => $request->getParam('name'),
+                'username'  => $request->getParam('username'),
+                'email'     => $request->getParam('email'),
+                'address'   => $request->getParam('address'),
+                'phone'     => $request->getParam('phone'),
+                'gender'    => $request->getParam('gender')
+            ]
+        ]);
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
 
-            $data = json_decode($result->getBody()->getContents(), true);
-            // var_dump($data);die();
-
-            if ($data['error'] == false) {
-                $this->flash->addMessage('succes', 'Info akun berhasil dipebarui');
-                return $response->withRedirect($this->router->pathFor('user.setting.profile'));
-                $_SESSION['login'] = $data['data'];
-            } else {
-                $_SESSION['old'] = $request->getParams();
-                $this->flash->addMessage('error', $data['message']);
-                return $response->withRedirect($this->router->pathFor('user.setting.profile'));
-            }
-
-        // } else {
-        //     $_SESSION['errors'] = $this->validator->errors();
-        //     $_SESSION['old'] = $request->getParams();
-        //
-        //     // $this->flash->addMessage('info');
-        //     return $response->withRedirect($this->router->pathFor('user.update.profile'));
-        // }
+        $data = json_decode($result->getBody()->getContents(), true);
+        // var_dump($data);die();
+        if ($data['error'] == false) {
+            $this->flash->addMessage('success', 'Info akun berhasil dipebarui');
+            return $response->withRedirect($this->router->pathFor('user.setting.profile'));
+            $_SESSION['login'] = $data['data'];
+        } else {
+            $_SESSION['old'] = $request->getParams();
+            $this->flash->addMessage('error', $data['message']);
+            return $response->withRedirect($this->router->pathFor('user.setting.profile'));
+        }
     }
 
     public function changeImage($request, $response)
@@ -241,11 +263,11 @@ class UserController extends BaseController
         $data = json_decode($result->getBody()->getContents(), true);
         $newUser = json_decode($user->getBody()->getContents(), true);
 
-        $_SESSION['login'] = $newUser['data'];
         // var_dump($newUser);die();
         if ($data['error'] == false) {
-            $this->flash->addMessage('succes', 'Foto profil berhasil diubah');
+            $this->flash->addMessage('success', 'Foto profil berhasil diubah');
             return $response->withRedirect($this->router->pathFor('user.view.profile'));
+            $_SESSION['login'] = $newUser['data'];
         } else {
             $this->flash->addMessage('warning', $data['message']);
             return $response->withRedirect($this->router->pathFor('user.view.profile'));
@@ -281,11 +303,34 @@ class UserController extends BaseController
         $data = json_decode($result->getBody()->getContents(), true);
 // var_dump($data);die;
         if ($data['error'] == false) {
-            $this->flash->addMessage('succes', $data['message']);
+            $this->flash->addMessage('success', $data['message']);
             return $response->withRedirect($this->router->pathFor('change.password'));
         } else {
             $this->flash->addMessage('error', $data['message']);
             return $response->withRedirect($this->router->pathFor('change.password'));
+        }
+    }
+
+    public function forgotPassword($request, $response, $args)
+    {
+        try {
+            $result = $this->client->request('POST', 'reset',
+                ['form_params' => [
+                    'email' => $request->getParam('email')
+                ]
+            ]);
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+
+        $data = json_decode($result->getBody()->getContents(), true);
+        // var_dump($data);die;
+        if ($data['error'] == false) {
+            $this->flash->addMessage('success', $data['message']);
+            return $response->withRedirect($this->router->pathFor('login'));
+        } else {
+            $this->flash->addMessage('error', $data['message']);
+            return $response->withRedirect($this->router->pathFor('login'));
         }
     }
 }

@@ -1,31 +1,20 @@
-<script type="text/javascript">
-$('#create').modal('show');
-</script>
 
 {% extends 'templates/default.twig' %}
 
 {% block title %} {{ items.name }} {% endblock %}
 
-{% block current %} Lihat detail tugas {% endblock %}
+{% block current %} Beranda > Item {% endblock %}
 
 {% block content %}
-<div class="widget-box" style="margin-top:0px; background:#fff;">
 <a class="list-group-item active main-color-bg">
-    <span class="" aria-hidden="true">Lihat tugas</span>
+    <span class="" aria-hidden="true">lihat item</span>
 </a>
-<div style="padding:20px; background:#fff;" class="widget-content">
-    <ul style="padding-left:10px;" class="recent-posts">
+<div style="padding:20px; background:#fff;"class="span12">
 {% if items.reported_at == null and items.creator_image != null %}
 <div class="user-thumb"> <img width="70" height="70" alt="Photo"
     src="{{ base_url() }}/assets/images/{{ items.creator_image }}">
-    &nbsp&nbsp&nbsp<b>
-        {% if items.creator == login.username %}
-        Anda
-        {% else %}
-        {{ items.creator }}
-        {% endif %}
-    </b>
-    <i>membuat item di grup</i> <b>{{ items.group_name }}</b><br>
+    &nbsp&nbsp&nbsp<b>{{ item.creator }}</b>
+    <i>membuat item di grup</i> <b>{{ item.group_name }}</b><br>
 
     <span class="user-info">
         <b> {{ items.item }} </b> <br> {{ items.reported }}
@@ -34,12 +23,7 @@ $('#create').modal('show');
 {% elseif items.reported_at != null and items.user_image != null %}
 <div class="user-thumb"> <img width="70" height="70" alt="Photo"
     src="{{ base_url() }}/assets/images/{{ items.user_image }}">
-    &nbsp&nbsp&nbsp<b>
-        {% if items.user == login.username %}
-        Anda
-        {% else %}
-        {{ items.user }}
-        {% endif %}</b>
+    &nbsp&nbsp&nbsp<b>{{ item.usee }}</b>
     <i>membuat item di grup</i> <b>{{ items.group_name }}</b><br>
 
 </div>
@@ -72,16 +56,10 @@ $('#create').modal('show');
         <div>
             <p> {{ items.description }} </p>
         </div>
-        {% if items.image is iterable %}
         {% for image in items.image %}
-        <img height="200px" style="max-width: 300px;"
+        <img height="200px" style="max-width: 300px;"alt="Image item"
         src="{{ base_url() }}/assets/images/{{ image }}">
         {% endfor %}
-        {% else %}
-        <img height="200px" style="max-width: 300px;"
-        src="{{ base_url() }}/assets/images/{{ items.image }}">
-        {% endif %}
-
         <hr style="border-top: 4px double #8c8b8b;">
         <div style="background:#F6F7F9; padding: 15px;">
             {% for comment in comment %}
@@ -108,7 +86,9 @@ $('#create').modal('show');
             </form>
         </div>
     </div>
-</div></ul>
 </div>
+<!-- </ul> -->
 </div>
+
+
 {% endblock %}

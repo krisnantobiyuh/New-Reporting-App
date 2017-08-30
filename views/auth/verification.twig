@@ -5,10 +5,10 @@
     <title>Daftar</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="css/bootstrap.min.css" />
-    <link rel="stylesheet" href="css/bootstrap-responsive.min.css" />
-    <link rel="stylesheet" href="css/matrix-login.css" />
-    <link href="font-awesome/css/font-awesome.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ base_url() }}/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="{{ base_url() }}/css/bootstrap-responsive.min.css" />
+    <link rel="stylesheet" href="{{ base_url() }}/css/matrix-login.css" />
+    <link href="{{ base_url() }}/font-awesome/css/font-awesome.css" rel="stylesheet" />
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,800'
     rel='stylesheet' type='text/css'>
 
@@ -64,11 +64,11 @@
                 </button>
             </span>
             <span class="pull-left">
-                <a href="#" class="flip-link btn btn-info" id="to-recover">
+                <a href="#" class="flip-link btn btn-primary" id="to-recover">
                     Verifikasi</a></span>
             <span style="color:#fff;"class="pull-right">
                 Sudah punya akun? &nbsp&nbsp
-                <a href="{{path_for('home')}}" class="flip-link btn btn-info">Login
+                <a href="{{path_for('home')}}" class="flip-link btn btn-primary">Login
                 </a>
             </span>
         </div>
@@ -89,7 +89,7 @@
             <span class="pull-left"><a href="#" class="flip-link btn btn-success" id="to-login">
                 &laquo; Kembali login</a>
             </span>
-            <span class="pull-right"><a class="btn btn-info"/>Setel ulang</a>
+            <span class="pull-right"><a class="btn btn-primary"/>Setel ulang</a>
             </span>
         </div>
     </form>

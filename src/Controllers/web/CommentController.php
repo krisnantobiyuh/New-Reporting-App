@@ -39,7 +39,7 @@ class CommentController extends BaseController
 
         if ($data['code'] == 201) {
 
-                $this->flash->addMessage('succes', $data['message']);
+                $this->flash->addMessage('success', $data['message']);
                 return $response->withRedirect($this->router->pathFor('show.item',
                  ['id' => $request->getParam('item_id')]));
 
@@ -107,7 +107,7 @@ class CommentController extends BaseController
             // var_dump($data);die();
 
             if ($data['code'] == 201) {
-                $this->flash->addMessage('succes', 'Pendaftaran berhasil,
+                $this->flash->addMessage('success', 'Pendaftaran berhasil,
                 silakan cek email anda untuk mengaktifkan akun');
                 return $response->withRedirect($this->router->pathFor('signup'));
             } else {
@@ -122,6 +122,35 @@ class CommentController extends BaseController
 
             // $this->flash->addMessage('info');
             return $response->withRedirect($this->router->pathFor('signup'));
+        }
+    }
+
+    public function postPicComment($request, $response)
+    {
+        // var_dump( $request->getParams());die();
+        try {
+            $result = $this->client->request('POST', 'comment',
+                ['form_params' => [
+                    'comment' => $request->getParam('comment'),
+                    'item_id' => $request->getParam('item_id'),
+                    'creator' => $_SESSION['login']['id']
+                ]
+            ]);
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+        $data = json_decode($result->getBody()->getContents(), true);
+
+        if ($data['code'] == 201) {
+
+                $this->flash->addMessage('success', $data['message']);
+                return $response->withRedirect($this->router->pathFor('web.pic.show.item',
+                 ['id' => $request->getParam('item_id')]));
+
+        } else {
+            $this->flash->addMessage('warning', 'Terjadi kesalahan');
+            return $response->withRedirect($this->router->pathFor('web.pic.show.item',
+             ['id' => $request->getParam('item_id')]));
         }
     }
 
