@@ -168,10 +168,10 @@ $('#create').modal('show');
                         <label for="recurrent">Perulangan :</label>
                         <select class="form-control" name="recurrent" value="">
                             <option value="Tanpa Perulangan">Tanpa Perulangan</option>
-                            <option value="Harian">Harian</option>
-                            <option value="Mingguan">Mingguan</option>
-                            <option value="Bulanan">Bulanan</option>
-                            <option value="Tahunan">Tahunan</option>
+                            <option value="daily">Harian</option>
+                            <option value="weekly">Mingguan</option>
+                            <option value="monthly">Bulanan</option>
+                            <option value="yearly">Tahunan</option>
                         </select>
                         {% if errors.recurrent %}
                         <span class="help-block">{{ errors.recurrent | first }}</span>
@@ -313,7 +313,7 @@ $('#create').modal('show');
                     <div class="btn-group btn-group-justified" role="group" aria-label="group button">
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-danger"
-                             data-dismiss="modal"  role="button"><b>Close</b></button>
+                             data-dismiss="modal"  role="button"><b>Tutup</b></button>
                         </div>
                         <div class="btn-group" role="group">
                             <button type="submit" class="btn btn-success btn-hover-green">

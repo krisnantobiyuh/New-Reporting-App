@@ -149,10 +149,10 @@
                         <label for="recurrent">Pengulangan :</label>
                         <select class="form-control" name="recurrent" value="">
                             <option selected="selected" value="">Tanpa pengulangan</option>
-                            <option value="Harian">Harian</option>
-                            <option value="Mingguan">Mingguab</option>
-                            <option value="Bulanan">Bulanan</option>
-                            <option value="Tahunan">Tahunan</option>
+                            <option value="daily">Harian</option>
+                            <option value="weekly">Mingguan</option>
+                            <option value="monthly">Bulanan</option>
+                            <option value="yearly">Tahunan</option>
                         </select>
                         {% if errors.recurrent %}
                         <span class="help-block">{{ errors.recurrent | first }}</span>
@@ -190,7 +190,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Tutup</span></button>
             <h3 class="modal-title" id="lineModalLabel">Form laporan tugas</h3>
         </div>
         <div class="modal-body">
@@ -199,13 +199,14 @@
         <form  action="{{data.id}}" method="POST" enctype="multipart/form-data" id="laporkan">
             {% if errors %}
             <div class="alert alert-danger">
-                <a class="close" data-dismiss="alert" href="#">x</a> Please fill out the form
+                <a class="close" data-dismiss="alert" href="#">x</a>
+                 Mohon mengisiisi form dengan benar
             </div>
             {% endif %}
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12">
                     <div class="form-group {{ errors.description ? 'has-error' : '' }}">
-                        <label for="description">Description :</label>
+                        <label for="description">Deskripsi :</label>
                         <input type="text" name="description" class="form-control" id="coba">
                         <input type="hidden" id="data-id" name="" value="">
                         {% if errors.description %}
@@ -217,11 +218,11 @@
             <div class="row">
                 <div class="col-xs-10 col-sm-5 col-md-12">
                     <div class="form-group {{ errors.public ? 'has-error' : '' }}">
-                        <label for="privacy">Item to :</label>
+                        <label for="privacy">Privasi :</label>
                         <select class="form-control" name="privacy" >
-                            <option value="">Select Group</option>
-                            <option value="0">Public</option>
-                            <option value="1">Private</option>
+                            <option value="">Pilih privasi Group</option>
+                            <option value="0">Publik</option>
+                            <option value="1">Privat</option>
 
                         </select>
                         {% if errors.public %}
@@ -233,7 +234,7 @@
             <div class="modal-footer">
                 <div class="btn-group btn-group-justified" role="group" aria-label="group button">
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-danger" data-dismiss="modal"  role="button">Close</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal"  role="button">Tutup</button>
                     </div>
                     <div class="btn-group" role="group">
                         <button type="submit" class="btn btn-primary btn-hover-green" >Laporkan</button>

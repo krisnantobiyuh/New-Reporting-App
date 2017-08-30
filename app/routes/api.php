@@ -1,4 +1,5 @@
 <?php
+$app->get('/task/cron/', 'App\Cron\CronJob:running');
 $app->get('/activateaccount/{token}', 'App\Controllers\api\UserController:activateAccount')->setName('api.activate');
 $app->group('/api', function() use ($app, $container) {
     $app->get('/', 'App\Controllers\api\UserController:index');

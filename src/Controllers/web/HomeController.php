@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controllers\web;
+use App\Models\Item as Item;
 
 use GuzzleHttp\Exception\BadResponseException as GuzzleException;
 
@@ -34,7 +35,7 @@ class HomeController extends BaseController
         }
 
         $data = json_decode($result->getBody()->getContents(), true);
-        // var_dump($data['pagination']);die();
+        var_dump($data);die();
         if (!isset($data['pagination'])) {
         $data['pagination'] = null;
         }
@@ -136,61 +137,89 @@ class HomeController extends BaseController
 
     public function test($request, $response)
     {
-            $id = $_SESSION['login']['id'];
-            if (!empty($_SESSION['guard'])) {
-                try {
-                    $result = $this->client->request('GET', 'guard/timeline/'.$id.'?',[
-                         'query' => [
-                             'perpage' => 5,
-                             'page' => $request->getQueryParam('page')
-         			]]);
-                } catch (GuzzleException $e) {
-                    $result = $e->getResponse();
-                }
+        $items = new Item($this->db);
+        $usesr = new \App\Models\Users\UserModel($this->db);
 
-            } else {
-                try {
-                    $result = $this->client->request('GET', 'user/timeline/'.$id.'?',[
-                        'query' => [
-                            'perpage' => 5,
-                            'page' => $request->getQueryParam('page')
-                            ]]);
-                    } catch (GuzzleException $e) {
-                        $result = $e->getResponse();
-                    }
-            }
+        $date = $items->userUnreported(3);
+        $user  = $users->getAllUser();
 
-            $data = json_decode($result->getBody()->getContents(), true);
-            // var_dump($data['pagination']);die();
-            if (!isset($data['pagination'])) {
-            $data['pagination'] = null;
-            }
-            if ($_SESSION['login']['status'] == 2) {
-                $data = $this->view->render($response, 'users/test.twig', [
-                    'data'       =>	$data['data'],
-                    'pagination' =>	$data['pagination']
-        		]);
-
-            } elseif ($_SESSION['login']['status'] == 1) {
-                $allArticle = count($article->getAll());
-                $search = $request->getQueryParam('search');
-
-                $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
-
-                if (!empty($search)) {
-                    $findAll = $article->search($request->getQueryParam('search'));
-                } else {
-                    $findAll = $article->getArticle()->setPaginate($page, 3);
-                }
-    // var_dump($findAll);die();
-                $data = $this->view->render($response, 'users/test.twig', [
-                    'items' => $item->getAll()]);
-            }
-
-            return $data;
-
-        return $this->view->render($response, 'users/test.twig');
+        foreach ($user as $key => $value) {
+            echo $value['username'];
+        }
+        // var_dump($us->fetchAll());
+        // echo "strings";
+        // echo '\r\n';
+        // var_dump($date);die;
+        // $now = date('Y-m-d H:i:s');
+        //
+        // $date[0] = date('Y-m-d H:i:s', strtotime($now. '+1 second'));
+        // $date[1] = date('Y-m-d H:i:s', strtotime($now. '+1 minute'));
+        // $date[2] = date('Y-m-d H:i:s', strtotime($now. '+1 hour'));
+        // $date[3] = date('Y-m-d H:i:s', strtotime($now. '+1 day'));
+        // $date[4] = date('Y-m-d H:i:s', strtotime($now. '+1 week'));
+        // $date[5] = date('Y-m-d H:i:s', strtotime($now. '+1 month'));
+        // $date[6] = date('Y-m-d H:i:s', strtotime($now. '+1 year'));
+        // var_dump($now);
+        // echo "<br />";
+        // var_dump($date);
+        // return  $this->view->render($response, 'admin/dashboard.twig');
     }
+    // {
+    //         $id = $_SESSION['login']['id'];
+    //         if (!empty($_SESSION['guard'])) {
+    //             try {
+    //                 $result = $this->client->request('GET', 'guard/timeline/'.$id.'?',[
+    //                      'query' => [
+    //                          'perpage' => 5,
+    //                          'page' => $request->getQueryParam('page')
+    //      			]]);
+    //             } catch (GuzzleException $e) {
+    //                 $result = $e->getResponse();
+    //             }
+    //
+    //         } else {
+    //             try {
+    //                 $result = $this->client->request('GET', 'user/timeline/'.$id.'?',[
+    //                     'query' => [
+    //                         'perpage' => 5,
+    //                         'page' => $request->getQueryParam('page')
+    //                         ]]);
+    //                 } catch (GuzzleException $e) {
+    //                     $result = $e->getResponse();
+    //                 }
+    //         }
+    //
+    //         $data = json_decode($result->getBody()->getContents(), true);
+    //         // var_dump($data['pagination']);die();
+    //         if (!isset($data['pagination'])) {
+    //         $data['pagination'] = null;
+    //         }
+    //         if ($_SESSION['login']['status'] == 2) {
+    //             $data = $this->view->render($response, 'users/test.twig', [
+    //                 'data'       =>	$data['data'],
+    //                 'pagination' =>	$data['pagination']
+    //     		]);
+    //
+    //         } elseif ($_SESSION['login']['status'] == 1) {
+    //             $allArticle = count($article->getAll());
+    //             $search = $request->getQueryParam('search');
+    //
+    //             $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+    //
+    //             if (!empty($search)) {
+    //                 $findAll = $article->search($request->getQueryParam('search'));
+    //             } else {
+    //                 $findAll = $article->getArticle()->setPaginate($page, 3);
+    //             }
+    // var_dump($findAll);die();
+    //             $data = $this->view->render($response, 'users/test.twig', [
+    //                 'items' => $item->getAll()]);
+    //         }
+    //
+    //         return $data;
+    //
+    //     return $this->view->render($response, 'users/test.twig');
+    // }
 }
 //
 // public function timeline($request, $response, $args)

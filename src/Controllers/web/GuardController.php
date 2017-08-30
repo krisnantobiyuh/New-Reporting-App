@@ -5,7 +5,6 @@ namespace App\Controllers\web;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use GuzzleHttp\Exception\BadResponseException as GuzzleException;
-use App\Models\GuardModel;
 use GuzzleHttp;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
 

@@ -35,6 +35,7 @@ class ItemsTable extends AbstractMigration
              ->addColumn('user_id', 'integer', ['null' => true])
              ->addColumn('creator', 'integer')
              ->addColumn('start_date', 'date')
+             ->addColumn('end_date', 'date', ['null' => true])
              ->addColumn('recurrent', 'string', ['null' => true])
              ->addColumn('status', 'integer', ['default' => '0'])
              ->addColumn('privacy', 'integer', ['default' => '0'])
