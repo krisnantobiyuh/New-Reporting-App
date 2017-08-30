@@ -16,7 +16,7 @@ return [
 
 	//setting db (with doctrine)
 	'db'	=> [
-		'url'	=> 'mysql://root:root@localhost/report',
+		'url'	=> 'mysql://root:apple@localhost/new-reporting',
 	],
 
 	'determineRouteBeforeAppMiddleware' => true,
@@ -35,6 +35,24 @@ return [
 		'path'	=>	__DIR__ . '/../views',
 		'twig'	=> 	[
 			'cache'	=>	false,
+			'debug' => true
 		]
 	],
+
+	'reporting' => [
+	   'base_uri' => 'http://localhost/Reporting-App/public/api/',
+	   'headers' => [
+		   'key' => $_ENV['REPORTING_API_KEY'],
+		   'Accept' => 'application/json',
+		   'Content-Type' => 'application/json',
+		   'Authorization'	=>	@$_SESSION['key']['key_token'],
+	   ],
+   ],
+
+    'base_url' => "http://localhost/",
+    "plates_path" => "/../view",
+
+    'flysystem' => [
+    	'path'	=> __DIR__ . "/../public/assets",
+     ]
 ];

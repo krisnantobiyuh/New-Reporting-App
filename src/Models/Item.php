@@ -35,6 +35,7 @@ class Item extends BaseModel
             'user_id'     => $data['user_id'],
             'image'       => $data['image'],
             'creator'     => $data['creator'],
+            'public'      => $data['public'],
             'privacy'     => $data['public'],
             'status'      => $data['status'],
             'reported_at' => $data['reported_at'],

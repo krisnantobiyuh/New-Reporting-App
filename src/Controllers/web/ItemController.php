@@ -38,7 +38,8 @@ class ItemController extends BaseController
         }
 		return $this->view->render($response, 'users/group/unreported-item.twig', [
 			'data'			=>	$data['data'],
-			'pagination'  	=>	$data['pagination'],
+			'count_item'	=>	count($data['data']),
+			// 'pagination'  	=>	$data['pagination'],
 			'group' 		=> 	$dataGroup['data']
 		]);
 	}
@@ -46,7 +47,9 @@ class ItemController extends BaseController
 	//create item by user
 	public function createItemUser($request, $response, $args)
 	{
-        // var_dump($_SESSION['login']['id']);die;
+        // $userId = $_SESSION['login']['id'];
+
+		$query = $request->getQueryParams();
 		try {
 			$result = $this->client->request('POST', 'item/create/'.$args['group'], [
 				'form_params' => [
@@ -61,11 +64,20 @@ class ItemController extends BaseController
 	                'privacy'       => $request->getParam('privacy'),
 				]
 			]);
+
+            $this->flash->addMessage('succes', 'Berhasil membuat item');
 		} catch (GuzzleException $e) {
 			$result = $e->getResponse();
 		}
 
 		$content = $result->getBody()->getContents();
+        $content = json_decode($content);
+
+        return $response->withRedirect($this->router->pathFor('unreported.item.user.group', [
+            'user' 		=> 	$_SESSION['login']['id'],
+            'group'     =>  $args['group']
+        ]));
+
         $data = json_decode($content, true);
 
         if ($data['error'] == false) {
@@ -160,7 +172,9 @@ class ItemController extends BaseController
             }
         }
 
-        $data = json_decode($result->getBody()->getContents(), true);
+        $content = json_decode($result->getBody()->getContents(), true);
+// var_dump($content);die();
+    	return $response->withRedirect("http://localhost/Reporting-App/public/items/group/".$args['group'].'/reported');
 
         if ($data['error'] == false) {
             $this->flash->addMessage('success', $data['message']);
@@ -196,8 +210,8 @@ class ItemController extends BaseController
     		$data = $e->getResponse();
             $this->flash->addMessage('error', 'Ada kesalahan saat menghapus tugas');
     	}
+
 		$dataDetailItem = json_decode($data->getBody()->getContents(), true);
-		// var_dump($dataDetailItem['data']['group_id']);die();
 
     	try {
     		$result = $this->client->request('DELETE', 'item/'.$args['item'].'/user'.
@@ -210,10 +224,41 @@ class ItemController extends BaseController
 
 		$data = json_decode($result->getBody()->getContents(), true);
 
-        return $response->withRedirect($this->router->pathFor('group.item', [
-            'group' 		=> 	$dataDetailItem['data']['group_id']
-        ]));
+			return $response->withRedirect($this->router->pathFor('group.item', [
+			// 'data'			=>	$data['data'],
+			'group' 		=> 	$dataDetailItem['data']['group_id']
+		]));
+    }
 
+    //Delete item reported
+    public function deleteItemReported($request, $response, $args)
+    {
+    	$query = $request->getQueryParams();
+
+    	try {
+    		$data = $this->client->request('GET', 'items/'.$args['item'].
+    			$request->getUri()->getQuery());
+    	} catch (GuzzleException $e) {
+    		$data = $e->getResponse();
+    	}
+
+		$dataDetailItem = json_decode($data->getBody()->getContents(), true);
+
+    	try {
+    		$result = $this->client->request('DELETE', 'items/'.$args['item'].'/delete'.
+    			$request->getUri()->getQuery());
+            $this->flash->addMessage('succes', 'Berhasil menghapus tugas yang telah dilaporkan');
+    	} catch (GuzzleException $e) {
+    		$result = $e->getResponse();
+            $this->flash->addMessage('error', 'Ada kesalahan saat menghapus tugas');
+    	}
+
+		$data = json_decode($result->getBody()->getContents(), true);
+
+		return $response->withRedirect($this->router->pathFor('web.reported.group.item', [
+			// 'data'			=>	$data['data'],
+			'group' 		=> 	$dataDetailItem['data']['group_id']
+		]));
     }
 
     public function searchItemArchive($request, $response, $args)

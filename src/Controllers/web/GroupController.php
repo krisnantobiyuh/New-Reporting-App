@@ -28,7 +28,6 @@ class GroupController extends BaseController
 			'data'			=> $data['data'],
 			'pagination'	=> $data['pagination']
 		]);
-
 	}
 
 	//Get Group user
@@ -70,9 +69,6 @@ class GroupController extends BaseController
 
         $data = json_decode($result->getBody()->getContents(), true);
 
-		// var_dump($data); die();
-
-		// var_dump($data->reporting->results);die();
 		return $this->view->render($response, 'pic/group-timeline.twig', [
 			'members'	=> $data['data'],
 			'group'	=> $args['id'],
@@ -397,15 +393,22 @@ class GroupController extends BaseController
 	}
 	public function searchGroup($request, $response)
     {
+        $query = $request->getQueryParams();
 		try {
-			$client = $this->client->request('GET',
-						$this->router->pathFor('api.search.group'));
-			$content = json_decode($client->getBody()->getContents());
+            $result = $this->client->request('POST', 'group/search',
+                ['query' => [
+                    'search' => $request->getParam('search'),
+                ]
+            ]);
 		} catch (GuzzleException $e) {
-			$content = json_decode($e->getResponse()->getBody()->getContents());
-			$this->flash->addMessage(404, 'Data tidak ditemukan');
+			$result = $e->getResponse();
 		}
-        return $this->view->render($response, 'users/user/found-group.twig', $content->reporting);
+        $data = json_decode($result->getBody()->getContents(), true);
+        // var_dump($data);die();
+
+		return $this->view->render($response, 'users/found-group.twig', [
+            'data' => $data['data']
+        ]);
     }
 
     //leave group
@@ -415,7 +418,7 @@ class GroupController extends BaseController
     	try {
     		$result = $this->client->request('GET', 'group/'.$args['id'].'/leave'.
     			$request->getUri()->getQuery());
-            $this->flash->addMessage('success', 'Berhasil meninggalkan group');
+            $this->flash->addMessage('succes', 'Berhasil meninggalkan group');
     	} catch (GuzzleException $e) {
     		$result = $e->getResponse();
             $this->flash->addMessage('error', 'Ada kesalahan saat meninggalkan group');
@@ -440,17 +443,25 @@ class GroupController extends BaseController
 	}
 	//Set user as member of group
 	public function joinGroup($request, $response, $args)
-	{
-		try {
-			$client = $this->client->request('GET',
-						$this->router->pathFor('api.join.group', ['id' => $args['id']]));
-			$content = json_decode($client->getBody());
-		} catch (GuzzleException $e) {
-			$content = json_decode($e->getResponse()->getBody()->getContents());
-			$this->flash->addMessage(400, 'Anda sudah bergabung dengan group');
-		}
-		return $this->view->render($response, '', $content->reporting);
-	}
+    {
+        $query = $request->getQueryParams();
+        try {
+            $result = $this->client->request('GET', 'group/join/'.$args['id'],
+                ['query' => [
+                    'group_id'  => $args['id'],
+                    'user_id'   => $_SESSION['login']['id']
+                ]
+            ]);
+            $this->flash->addMessage('success', 'Berhasil bergabung ke dalam group');
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+            $this->flash->addMessage('error', 'Anda telah bergabung di dalam group');
+        }
+
+        $data = json_decode($result->getBody()->getContents(), true);
+
+        return $response->withRedirect($this->router->pathFor('group.user'));
+}
 	//set As guardian
 	public function setAsGuardian($request, $response, $args)
 	{
