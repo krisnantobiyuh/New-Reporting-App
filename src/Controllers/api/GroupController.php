@@ -441,7 +441,6 @@ class GroupController extends BaseController
 
         $search = $request->getParams()['search'];
 
-        // $data['search'] = $request->getQueryParam('search');
 		$data['groups'] =  $group->search($search);
         $data['count'] = count($data['groups']);
 

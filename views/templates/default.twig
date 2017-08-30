@@ -187,6 +187,11 @@ $(document).ready(function() {
     $('#example2').DataTable();
 } );
 </script>
+<script type="text/javascript">
+$('#infoGroup').on('shown.bs.modal', function () {
+  $('#myInput').focus()
+});
+</script>
 
 {% block script %} {% endblock %}
 
