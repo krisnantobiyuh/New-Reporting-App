@@ -256,7 +256,7 @@ class ItemController extends BaseController
             'data'		=>	$data['data'],
             'user_id'	=>	$args['id'],
             'user'      => $dataUser['data'],
-            'pagination'=>	$data['pagination'],
+            // 'pagination'=>	$data['pagination'],
             'query' 	=> 	[
                 'year'  => $request->getParam('year'),
                 'month'  => $request->getParam('month')
@@ -326,7 +326,7 @@ class ItemController extends BaseController
             $result = $e->getResponse();
         }
         $data= json_decode($result->getBody()->getContents(), true);
-
+// var_dump($data);die;
         return $this->view->render($response, 'users/group/unreported-item.twig', [
             'data'			=>	$data['data'],
             'pagination'	=>	$data['pagination'],

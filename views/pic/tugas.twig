@@ -40,14 +40,15 @@ $('#create').modal('show');
 
                         <div class="widget-box">
                           <br>
-                              <b><i class="fa fa-list-alt" aria-hidden="true">
-                                  Tugas Grup </i></b>
+                              <h4>&nbsp&nbsp<i class="fa fa-list-alt" aria-hidden="true">
+                                  Tugas Grup </i></h4>
                           <div class="widget-content nopadding">
                             <table class="table table-striped table-bordered">
                               <thead>
                                 <tr>
                                   <th>No</th>
                                   <th>Nama</th>
+                                  <th>Kepada</th>
                                   <th>Perulangan</th>
                                   <th>Pilihan</th>
                                 </tr>
@@ -55,24 +56,29 @@ $('#create').modal('show');
                               <tbody>
                                   {% for key, item in items %}
                                   <tr>
-                                      <td class="taskDesc"><i class="icon-info-sign"></i>
+                                      <td class="taskDesc">
                                           {{ (pagination.current - 1) * pagination.perpage + (key + 1) }}</td>
-                                      <td class="taskDesc"><i class="icon-info-sign"></i> {{ item.name }}</td>
-                                      <td class="taskStatus"><span class="in-progress">{{ item.recurrent }}
+                                          <td class="taskDesc">{{ item.name }}</td>
+                                          {% if item.username is null %}
+                                          <td class="taskDesc">Semua anggota</td>
+                                          {% else %}
+                                          <td class="taskDesc">{{ item.username }}</td>
+                                      {% endif %}
+                                      <td class="taskDesc">{{ item.recurrent }}
                                       </span></td>
                                       <td class="taskOptions">
-                                        <a href="{{ base_url()}}/pic/items/delete/{{ item.id}}"
-                                          value="{{item.id}}"title="Hapus tugas"
-                                          style="margin-bottom:7px">
-                                          <button class="btn btn-primary btn-md"
-                                          style="margin-right:10px">Hapus</button>
-                                      </a>
-                                        <a href="{{ base_url()}}/pic/show/item/{{ item.id}}"
+                                          <a href="{{ base_url()}}/pic/show/item/{{ item.id}}"
                                           value="{{item.id}}"title="Detail Tugas"
                                           style="margin-bottom:7px">
                                           <button class="btn btn-primary btn-md"
                                           style="margin-right:10px">Detail</button>
                                       </a>
+                                      <a href="{{ base_url()}}/pic/items/delete/{{ item.id}}"
+                                      value="{{item.id}}"title="Hapus tugas"
+                                      style="margin-bottom:7px">
+                                      <button class="btn btn-danger btn-md"
+                                      style="margin-right:10px">Hapus</button>
+                                  </a>
                                   </td>
                               </tr>
                               {% endfor %}
@@ -87,13 +93,16 @@ $('#create').modal('show');
           <ul class="pager">
               <div class="pagination">
                   <ul>
-                      <li class="{% if pagination.current == 1 %}disabled{% endif %}">
+                      {% if pagination.current > 1 %}
+                      <li>
                           <a href="{{ base_url() }}/pic/items/group/{{group}}?page={{ pagination.current - 1 }}">
                               Sebelumnya</a></li>
+                              {% endif %}
                               <li class="active"> <a>{{ pagination.current }}</a></li>
-                              <li class="{% if pagination.current == pagination.total_page %}disabled{% endif %}">
+                              {% if pagination.current < pagination.total_page %}
+                              <li>
                                   <a href="{{ base_url() }}/pic/items/group/{{group}}?page={{ pagination.current + 1 }}">
-                                      Selanjutnya</a></li>
+                                      Selanjutnya</a></li>{% endif %}
                                   </ul>
                               </div>
                           </ul>
@@ -168,10 +177,10 @@ $('#create').modal('show');
                         <label for="recurrent">Perulangan :</label>
                         <select class="form-control" name="recurrent" value="">
                             <option value="Tanpa Perulangan">Tanpa Perulangan</option>
-                            <option value="daily">Harian</option>
-                            <option value="weekly">Mingguan</option>
-                            <option value="monthly">Bulanan</option>
-                            <option value="yearly">Tahunan</option>
+                            <option value="harian">Harian</option>
+                            <option value="mingguan">Mingguan</option>
+                            <option value="bulanan">Bulanan</option>
+                            <option value="tahunan">Tahunan</option>
                         </select>
                         {% if errors.recurrent %}
                         <span class="help-block">{{ errors.recurrent | first }}</span>

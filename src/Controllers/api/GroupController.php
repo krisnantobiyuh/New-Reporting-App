@@ -161,7 +161,7 @@ class GroupController extends BaseController
 			$findNewGroup = $userGroup->find('id', $adduserGroup);
 
 			$data = $this->responseDetail(201, false, 'User berhasil ditambahkan kedalam group', [
-					'result'	=>	$findNewGroup
+					'data'	=>	$findNewGroup
 				]);
 		} else {
 			$data = $this->responseDetail(400, true, $this->validator->errors());
@@ -447,8 +447,7 @@ class GroupController extends BaseController
 
         if ($data['count']) {
         	$data = $this->responseDetail(200, false, 'Berhasil menampilkan data search', [
-        			'query'		=>	$query,
-        			'result'	=>	$data
+        			'data'	=>	$data
         		]);
         }else {
         	$data = $this->responseDetail(404, true, 'Data tidak ditemukan');
@@ -484,7 +483,7 @@ class GroupController extends BaseController
             $newGroup = $group->find('id', $args['id']);
 
             return  $this->responseDetail(200, false, 'Foto berhasil diunggah', [
-                'result' => $newGroup
+                'data' => $newGroup
             ]);
 
         } else {

@@ -30,7 +30,7 @@ class GroupsTable extends AbstractMigration
         $groups = $this->table('groups');
         $groups->addColumn('name', 'string')
                 ->addColumn('description', 'string')
-                ->addColumn('image', 'string', ['default' => 'group.png'])
+                ->addColumn('image', 'string', ['null' => true])
                 ->addColumn('creator', 'integer')
                 ->addColumn('deleted', 'integer', ['default' => '0'])
                 ->addForeignKey('creator', 'users', 'id', ['delete' => 'CASCADE', 'update' => 'NO_ACTION'])

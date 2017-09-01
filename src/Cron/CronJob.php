@@ -64,16 +64,16 @@ class CronJob
 
         foreach ($expired as $val) {
             switch ($val['recurrent']) {
-                case "daily":
+                case "harian":
                 $data['end_date'] = date('Y-m-d', strtotime($val['end_date']. '+1 day'));
                 break;
-                case "weekly":
+                case "mingguan":
                 $data['end_date'] = date('Y-m-d', strtotime($val['end_date']. '+1 week'));
                 break;
-                case "monthly":
+                case "bulanan":
                 $data['end_date'] = date('Y-m-d', strtotime($val['end_date']. '+1 month'));
                 break;
-                case "yearly":
+                case "tahunan":
                 $data['end_date'] = date('Y-m-d', strtotime($val['end_date']. '+1 year'));
                 break;
                 default:

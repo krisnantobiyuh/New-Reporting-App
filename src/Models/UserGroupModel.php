@@ -133,7 +133,7 @@ class UserGroupModel extends BaseModel
 		return $result->fetchAll();
 	}
 
-	//Get member by user id
+	//Get member by group id
 	public function getGroupMember($groupId)
 	{
 		$qb = $this->db->createQueryBuilder();
@@ -189,8 +189,8 @@ class UserGroupModel extends BaseModel
 		$qb = $this->db->createQueryBuilder();
 
 		$qb->select('g.*')
-			 ->from('groups', 'g')
-			 ->join('g', $this->table, 'ug', 'g.id = ug.group_id')
+			 ->from($this->table, 'ug')
+			 ->join('ug', 'groups', 'g', 'g.id = ug.group_id')
 			 ->where('ug.user_id = :id')
 			 ->andWhere('ug.status = 0 or ug.status = 1')
 			 ->andWhere('g.deleted = 0')

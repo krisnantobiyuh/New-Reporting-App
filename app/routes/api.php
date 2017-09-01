@@ -80,8 +80,8 @@ $app->group('/api', function() use ($app, $container) {
         $app->put('/pic/set/member/{id}', 'App\Controllers\api\GroupController:setAsMember');
         // $app->get('/user/join', 'App\Controllers\api\GroupController:getUserGroup');
         // $app->get('/items/group/{group}', 'App\Controllers\web\ItemController:getUserInGroupItem')->setName('api.group.item');
-        // $app->get('/items/group/{group}', 'App\Controllers\web\ItemController:getUserInGroupItem')->setName('api.group.item');
     });
+
     $app->group('/guard', function() use ($app, $container) {
         $app->post('/create/{guard}/{user}', 'App\Controllers\api\GuardController:createGuardian')->setName('api.guard.add');
         $app->get('/delete/{id}', 'App\Controllers\api\GuardController:deleteGuardian')->setName('api.guard.delete');
@@ -91,4 +91,15 @@ $app->group('/api', function() use ($app, $container) {
         $app->get('/timeline/{id}', 'App\Controllers\api\ItemController:guardTimeline')->setname('api.guard.timeline');
 
     });
+
+    $app->group('/request', function() use ($app, $container) {
+       $app->post('/guard/{guard}', 'App\Controllers\api\RequestController:createUserToGuard')->setName('api.request.guard');
+       $app->post('/group/{group}', 'App\Controllers\api\RequestController:createUserToGroup')->setName('api.request.group');
+       $app->post('/user/{user}', 'App\Controllers\api\RequestController:createGuardToUser')->setName('api.request.user');
+       $app->get('/user', 'App\Controllers\api\RequestController:userRequest')->setName('api.notif.user');
+       $app->get('/guard', 'App\Controllers\api\RequestController:guardRequest')->setName('api.notif.guard');
+       $app->get('/group', 'App\Controllers\api\RequestController:groupRequest')->setName('api.notif.group');
+       $app->get('/group/all', 'App\Controllers\api\RequestController:allGroupRequest')->setName('api.notif.all.group');
+       $app->get('/all', 'App\Controllers\api\RequestController:allRequest')->setName('api.notif.all');
+   });
 });

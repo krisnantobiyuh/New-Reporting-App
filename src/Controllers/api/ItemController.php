@@ -61,7 +61,7 @@ class ItemController extends BaseController
         {
             $perpage = 5;
         }
-        $findItem   = $item->getItem('group_id', $groupId, 'status', 0)->setPaginate($page, $perpage);
+        $findItem   = $item->getUnreportedGroupItem($groupId)->setPaginate($page, $perpage);
         // $countItem  = count($findItem);
         $query      = $request->getQueryParams();
         if ($findItem['data']) {

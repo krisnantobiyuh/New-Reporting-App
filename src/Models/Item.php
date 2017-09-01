@@ -10,16 +10,16 @@ class Item extends BaseModel
     public function create($data)
     {
         switch ($data['recurrent']) {
-            case "daily":
+            case "harian":
             $endDate = date('Y-m-d', strtotime($data['start_date']. '+1 day'));
             break;
-            case "weekly":
+            case "mingguan":
             $endDate = date('Y-m-d', strtotime($data['start_date']. '+1 week'));
             break;
-            case "monthly":
+            case "bulanan":
             $endDate = date('Y-m-d', strtotime($data['start_date']. '+1 month'));
             break;
-            case "yearly":
+            case "tahunan":
             $endDate = date('Y-m-d', strtotime($data['start_date']. '+1 year'));
             break;
             default:
@@ -270,9 +270,7 @@ class Item extends BaseModel
 
         $qb = $this->db->createQueryBuilder();
 
-        $qb->select('it.*',
-        // 'it.created_at as created', 'it.reported_at as reported', 'it.description', 'it.name as item',
-         'u.username as user', 'img.image',
+        $qb->select('it.*', 'u.username as user', 'img.image',
           'c.comment', 'u.image as user_image', 'us.image as creator_image',
            'us.username as creator', 'g.name as group_name', 'g.id as group_id')
         ->from($this->table, 'it')
@@ -282,7 +280,7 @@ class Item extends BaseModel
         ->leftJoin('it', 'comments', 'c', 'it.id = c.item_id')
         ->leftJoin('it', 'groups', 'g', 'g.id = it.group_id')
         ->where('it.id = :id')
-        ->andWhere('it.user_id is null')
+        // ->andWhere('it.user_id is null')
         ->setParameter(':id', $id);
 
         $result = $qb->execute();
@@ -425,6 +423,20 @@ class Item extends BaseModel
             ->setParameter(':now', $now);
         }
         return array_map("unserialize", array_unique(array_map("serialize", $this->fetchAll())));
+    }
+
+    public function getUnreportedGroupItem($groupId)
+    {
+
+        $qb = $this->db->createQueryBuilder();
+        $this->query = $qb->select('i.*', 'u.username')
+        ->from($this->table, 'i')
+        ->leftJoin('i', 'users', 'u', 'u.id = i.user_id')
+        ->where('i.group_id = '. $groupId.' && '.'i.status = 0');
+        // ->execute();
+        return $this;
+        // $result = $qb->execute();
+        // return $result->fetchAll();
     }
 
 }
