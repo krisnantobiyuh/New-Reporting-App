@@ -34,6 +34,7 @@ class RequestController extends BaseController
         }
         return $response->withRedirect($this->router->pathFor('group.user'));
 	}
+
     public function createUserToGuard($request, $response, $args)
     {
         $query = $request->getQueryParams();
@@ -181,15 +182,25 @@ class RequestController extends BaseController
                     'perpage'  => 10
                 ]
             ]);
-            $this->flash->addMessage('success', 'Berhasil mengirim permintaan');
         } catch (GuzzleException $e) {
             $result = $e->getResponse();
-            $this->flash->addMessage('error', 'Ada kesalahan saat mengirim permintaan');
         }
-        $data = json_decode($result->getBody()->getContents(), true);
 
-        var_dump($data['data']['count']);die();
-        return $this->view->render($response, 'users/group-list.twig', $data);
+        $data = json_decode($result->getBody()->getContents(), true);
+        // var_dump($data['data']);die();
+        if ($data['message'] == "Data ditemukan") {
+            return $this->view->render($response, 'users/notif.twig', $data);
+        } else {
+            $this->flash->addMessage('error', 'Tidak ada pemberitahuan]');
+            return $this->view->render($response, 'users/notif.twig', $data);
+            # code...
+        }
+
     }
+
+    // public function getLogin($request, $response)
+    // {
+    //     return  $this->view->render($response, 'auth/login.twig');
+    // }
 
 }

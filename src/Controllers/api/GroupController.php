@@ -430,7 +430,7 @@ class GroupController extends BaseController
 		return $data;
 	}
 
-	//search group
+    	//search group
 	public function searchGroup(Request $request, Response $response)
     {
         $group = new GroupModel($this->db);
@@ -441,7 +441,6 @@ class GroupController extends BaseController
 
         $search = $request->getParams()['search'];
 
-        // $data['search'] = $request->getQueryParam('search');
 		$data['groups'] =  $group->search($search);
         $data['count'] = count($data['groups']);
 

@@ -20,16 +20,13 @@ class HomeController extends BaseController
                 'perpage'  => 10
                 ]
             ]);
-            $this->flash->addMessage('success', 'Berhasil mengirim permintaan');
         } catch (GuzzleException $e) {
             $result1 = $e->getResponse();
-            $this->flash->addMessage('error', 'Ada kesalahan saat mengirim permintaan');
         }
         $notif = json_decode($result1->getBody()->getContents(), true);
 
         if ($notif['message'] == 'Data ditemukan') {
             $_SESSION['notif'] = $notif['data'];
-// var_dump($notif['data']);die;
         }
 
         try {
@@ -46,6 +43,7 @@ class HomeController extends BaseController
         if (!isset($data['pagination'])) {
         $data['pagination'] = null;
         }
+        // var_dump($data);die();
         if ($_SESSION['login']['status'] == 2) {
             return $this->view->render($response, 'users/home.twig', [
                 'data'       =>	$data['data'],
@@ -63,7 +61,6 @@ class HomeController extends BaseController
             } else {
                 $findAll = $article->getArticle()->setPaginate($page, 3);
             }
-// var_dump($findAll);die();
             return $this->view->render($response, 'users/home.twig', [
                 'items' => $item->getAll()]);
         }

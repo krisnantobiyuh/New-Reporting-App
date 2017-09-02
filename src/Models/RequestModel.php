@@ -101,7 +101,7 @@ class RequestModel extends BaseModel
         ->execute();
 
 		$qb1 = $this->db->createQueryBuilder();
-		$this->query = $qb1->select('g.name as grup', 'u.username as user', 'req.*')
+		$this->query = $qb1->select('g.name as group_name', 'u.username as user', 'req.*')
 			 ->from($this->table, 'req')
              ->join('req', 'user_group', 'ug', $qb1->expr()->in('req.group_id',$query1))
              ->leftJoin('req', 'groups', 'g', 'g.id = req.group_id')

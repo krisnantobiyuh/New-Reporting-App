@@ -49,7 +49,7 @@
                          aria-hidden="true"></span> Keluar</a></li>
                 </ul>
             </li>
-            {% if notif is not null %}
+            {% if notif.count > 0 %}
             <li><a title="" href="#" data-toggle="dropdown" data-target="#notif" class="dropdown-toggle">
                 <!-- <i class="icon icon-user"></i> -->
                 <span  style="color:#fff; font-size:20px;"class="text">
@@ -58,19 +58,26 @@
 
                 </a>
                 <ul class="dropdown-menu" style="width:217px;">
-                    <li><a style="font-size:14px;">Permintaan dari anak
+                    {% if notif.user|length > 0 %}
+                    <li><a style="font-size:14px;"><i>Permintaan dari anak</i>
                         <span class="pull-right"><span class="label label-important">
                         {{ notif.user|length }}</span></span></a></li>
-                    <li><a style="font-size:14px;">Permintaan dari wali
+                        {% endif %}
+                        {% if notif.guard|length > 0 %}
+
+                    <li><a style="font-size:14px;"><i>Permintaan dari wali</i>
                         <span class="pull-right"><span class="label label-important">
                         {{ notif.guard|length }}</span></span></a></li>
-                    <li><a style="font-size:14px;">Permintaan gabung grup
+                        {% endif %}
+                        {% if notif.group|length > 0 %}
+                    <li><a style="font-size:14px;"><i>Permintaan gabung grup</i>
                         <span class="pull-right"><span class="label label-important">
                         {{ notif.group|length }}</span></span></a></li>
                         <li class="divider"></li>
-                    <li  style=" font-align:center;"><a style="font-size:13px; align:center;" href="{{path_for('logout')}}">
+                        {% endif %}
+                    <li><a style="font-size:13px; align:center;" href="{{path_for('notification')}}">
                         <span class="glyphicon glyphicon-hand-right"
-                        aria-hidden="true"></span> <u>Lihat semua</u></a></li>
+                        aria-hidden="true"></span> <u>Lihat semua permintaan</u></a></li>
                 </ul></li>
         {% endif %}
         </ul>

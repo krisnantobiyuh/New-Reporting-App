@@ -16,6 +16,7 @@ $app->get('/recovery', 'App\Controllers\web\UserController:getRecoveryPage')->se
 $app->group('', function() use ($app, $container) {
     $app->get('/home', 'App\Controllers\web\HomeController:index')->setName('home');
     $app->get('/logout', 'App\Controllers\web\UserController:logout')->setName('logout');
+    $app->get('/notification', 'App\Controllers\web\RequestController:allRequest')->setName('notification');
 
     $app->group('/group', function() use ($app, $container) {
         $app->get('', 'App\Controllers\web\GroupController:index')->setName('group');
@@ -31,7 +32,6 @@ $app->group('', function() use ($app, $container) {
         $app->get('/join/{id}', 'App\Controllers\web\GroupController:joinGroup')->setName('web.join.group');
         // $app->get('/{id}/pics', 'App\Controllers\web\GroupController:getGroupPic')->setName('get.group.pic');
     });
-
     $app->group('/item', function() use ($app, $container) {
         $app->get('/show/{id}', 'App\Controllers\web\HomeController:showItem')->setName('show.item');
         $app->get('/group/{group}', 'App\Controllers\web\ItemController:getGroupItem')->setName('group.item');
@@ -76,7 +76,6 @@ $app->group('', function() use ($app, $container) {
         $app->get('/show/item/{id}', 'App\Controllers\web\PicController:showItem')->setName('web.pic.show.item');
         $app->post('/set/guardian', 'App\Controllers\web\GuardController:createGuardian')->setName('web.pic.set.guardian');
         $app->post('/comment', 'App\Controllers\web\CommentController:postPicComment')->setName('pic.post.comment');
-
     });
 
     $app->group('/request', function() use ($app, $container) {
@@ -91,4 +90,13 @@ $app->group('', function() use ($app, $container) {
     });
     // ->add(new \App\Middlewares\web\GuardMiddleware($container));
     // )->add(new \App\Middlewares\web\AuthMiddleware($container)
+    // $app->post('/group/search', 'App\Controllers\web\GroupController:searchGroup')->setName('web.search.group');
+    // $app->get('/group/join/{id}', 'App\Controllers\web\GroupController:joinGroup')->setName('web.join.group');
+
+    // $app->group('/request', function() use ($app, $container) {
+    //     $app->get('/guard/{guard}', 'App\Controllers\web\RequestController:createUserToGuard')->setName('web.request.guard');
+    //     $app->get('/group/{group}', 'App\Controllers\web\RequestController:createUserToGroup')->setName('web.request.group');
+    //     $app->get('/user/{user}', 'App\Controllers\web\RequestController:createGuardToUser')->setName('web.request.user');
+    // });
+
 })->add(new \App\Middlewares\web\AuthMiddleware($container));
