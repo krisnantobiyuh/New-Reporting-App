@@ -59,7 +59,8 @@ class RequestModel extends BaseModel
         ->join('req', 'users', 'u', 'u.id = req.user_id')
         ->where('req.guard_id = :id')
         ->andWhere('req.category = 2')
-        ->setParameter(':id', $guardId);
+        ->setParameter(':id', $guardId)
+        ->orderBy('req.updated_at', 'desc');
 
         return $this;
     }
@@ -72,7 +73,8 @@ class RequestModel extends BaseModel
 			 ->join('req', 'users', 'u', 'u.id = req.guard_id')
              ->where('req.user_id = :id')
 			 ->andWhere('req.category = 1')
-			 ->setParameter(':id', $userId);
+			 ->setParameter(':id', $userId)
+             ->orderBy('req.updated_at', 'desc');
 
 		return $this;
 	}
@@ -86,7 +88,8 @@ class RequestModel extends BaseModel
              ->leftJoin('req', 'users', 'u', 'u.id = req.user_id')
              ->where('req.group_id = :group_id')
 			 ->andWhere('req.category = 0')
-             ->setParameter(':group_id', $groupId);
+             ->setParameter(':group_id', $groupId)
+             ->orderBy('req.updated_at', 'desc');
 
 		return $this;
 	}
@@ -106,10 +109,9 @@ class RequestModel extends BaseModel
              ->join('req', 'user_group', 'ug', $qb1->expr()->in('req.group_id',$query1))
              ->leftJoin('req', 'groups', 'g', 'g.id = req.group_id')
              ->leftJoin('req', 'users', 'u', 'u.id = req.user_id')
-            //  ->where('req.group_id = :group_id')
-			 ->andWhere('req.category = 0');
-            //  ->setParameter(':group_id', $groupId);
-            // var_dump($result);die;
+			 ->andWhere('req.category = 0')
+             ->orderBy('req.updated_at', 'desc');
+
 		return $this;
 	}
 

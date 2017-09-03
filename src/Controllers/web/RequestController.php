@@ -15,7 +15,7 @@ class RequestController extends BaseController
 	{
 		$query = $request->getQueryParams();
         try {
-            $result = $this->client->request('POST', 'request/group/'.$args['group'],
+            $result = $this->client->request('POST', 'request/group',
                 ['query' => [
                     'group_id'  => $args['group'],
                     'user_id'   => $_SESSION['login']['id']
@@ -32,6 +32,7 @@ class RequestController extends BaseController
         else {
             $this->flash->addMessage('error',  $data['message']);
         }
+
         return $response->withRedirect($this->router->pathFor('group.user'));
 	}
 
@@ -57,6 +58,7 @@ class RequestController extends BaseController
             'pagination'	=> $data['pagination']
         ]);
     }
+
     public function createGuardToUser($request, $response, $args)
     {
         $query = $request->getQueryParams();
@@ -185,8 +187,8 @@ class RequestController extends BaseController
         } catch (GuzzleException $e) {
             $result = $e->getResponse();
         }
-
         $data = json_decode($result->getBody()->getContents(), true);
+        $_SESSION['notif'] = $data['data'];
         // var_dump($data['data']);die();
         if ($data['message'] == "Data ditemukan") {
             return $this->view->render($response, 'users/notif.twig', $data);
@@ -198,9 +200,21 @@ class RequestController extends BaseController
 
     }
 
-    // public function getLogin($request, $response)
-    // {
-    //     return  $this->view->render($response, 'auth/login.twig');
-    // }
+    public function deleteRequest($request, $response)
+    {
+        try {
+            $result = $this->client->request('DELETE', 'request/delete/'.$request->getParams()['req_id']);
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+        $data = json_decode($result->getBody()->getContents(), true);
+        // var_dump($data);die();
+        if ($data['error'] == false) {
+            $this->flash->addMessage('success', $data['message']);
+        }else {
+            $this->flash->addMessage('error', $data['message']);
+        }
+        return $response->withRedirect($this->router->pathFor('notification'));
+    }
 
 }

@@ -17,7 +17,10 @@
             <li><a href="{{path_for('user.view.profile') }}">Profil</a></li>
             <li><a href="{{path_for('home') }}">Beranda</a></li>
             <li><a href="{{ path_for('group.user') }}">Grup</a></li>
-            <li><a href="{{path_for('logout')}}">Logout</a></li>
+            <li><a href="{{ path_for('guard.show.user') }}">Anak</a></li>
+            <li><a href="{{ path_for('item.archive', {'id': login.id }) }}">Arsip Tugas</a></li>
+            <li><a href="{{ base_url() }}/user/profile/setting">Pengaturan</a></li>
+            <li><a href="{{path_for('logout')}}">Keluar</a></li>
         </ul>
         {% if login.id != null %}
         <ul style="margin-top:10px;" class="nav navbar-nav navbar-right hidden-xs">
@@ -53,25 +56,25 @@
             <li><a title="" href="#" data-toggle="dropdown" data-target="#notif" class="dropdown-toggle">
                 <!-- <i class="icon icon-user"></i> -->
                 <span  style="color:#fff; font-size:20px;"class="text">
-                    <span class="label label-important"><i class="fa fa-bell" aria-hidden="true">
+                    <span class="badge badge-important"><i class="fa fa-bell" aria-hidden="true">
                     </i>{{ notif.count }}</span><b class="caret"></b></span>
 
                 </a>
                 <ul class="dropdown-menu" style="width:217px;">
                     {% if notif.user|length > 0 %}
                     <li><a style="font-size:14px;"><i>Permintaan dari anak</i>
-                        <span class="pull-right"><span class="label label-important">
+                        <span class="pull-right"><span class="badge badge-important">
                         {{ notif.user|length }}</span></span></a></li>
                         {% endif %}
                         {% if notif.guard|length > 0 %}
 
                     <li><a style="font-size:14px;"><i>Permintaan dari wali</i>
-                        <span class="pull-right"><span class="label label-important">
+                        <span class="pull-right"><span class="badge badge-important">
                         {{ notif.guard|length }}</span></span></a></li>
                         {% endif %}
                         {% if notif.group|length > 0 %}
                     <li><a style="font-size:14px;"><i>Permintaan gabung grup</i>
-                        <span class="pull-right"><span class="label label-important">
+                        <span class="pull-right"><span class="badge badge-important">
                         {{ notif.group|length }}</span></span></a></li>
                         <li class="divider"></li>
                         {% endif %}

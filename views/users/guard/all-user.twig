@@ -15,39 +15,40 @@
     <div class="panel-body">
         {% for user in data %}
 
-        <div style="padding:5px;" class="col-md-6" >
-            <div class="well dash-box" style="background:#f2f2f2; height: auto; padding-bottom:60px;">
+        <div style="padding:5px;" class="col-md-4" >
+            <div class="well dash-box" style="background:#f2f2f2; height: auto; padding:20px 20px 20px 20px;">
+            <center>
                 <a href="#">
                 {% if user.image != null %}
-                    <img style="margin-right:17px;" width="140" height="140" alt="User"
+                    <img style="margin-right:17px;" width="153" height="153" alt="User"
                     src="{{ base_url() }}/assets/images/{{ user.image }}">
                 {% else %}
-                    <img style="margin-right:17px;" width="140" height="140" alt="User"
+                    <img style="margin-right:17px;" width="146" height="146" alt="User"
                     src="{{ base_url() }}/assets/images/avatar.png">
                 {% endif %}
             </a>
-
                 <span style="float: right; top: 1px; ">
                     <div class="btn-group">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                         <i class="fa fa-sort-desc" aria-hidden="true"></i>
                     </a>
                     <ul style="left: -140px; top: 13px; " class="dropdown-menu">
-                        <li><a href="#"><i class="icon-fixed-width icon-pencil">
+                        <li><a style="font-size: small" href="#"><i class="icon-fixed-width icon-pencil">
                              Lihat detail</i></a></li>
-                        <li><a href="{{ path_for('item.archive', {'id': user.id }) }}"><i class="icon-fixed-width icon-pencil">
+                        <li><a style="font-size: small" href="{{ path_for('item.archive', {'id': user.id }) }}"><i class="icon-fixed-width icon-pencil">
                              Lihat arsip laporan</i></a></li>
                         <li class="divider"></li>
-                        <li><a href="#"><i class="i"> Hapus anak</i></a></li>
+                        <li><a style="font-size: small" href="#"><i class="i"> Hapus anak</i></a></li>
                     </ul>
                 </div>
                 </span>
-                <span style="position: absolute; float: right; margin-right:33px; font-family: Franklin Gothic Medium;">
+                <span style="margin-right:33px; font-family: Franklin Gothic Medium;">
                     <h4>{{ user.name}} ({{ user.username }})</h4>
-                    <b>Email: </b> {{ user.email}}<br>
-                    <b>Telepon: </b> {{ user.phone}}<br>
-                    <b>Alamat: </b> {{ user.address}}<br>
-                    <b>Terdaftar: </b> {{ user.created_at | date("j F Y ") }}
+                </center>
+                    <span class="span1"><b>Email</span></b> {{ user.email}}<br>
+                    <span class="span1"><b>Telepon</span></b> {{ user.phone}}<br>
+                    <!-- <span class="span1"><b>Alamat</span>: </b> {{ user.address}}<br> -->
+                    <span class="span1"><b>Terdaftar</span></b> {{ user.created_at | date("j F Y ") }}
                 </span>
             </div>
         </div>

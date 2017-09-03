@@ -13,27 +13,26 @@ class GuardController extends BaseController
     public function createGuardian(Request $request, Response $response, $args)
     {
         $guard = new \App\Models\GuardModel($this->db);
-        $userToken = new \App\Models\Users\UserToken($this->db);
+        // $userToken = new \App\Models\Users\UserToken($this->db);
         // $userId = $userToken->getUserId($token);
-        $userId = $args['user'];
-        $guardId = $args['guard'];
+        $userId = $request->getParam('guard_id');
+        $guardId = $request->getParam('user_id');
         $findGuard = $guard->findTwo('guard_id', $guardId, 'user_id', $userId);
 
         $data = [
-            'guard_id'  =>  $guardId,
-            'user_id' => $userId,
+            'guard_id'  => $guardId,
+            'user_id'   => $userId
         ];
 
-        if (!$findGuard) {
+        if (empty($findGuard[0])) {
             $addGuardian = $guard->add($data);
 
-            $data = $this->responseDetail(200, false, 'Pengguna berhasil ditambahkan ', [
+            return $this->responseDetail(201, false, 'Pengguna berhasil ditambahkan', [
                 'data' => $data
             ]);
         } else {
-            $data = $this->responseDetail(404, true, 'Pengguna sudah ditambahkan');
+            return $this->responseDetail(400, true, 'Pengguna sudah ditambahkan');
         }
-        return $data;
     }
 
     // Function Delete Guardian
@@ -87,25 +86,21 @@ class GuardController extends BaseController
     public function getGuardByUser(Request $request, Response $response, $args)
     {
         $guard = new GuardModel($this->db);
-        $userToken = new \App\Models\Users\UserToken($this->container->db);
+        // $userToken = new \App\Models\Users\UserToken($this->container->db);
 
-        $token = $request->getHeader('Authorization')[0];
+        // $token = $request->getHeader('Authorization')[0];
         // $userId = $userToken->find('token', '90c4a9cebeaae6515c7dd4d265271bf6');
-        $userId = $userToken->getUserId($token);
-        $guards = $guard->findGuards('guard_id', $args['id'], 'user_id', $userId['user_id']);
-// var_dump($guards);die();
+        // $userId = $userToken->getUserId($token);
+        $userGuard = $guard->findGuardbyUser($args['id']);
+// var_dump($userGuard);die();
         // $query = $request->getQueryParams();
-         if ($userId['user_id'] || $guards ) {
-             $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
-             $perPage = $request->getQueryParam('perpage');
-                $userGuard = $guard->getUserId($userId['user_id'])->setPaginate($page, $perPage);
-                // var_dump($userGuard);die();
-             $data = $this->responseDetail(200, false, 'Berhasil menampilkan data', [
-                    'data'    =>  $userGuard['data'],
-                    'pagination'      =>  $userGuard['pagination'],
-                ]);
+        if ($userGuard) {
+            return  $this->responseDetail(200, false, 'Berhasil menampilkan data', [
+                'data'    =>  $userGuard
+                // 'pagination'      =>  $userGuard['pagination'],
+            ]);
         } else {
-            $data = $this->responseDetail(400, true, 'Gagal menampilkan data');
+            return  $this->responseDetail(400, true, 'Gagal menampilkan data');
         }
         return $data;
       }

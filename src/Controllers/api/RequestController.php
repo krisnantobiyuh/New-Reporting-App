@@ -21,22 +21,27 @@ class RequestController extends BaseController
         $userGroups = new UserGroupModel($this->db);
         $groups = new GroupModel($this->db);
 
-        $token = $request->getHeader('Authorization')[0];
+        // $token = $request->getHeader('Authorization')[0];
 		$userId = $request->getQueryParam('user_id');
         $groupId = $request->getQueryParam('group_id');
 
-        $group = $groups->find('id', $args['group']);
-        $userGroups = $userGroups->findTwo('user_id', $userId, 'group_id', $groupId);
+        $group = $groups->find('id', 1);
+        $userGroups = $userGroups->findTwo('user_id', 2, 'group_id', 1  );
+        $userRequest = $requestModel->findTwo('user_id', 2, 'group_id', 1  );
         $data = [
-            'user_id'   =>  $userId,
-            'group_id'  =>  $groupId,
+            'user_id'   =>  2,
+            'group_id'  =>  1,
+            'category'  =>  0
         ];
         if ($group) {
-            if ($userGroups[0]) {
+            if (!empty($userRequest[0])) {
+                return $this->responseDetail(400, true, 'Anda sudah mengirim permintaan ke grup ini');
+            }
+            if (!empty($userGroups[0])) {
                 return $this->responseDetail(400, true, 'Anda sudah bergabung dengan grup ini');
             } else {
-                $requestModel->requestUserToGroup($data);
-                return $this->responseDetail(201, false, 'Berhasil mengirim permintaan group');
+                $requestModel->createData($data);
+                return $this->responseDetail(201, false, 'Berhasil mengirim permintaan gabung group');
             }
         } else {
             return $this->responseDetail(404, true, 'Grup tidak ditemukan');
@@ -183,6 +188,20 @@ class RequestController extends BaseController
             ]);
         } else {
             return $this->responseDetail(200, false, 'Data tidak ditemukan');
+        }
+    }
+
+    public function deleteRequest($request, $response, $args)
+    {
+        $requestModel = new RequestModel($this->db);
+
+		$userReq = $requestModel->find('id', $args['id']);
+// var_dump($userReq);die;
+        if ($userReq) {
+            $requestModel->hardDelete($args['id']);
+            return $this->responseDetail(200, false, 'Request berhasil dihapus');
+        } else {
+            return $this->responseDetail(404, false, 'Request tidak ditemukan');
         }
     }
 }

@@ -31,8 +31,6 @@
     <div class="widget-content" style="padding-left:0px; margin-top:40px; padding-right:30px;">
 
         {% for data in data %}
-        <!-- <form action="" method="POST"> -->
-
             <div class="row">
                 <div class="col-md-3" style="">
                     <div  style="line-height:3em;" class="" >
@@ -54,35 +52,26 @@
                             <div class="form-group row">
                                 <b>Deskripsi</b> : {{ data.description }}
                             </div>
-                            <!-- <div class="form-group row">
-                                Anggota : {{ counts.user }}
-                            </div> -->
-                        </div>
-                        <div class="col-lg-8">
-                            <p class="text-left">
-                            <b><span class="col1">Nama </span>:  </b> {{data.name}}<br><br>
-                            <b><span class="col1">Deskripsi </span>:  </b> {{data.description}}<br><br>
-                            <b><span class="col1">Member </span>:  </b> {{counts.user}}<br><br>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        {% endfor %}
     </div>
 
-    {% endfor %}
     {% if data != null %}
     <nav aria-label="...">
         <ul class="pager">
             <div class="pagination alternate">
                 <ul>
                     {% if pagination.current > 1 %}
-                    <li><a href="{{ base_url() }}/home/?page={{ pagination.current - 1 }}">
+                    <li><a href="{{ base_url() }}/user/groups?page={{ pagination.current - 1 }}">
                         Sebelumnya</a></li>
                         {% endif %}
                         <li class="active"> <a>{{ pagination.current }}</a></li>
                         {% if pagination.current < pagination.total_page %}
-                        <li><a href="{{ base_url() }}/home/?page={{ pagination.current + 1 }}">
+                        <li><a href="{{ base_url() }}/user/groups?page={{ pagination.current + 1 }}">
                             Selanjutnya</a></li>
                             {% endif %}
                         </ul>

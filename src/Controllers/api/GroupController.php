@@ -138,6 +138,7 @@ class GroupController extends BaseController
 	//Set user as member of group
 	public function setUserGroup(Request $request, Response $response)
 	{
+		// var_dump($request->getParams());die();
 		$rules = [
 			'required' => [
 				['group_id'],
@@ -154,20 +155,20 @@ class GroupController extends BaseController
 		]);
 
 		if ($this->validator->validate()) {
-			$userGroup = new \App\Models\UserGroupModel($this->db);
-			$adduserGroup = $userGroup->add($request->getParsedBody());
-			$query = $request->getQueryParams();
-
-			$findNewGroup = $userGroup->find('id', $adduserGroup);
-
-			$data = $this->responseDetail(201, false, 'User berhasil ditambahkan kedalam group', [
-					'data'	=>	$findNewGroup
-				]);
+			$userGroup = new UserGroupModel($this->db);
+			$findUserGroup = $userGroup->findTwo('user_id', $request->getParams()['user_id'],
+								'group_id',  $request->getParams()['group_id']);
+// var_dump($findUserGroup);die;
+			if (!empty($findUserGroup[0])) {
+				return $this->responseDetail(400, true, 'Sudah bergabung dengan grup');
+			} else {
+				$userGroup->add($request->getParams());
+				return $this->responseDetail(201, false, 'Berhasil ditambahkan menjadi anggota group');
+			}
 		} else {
-			$data = $this->responseDetail(400, true, $this->validator->errors());
+			return $this->responseDetail(400, true, $this->validator->errors());
 		}
 
-		return $data;
 	}
 
 	//Get all user in group

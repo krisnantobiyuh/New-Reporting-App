@@ -224,4 +224,22 @@ class PicController extends BaseController
 
     }
 
+    public function deleteGroupRequest($request, $response, $args)
+	{
+        $item = new \App\Models\Item($this->db);
+        $findItem = $item->find('id', $args['id']);
+		try {
+			$client = $this->client->request('DELETE', 'request/'.$args['id']);
+
+			$content = json_decode($client->getBody()->getContents(), true);
+            $this->flash->addMessage('success', 'Tugas telah berhasil dihapus');
+		} catch (GuzzleException $e) {
+			$content = json_decode($e->getResponse()->getBody()->getContents(), true );
+			$this->flash->addMessage('warning', 'Anda tidak diizinkan menghapus tugas ini ');
+		}
+		// return $this->view->render($response, 'pic/tugas.twig');
+        // var_dump($content); die();
+        return $response->withRedirect($this->router->pathFor('pic.item.group',['id' => $findItem['group_id']]));
+	}
+
 }

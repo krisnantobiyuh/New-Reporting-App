@@ -8,51 +8,103 @@
     <div class="span12">
         <div class="widget-box" style="margin-top:0px;">
             <a class="list-group-item active main-color-bg">
-                <span align="center" aria-hidden="true"><i class="icon-file"></i></span><i class="fa fa-address-book-o"></i>&nbsp; Profil
+                <span align="center" aria-hidden="true"></span><i class="fa fa-address-book-o"></i>&nbsp; Profil
             </a>
             <div class="box box-primary">
                 <div style="padding-bottom:20px;"class="box-header">
                     <div id="panel1">
                         <div class="col-lg-4">
-                            <!-- <p class="text-center"><b>Photo</b> -->
-                                <br>
-                                <img style="width:300px" class="img-thumbnail"
-                                src="{{ base_url() }}/assets/images/{{data.image}}" alt="">
+                            <br>
+                            <img style="width:300px" class="img-thumbnail"
+                            src="{{ base_url() }}/assets/images/{{user.image}}" alt="">
                             <br><br>
                             <div class='wrapper text-center'>
-                            <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-social-button btn-pinterest">
-                                    <a href="" data-toggle="modal" data-target="#{{data.id}}"
-                                    value="{{data.id}}" title="View Group Details"
-                                    style="color:#fff;"> Ubah foto
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-social-button btn-pinterest">
+                                        <a href="" data-toggle="modal" data-target="#foto"
+                                        value="{{user.id}}" title="View Group Details"
+                                        style="color:#fff;">
+                                        Ubah foto
+                                    </a>
                                 </button>
 
                                 <button type="button" class="btn btn-social-button btn-github">
                                     <a style="color:#fff;" href="{{ base_url() }}/user/profile/setting">
-                                        <i class="fa fa-cogs"></i> Setting
-                                    </a></button>
+                                        <i class="fa fa-cogs"></i> Pengaturan
+                                    </a>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-8" style="margin-top:20px; padding-bottom:7px;">
+                        <div style="margin: 0px;" class="widget-box">
+                            <div class="widget-title">
+                                <ul class="nav nav-tabs">
+                                    <li class="active"><a data-toggle="tab" href="#1">Data diri</a></li>
+                                    <li><a data-toggle="tab" href="#2">Wali</a></li>
+                                    <li><a data-toggle="tab" href="#3">Grup</a></li>
+                                </ul>
+                            </div>
+                            <div style="padding-top:0px;" class="widget-content tab-content">
+                                <div id="1" class="tab-pane active"><br>
+                                    <b><span class="span4">Nama </span></b>{{user.name}}<br><br>
+                                    <b><span class="span4">Username </span></b>{{user.username}}<br><br>
+                                    <b><span class="span4">Email </span></b>{{user.email}}<br><br>
+                                    <b><span class="span4">Jenis Kelamin </span></b>{{user.gender}}<br><br>
+                                    <b><span class="span4">Alamat </span></b>{{user.address}}<br><br>
+                                    <b><span class="span4">Telepon </span></b>{{user.phone}}<br><br>
+                                    <b><span class="span4">Mulai Bergabung</span></b>{{user.created_at | date("j F Y")}}<hr>
+                                </div>
+                                <div id="2" class="tab-pane">
+                                    <h4>Daftar Wali Anda
+                                        <a class="btn btn-mini btn-bitbucket pull-right"
+                                        href="{{ path_for('change.password') }}">
+                                        <i class="fa fa-plus"></i>&nbsp; Cari wali</a>
+                                </h4>
+                                    <hr style="margin-top:20px;">
+                                    {% for guard in guard %}
+                                       <a href="#">
+                                        {% if guard.image != null %}
+                                            <img style="margin-right:17px;" width="100" height="100" alt="User"
+                                            src="{{ base_url() }}/assets/images/{{ guard.image }}">
+                                        {% else %}
+                                            <img style="margin-right:17px;" width="100" height="100" alt="User"
+                                            src="{{ base_url() }}/assets/images/avatar.png">
+                                        {% endif %}
+                                    </a>
+                                    {{guard.username}}
+                                        <span style="float: right; top: 1px; ">
+                                            <div class="btn-group">
+                                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                                <i class="fa fa-sort-desc" aria-hidden="true"></i>
+                                            </a>
+                                            <ul style="left: -140px; top: 13px; " class="dropdown-menu">
+                                                <li><a style="font-size: small" href="#"><i class="icon-fixed-width icon-pencil">
+                                                     Lihat detail</i></a></li>
+                                                <li><a style="font-size: small" href="{{ path_for('item.archive', {'id': user.id }) }}"><i class="icon-fixed-width icon-pencil">
+                                                     Lihat arsip laporan</i></a></li>
+                                                <li class="divider"></li>
+                                                <li><a style="font-size: small" href="#"><i class="i"> Hapus anak</i></a></li>
+                                            </ul>
+                                        </div>
+                                    </span><br><br>
+                                        {% endfor %}
+                                </div>
+                                <div id="3" class="tab-pane">
+                                    3
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-4">
-                            <br>
-                            <p class="text-left"><b><span class="col1">Nama </span><span class="">:  </span></b> {{data.name}}<br><br>
-                            <b><span class="col1">Username </span><span text-align="center">:  </span></b> {{data.username}}<br><br>
-                            <b><span class="col1">Email </span><span text-align="center">:  </span></b> {{data.email}}<br><br>
-                            <b><span class="col1">Jenis Kelamin </span><span text-align="center">:  </span></b> {{data.gender}}<br><br>
-                            <b><span class="col1">Alamat </span><span text-align="center">:  </span></b> {{data.address}}<br><br>
-                            <b><span class="col1">No.Telepon </span><span text-align="center">:  </span></b> {{data.phone}}<br><br>
-                            <b><span class="col1">Mulai Bergabung</span><span text-align="center">: </span> </b>{{data.created_at | date("j F Y ")}}</p>
-                        </div>
                     </div>
-                    <!-- </ul> -->
                 </div>
             </div>
         </div>
     </div>
 </div>
+</div>
 
-<div id="{{data.id}}" class="modal fade" role="dialog">
+
+<div id="foto" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content">
@@ -64,7 +116,7 @@
             <div class="modal-body" style="width:85%; text-align:center; margin:0 auto;">
 
             <!-- content goes here -->
-            <form  action="{{path_for('user.change.image', {id:data.id})}}"
+            <form  action="{{path_for('user.change.image', {id:user.id})}}"
             method="POST" enctype="multipart/form-data" id="laporkan">
                 {% if errors %}
                 <div class="alert alert-danger">
@@ -76,7 +128,7 @@
                     <div class="col-xs-12 col-sm-6 col-md-10">
                         <div class="form-group {{ errors.image ? 'has-error' : '' }}">
                             <div id="image_preview" align="center"><img id="previewing"
-                                src="{{ base_url() }}/assets/images/{{ data.image }}"
+                                src="{{ base_url() }}/assets/images/{{ user.image }}"
                                 class="img-thumbnail" style="width:200px" >
                             </div><br />
                             <label>Pilih foto :</label>
@@ -86,7 +138,7 @@
                                 </div>
                                 <input type="file" id="file" class="form-control"
                                 name="image" placeholder="Item image">
-                                <input type="hidden" class="form-control" name="id" value="{{data.id}}">
+                                <input type="hidden" class="form-control" name="id" value="{{user.id}}">
                             </div>
                             {% if errors.image %}
                             <span class="help-block">{{errors.image | first}}</span>

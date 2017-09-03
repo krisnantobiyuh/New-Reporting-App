@@ -30,6 +30,7 @@ $app->group('', function() use ($app, $container) {
         $app->get('/{id}/members', 'App\Controllers\web\GroupController:getAllGroupMember')->setName('get.group.member');
         $app->post('/search', 'App\Controllers\web\GroupController:searchGroup')->setName('web.search.group');
         $app->get('/join/{id}', 'App\Controllers\web\GroupController:joinGroup')->setName('web.join.group');
+        $app->post('/setuser', 'App\Controllers\web\GroupController:setUserGroup')->setName('group.setuser');
         // $app->get('/{id}/pics', 'App\Controllers\web\GroupController:getGroupPic')->setName('get.group.pic');
     });
     $app->group('/item', function() use ($app, $container) {
@@ -58,6 +59,7 @@ $app->group('', function() use ($app, $container) {
         $app->get('/user', 'App\Controllers\web\GuardController:getUser');
         $app->get('/show/user', 'App\Controllers\web\GuardController:getUserByGuard')->setName('guard.show.user');
         $app->delete('/delete/{id}', 'App\Controllers\web\GuardController:deleteGuardian');
+        $app->post('/setuser', 'App\Controllers\web\GuardController:createGuardian')->setName('guard.setuser');
     });
 
     $app->group('/pic', function() use ($app, $container){
@@ -76,6 +78,7 @@ $app->group('', function() use ($app, $container) {
         $app->get('/show/item/{id}', 'App\Controllers\web\PicController:showItem')->setName('web.pic.show.item');
         $app->post('/set/guardian', 'App\Controllers\web\GuardController:createGuardian')->setName('web.pic.set.guardian');
         $app->post('/comment', 'App\Controllers\web\CommentController:postPicComment')->setName('pic.post.comment');
+        // $app->post('/setguard', 'App\Controllers\web\GuardController:createGuardian')->setName('pic.setguard');
     });
 
     $app->group('/request', function() use ($app, $container) {
@@ -87,6 +90,7 @@ $app->group('', function() use ($app, $container) {
         $app->get('/group', 'App\Controllers\web\RequestController:groupRequest')->setName('web.notif.group');
         $app->get('/all/group', 'App\Controllers\web\RequestController:allGroupRequest')->setName('web.notif.all.group');
         $app->get('/all', 'App\Controllers\web\RequestController:allRequest')->setName('web.notif.all');
+        $app->post('/delete', 'App\Controllers\web\RequestController:deleteRequest')->setName('request.delete');
     });
     // ->add(new \App\Middlewares\web\GuardMiddleware($container));
     // )->add(new \App\Middlewares\web\AuthMiddleware($container)

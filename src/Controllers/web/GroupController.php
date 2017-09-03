@@ -1,5 +1,6 @@
 <?php
 namespace App\Controllers\web;
+
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use GuzzleHttp\Exception\BadResponseException as GuzzleException;
@@ -7,6 +8,7 @@ use App\Models\UserGroupModel;
 use App\Models\GroupModel;
 use GuzzleHttp;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
+
 class GroupController extends BaseController
 {
 	//Get active Group
@@ -31,7 +33,7 @@ class GroupController extends BaseController
         try {
             $result = $this->client->request('GET', 'user/groups',[
 				'query' => [
-					'perpage' => 10,
+					'perpage' => 5,
 					'page' => $request->getQueryParam('page')
 		   ]]);
         } catch (GuzzleException $e) {
@@ -153,22 +155,51 @@ class GroupController extends BaseController
 	//Set user as member or PIC of group
 	public function setUserGroup($request, $response)
 	{
-		$data = [
-				'group_id' 			=>	$request->getParams()['group_id'],
-				'user_id'			=>	$request->getParams()['user_id']
-			];
 		try {
 			$client = $this->client->request('POST',
-						$this->router->pathFor('api.user.add.group'), [
-					'json' => $data
+			$this->router->pathFor('api.user.add.group'), [
+				'form_params'	=> [
+					'group_id' 			=>	$request->getParams()['group_id'],
+					'user_id'			=>	$request->getParams()['user_id'],
+					'status'			=>	0
+				]
 			]);
-			$client = $client->getBody()->getContents();
-			$content = json_decode($client);
 		} catch (GuzzleException $e) {
-			$content = json_decode($e->getResponse()->getBody()->getContents());
+			$client = $e->getResponse();
 		}
-		return $this->router->pathFor('user.group.get', ['id' => $groupId]);
+
+		$content = json_decode($client->getBody()->getContents(), true);
+
+		// var_dump($content);die;
+
+		if ($content['code'] == 201) {
+			if (!empty($request->getParams()['req_id'])) {
+				try {
+					$result = $this->client->request('DELETE', 'request/delete/'.$request->getParams()['req_id']);
+				} catch (GuzzleException $e) {
+					$result = $e->getResponse();
+				}
+				$data = json_decode($result->getBody()->getContents(), true);
+				// var_dump($data);die;
+				$this->flash->addMessage('success', $content['message']);
+				return $response->withRedirect($this->router->pathFor('notification'));
+			} else {
+				$this->flash->addMessage('success', $content['message']);
+				return  $response->withRedirect($this->router->pathFor('pic.group.member', [
+					'id' => $request->getParams()['group_id']
+				]));
+			}
+		} else {
+			$this->flash->addMessage('error', $content['message']);
+			if (!empty($request->getParams()['req_id'])) {
+				return  $response->withRedirect($this->router->pathFor('notification'));
+			}
+			return  $response->withRedirect($this->router->pathFor('pic.group.member', [
+				'id' => $request->getParams()['group_id']
+			]));
+		}
 	}
+
 	//Get all member in group
 	public function getAllGroupMember($request, $response, $args)
 	{

@@ -48,27 +48,38 @@ class GuardController extends BaseController
     // Function Create Guardian
     public function createGuardian(Request $request, Response $response, $args)
     {
-        //  var_dump($request->getParam('search')); die();
-        $guard = $request->getParam('guard_id');
-        $user= $request->getParam('user_id');
-        $search = $request->getParam('search');
         try {
-            $result = $this->client->request('POST', 'guard/create/'. $guard.'/'.$user);
-            $data = json_decode($result->getBody()->getContents(), true);
+            $result = $this->client->request('POST', 'guard/create',
+                ['form_params' => [
+                    'user_id' 	=> $request->getParam('guard_id'),
+                    'guard_id'	=> $request->getParam('user_id')
+                ]
+            ]);
         } catch (GuzzleException $e) {
             $result = $e->getResponse();
-            $data = json_decode($result->getBody()->getContents(), true);
         }
+        $data = json_decode($result->getBody()->getContents(), true);
+        //  var_dump($data); die();
         // $search = $_SESSION['search'];
-        // var_dump($search);die();
-        if ($data['code'] == 200 ) {
+        if ($data['code'] == 201 ) {
+            if (!empty($user= $request->getParam('req_id'))) {
+                try {
+                    $result = $this->client->request('DELETE', 'request/delete/'.$request->getParam('req_id'));
+                } catch (GuzzleException $e) {
+                    $result = $e->getResponse();
+                }
+            }
             $this->flash->addMessage('success', $data['message']);
-            return $response->withRedirect('/Reporting-App/public/pic/search/user/guard?search='.$search);
         } else {
             $this->flash->addMessage('warning', $data['message']);
-            return $response->withRedirect('/Reporting-App/public/pic/search/user/guard?search='.$search);
         }
-        // $data = json_decode($result->getBody()->getContents(), true);
+        if (!empty($user= $request->getParam('req_id'))) {
+            return $response->withRedirect($this->router->pathFor('notification'));
+        } else {
+            $base = $request->getUri()->getBaseUrl();
+            $search = $request->getParam('search');
+            return $response->withRedirect($base.'/pic/search/user/guard?search='.$search);
+        }
     }
 
 

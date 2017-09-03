@@ -166,17 +166,26 @@ class UserController extends BaseController
 
     public function viewProfile($request, $response)
     {
-        $base = $request->getUri()->getBaseUrl();
-        $path = $base.'/assets/images/';
+        // $base = $request->getUri()->getBaseUrl();
+        // $path = $base.'/assets/images/';
         try {
             $result = $this->client->request('GET', 'user/detail'. $request->getUri()->getQuery());
+            try {
+                $guard = $this->client->request('GET', 'guard/show/'. $_SESSION['login']['id']);
+            } catch (GuzzleException $e) {
+                $guard = $e->getResponse();
+            }
         } catch (GuzzleException $e) {
             $result = $e->getResponse();
         }
 
         $data = json_decode($result->getBody()->getContents(), true);
-// var_dump($data);die();
-        return $this->view->render($response, 'users/view-profile.twig', $data);
+        $dataGuard = json_decode($guard->getBody()->getContents(), true);
+// var_dump($dataGuard['data']);die();
+        return $this->view->render($response, 'users/view-profile.twig', [
+            'user'  => $data['data'],
+            'guard' => $dataGuard['data']
+            ]);
     }
 
     public function settingProfile($request, $response, $args)
