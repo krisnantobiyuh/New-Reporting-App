@@ -13,6 +13,13 @@
           <i class="icon-file"></i></span> Daftar anak {{group.name}}
     </a>
     <div class="panel-body">
+        <div>
+            <!-- <ul class="nav navbar-nav navbar-right"> -->
+                <a class="btn btn-mini btn-bitbucket pull-right"
+                href="{{ path_for('guard.search', {'search': 1 })}}">
+                <i class="fa fa-plus"></i>&nbsp; Tambahkan anak</a>
+            <!-- </ul> -->
+        </div><hr>
         {% for user in data %}
 
         <div style="padding:5px;" class="col-md-4" >
@@ -38,7 +45,7 @@
                         <li><a style="font-size: small" href="{{ path_for('item.archive', {'id': user.id }) }}"><i class="icon-fixed-width icon-pencil">
                              Lihat arsip laporan</i></a></li>
                         <li class="divider"></li>
-                        <li><a style="font-size: small" href="#"><i class="i"> Hapus anak</i></a></li>
+                        <li><a style="font-size: small" href="{{ path_for('guard.delete.user', {'id': user.id }) }}"><i class="i"> Hapus anak</i></a></li>
                     </ul>
                 </div>
                 </span>

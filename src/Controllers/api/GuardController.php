@@ -9,6 +9,27 @@ use App\Models\Users\UserModel;
 
 class GuardController extends BaseController
 {
+
+    public function getAll(Request $request, Response $response)
+    {
+        $guard = new GuardModel($this->db);
+        $userToken = new \App\Models\Users\UserToken($this->db);
+        $token = $request->getHeader('Authorization')[0];
+        $userId = $userToken->getUserId($token);
+
+        $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+        $perPage = $request->getQueryParam('perpage');
+        $getGuard = $guard->findAllGuard();
+        $result = $this->paginateArray($getGuard, $page, $perPage);
+
+        if ($getGuard) {
+            $data = $this->responseDetail(200, false, 'Data tersedia', $result);
+        } else {
+            $data = $this->responseDetail(200, false, 'Data kosong');
+        }
+        return $data;
+    }
+
     // Function Create Guardian
     public function createGuardian(Request $request, Response $response, $args)
     {
@@ -36,27 +57,25 @@ class GuardController extends BaseController
     }
 
     // Function Delete Guardian
-    public function deleteGuardian(Request $request, Response $response, $args)
-    {
-        $guard = new GuardModel($this->db);
-        $userToken = new \App\Models\Users\UserToken($this->db);
-
-        $token = $request->getHeader('Authorization')[0];
-        $findUser = $userToken->find('token', '72af357cae642386ccaaf5c4e86b669a');
-        $findGuard = $guard->findGuards('user_id', $findUser['user_id'], 'guard_id', $args['id']);
-           // var_dump($findGuard);die();
-        // $query = $request->getQueryParams();
-           if ($findGuard && $findUser['user_id']) {
-               $oh = $guard->deleteGuard($args['id']);
-               var_dump($oh);die();
-               $data = $this->responseDetail(200, false, 'Guardian berhasil dihapus', [
-                    'data' => $findGuard
-                ]);
-           } else {
-               $data = $this->responseDetail(404, true, 'Data tidak ditemukan');
-           }
-           return $data;
-    }
+   public function deleteGuardian(Request $request, Response $response, $args)
+   {
+       $guard = new GuardModel($this->db);
+       $userToken = new \App\Models\Users\UserToken($this->db);
+       $token = $request->getHeader('Authorization')[0];
+       $user  = $userToken->getUserId($token);
+       // $findUser = $userToken->find('token', '72af357cae642386ccaaf5c4e86b669a');
+       $findGuard = $guard->findGuards('user_id', $user, 'guard_id', $args['id']);
+       $findUser  = $guard->findGuards('user_id', $args['id'], 'guard_id', $user);
+          // var_dump($findGuard);die();
+       // $query = $request->getQueryParams();
+          if ($findGuard) {
+              $guard->hardDelete($findGuard['id']);
+              $data = $this->responseDetail(200, false, 'Anda berhasil menghapus salah satu wali anda');
+          }else {
+              $data = $this->responseDetail(404, true, 'Data tidak ditemukan');
+          }
+          return $data;
+   }
 
     // Function show user by guard_id
     public function getUserByGuard(Request $request, Response $response, $args)
@@ -128,4 +147,83 @@ class GuardController extends BaseController
         }
         return $data;
     }
+
+    public function getSearch($request, $response)
+    {
+        // var_dump($_SESSION['search']); die();
+        if ($_SESSION['search'] == 1){
+            return $this->view->render($response,'users/guard/search-user.twig');
+        } else {
+            return $this->view->render($response,'users/fellow/search-guard.twig');
+        }
+    }
+
+    public function searchUser($request, $response, $args)
+    {
+        $user = new \App\Models\Users\UserModel($this->db);
+        $searchParam = $request->getParam('search');
+        $_SESSION['search_param'] = $searchParam;
+        $search = $_SESSION['search'];
+        $userId = $_SESSION['login']['id'];
+        $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+        $perpage = $request->getQueryParam('perpage');
+        $result = $user->search($searchParam, $userId)->setPaginate($page, 8);
+        // var_dump($result); die();
+        $data['users'] = $result['data'];
+        $data['count']    = count($data['users']);
+        $data['pagination'] = $result['pagination'];
+        $data['search'] = $_SESSION['search_param'];
+        // var_dump($search); die();
+        if ($search == 1) {
+            $data['guard'] = $_SESSION['guard'];
+            return $this->view->render($response, 'users/guard/search-user.twig', $data);
+        }else {
+            $data['guard'] = $_SESSION['login']['id'];
+            return $this->view->render($response, 'users/fellow/search-guard.twig', $data);
+        }
+    }
+
+    // Function show guardian by user_id
+    public function getUserGuard(Request $request, Response $response)
+    {
+        $_SESSION['search'] = 2;
+        try {
+            $result = $this->client->request('GET',
+            $this->router->pathFor('api.guard.show'), [
+                 'query' => [
+                     'perpage' => 10,
+                     'page' => $request->getQueryParam('page'),
+                    //  'id' => $_SESSION['login']['id']
+ 			]]);
+            // $content = json_decode($result->getBody()->getContents());
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+        $data = json_decode($result->getBody()->getContents(), true);
+        // var_dump($_SESSION['search']);die();
+        return $this->view->render($response, 'users/fellow/all-guard.twig', [
+            'data'          =>  $data['data'] ,
+            'pagination'    =>  $data['pagination']
+        ]);    // return $this->view->render($response, 'guard/show-user.twig', $content->reporting);
+    }
+
+    public function deleteUser(Request $request, Response $response, $args)
+    {
+        $guard = new GuardModel($this->db);
+        $userToken = new \App\Models\Users\UserToken($this->db);
+        $token = $request->getHeader('Authorization')[0];
+        $user  = $userToken->getUserId($token);
+        // $findGuard = $guard->findGuards('user_id', $user, 'guard_id', $args['id']);
+        $findUser  = $guard->findGuards('user_id', $args['id'], 'guard_id', $user);
+           // var_dump($findGuard);die();
+        // $query = $request->getQueryParams();
+           if ($findUser) {
+               $guard->hardDelete($findUser['id']);
+               $data = $this->responseDetail(200, false, 'Anda berhasil menghapus salah satu anak anda');
+           }else {
+               $data = $this->responseDetail(404, true, 'Data tidak ditemukan');
+           }
+           return $data;
+    }
+
 }

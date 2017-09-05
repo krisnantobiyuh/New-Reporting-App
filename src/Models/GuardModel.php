@@ -5,6 +5,7 @@ class GuardModel extends BaseModel
 {
 	protected $table = 'guardian';
 	protected $column = ['guard_id', 'user_id'];
+
 	public function add(array $data)
 	{
 		$data = [
@@ -14,6 +15,20 @@ class GuardModel extends BaseModel
 		$this->createData($data);
 		return $this->db->lastInsertId();
 	}
+
+	// Get all users of guard by guard_id
+	public function findAllGuard()
+	{
+		$qb = $this->db->createQueryBuilder();
+		$this->query = $qb->select('users.*')
+			 ->from('users', 'users')
+			 ->join('users', $this->table, 'guard', 'users.id = guard.guard_id')
+			 ->where('users.status = 2');
+			 // $result = $qb->execute();
+			 return array_map("unserialize", array_unique(array_map("serialize", $this->fetchAll())));
+
+	}
+
 	public function update(array $data, $images, $id)
 	{
 		$data = [
@@ -22,14 +37,16 @@ class GuardModel extends BaseModel
 		];
 		$this->updateData($data, $id);
 	}
+
 	 public function getAllUser()
-	    {
-	        $qb = $this->db->createQueryBuilder();
-	        $this->query = $qb->select('id', 'guard_id', 'user_id')
-	                        ->from($this->table)
-	                        ->where('id', $id);
-	        return $this;
-	    }
+	 {
+		 $qb = $this->db->createQueryBuilder();
+		 $this->query = $qb->select('id', 'guard_id', 'user_id')
+		 ->from($this->table)
+		 ->where('id', $id);
+		 return $this;
+	 }
+
 	public function getUser($id)
     {
         $qb = $this->db->createQueryBuilder();
@@ -39,6 +56,7 @@ class GuardModel extends BaseModel
 		$query = $qb->execute();
 	    return $query->fetchAll();
     }
+
 	// Get all users of guard by guard_id
 	public function findAllUser($guardId)
 	{
@@ -51,6 +69,7 @@ class GuardModel extends BaseModel
 			 // $result = $qb->execute();
  			return $this;
 	}
+
 	//Get all users are not registered to guard
 	public function notUser($guardId)
 	{
@@ -70,6 +89,7 @@ class GuardModel extends BaseModel
 			//  var_dump($this->fetchAll());die();
 		return $this;
 	}
+
 	//Find id guardian table by column
 	public function findGuards($column1, $val1, $column2, $val2)
 	{
@@ -84,6 +104,7 @@ class GuardModel extends BaseModel
 		$result = $qb->execute();
 		return $result->fetch();
 	}
+
 	//Find all user user by column
 	public function findGuard($column, $value)
     {
@@ -96,6 +117,7 @@ class GuardModel extends BaseModel
         $result = $qb->execute();
         return $result->fetchAll();
     }
+
     public function getUserId($id)
     {
         $qb = $this->db->createQueryBuilder();
@@ -105,6 +127,7 @@ class GuardModel extends BaseModel
 		$query = $qb->execute();
 	    return $this;
     }
+
     //HardDelete
     public function deleteGuard($guardId)
     {

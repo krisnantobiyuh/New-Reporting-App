@@ -9,8 +9,8 @@ class PicController extends BaseController
 
     public function getMemberGroup($request, $response, $args)
 	{
-		$query = $request->getQueryParams();
-        $userGroup = new \App\Models\UserGroupModel($this->db);
+		// $query = $request->getQueryParams();
+        // $userGroup = new \App\Models\UserGroupModel($this->db);
         try {
             $result = $this->client->request('GET', 'group/'.$args['id'].'/member', [
                 'query' => [
@@ -43,9 +43,8 @@ class PicController extends BaseController
     public function getUnreportedItem($request, $response, $args)
     {
         // $userGroup = new \App\Models\UserGroupModel($this->db);
-        $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
-        // $getMember = $userGroup->findAll($args['id'])->setPaginate($page,40);
-        // var_dump($getMember); die();
+        // $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+
         try {
             $result = $this->client->request('GET', 'item/group/'. $args['id'], [
                 'query' => [
@@ -53,17 +52,32 @@ class PicController extends BaseController
                     'perpage' => 10,
                     ]
                 ]);
+
+                try {
+                    $result2 = $this->client->request('GET', 'group/'.$args['id'].'/member', [
+                        'query' => [
+                            'perpage' => 9,
+                            'page'    => $request->getQueryParam('page')
+                        ]
+                    ]);
+                } catch (GuzzleException $e) {
+                    $result2 = $e->getResponse();
+                }
+
+                $data2 = json_decode($result2->getBody()->getContents(), true);
         } catch (GuzzleException $e) {
             $result = $e->getResponse();
         }
 
         $data = json_decode($result->getBody()->getContents(), true);
 
+        // var_dump($data2);
+        // echo "<br />";
         // var_dump($data); die();
         return $this->view->render($response, 'pic/tugas.twig', [
             'items'	=> $data['data'],
             'group'	=> $args['id'],
-            // 'member' => $getMember['data'],
+            'member'	=> $data2['data'],
             'pagination'	=> $data['pagination'],
         ]);
     }
@@ -110,41 +124,44 @@ class PicController extends BaseController
 
     public function createItem($request, $response)
     {
+        if (empty($request->getParam('user_id'))) {
+            $user_id = null;
+        } else {
+            $user_id = $request->getParam('user_id');
+        }
 
-            $query = $request->getQueryParams();
-            $group = $request->getParam('group');
-            // var_dump($_SESSION['login']); die();
-            try {
-                $result = $this->client->request('POST', 'item', [
-                    'form_params' => [
-                        'name'          => $request->getParam('name'),
-                        'description'   => $request->getParam('description'),
-                        'recurrent'     => $request->getParam('recurrent'),
-                        'start_date'    => $request->getParam('start_date'),
-                        'user_id'    	=> $request->getParam('user_id'),
-                        'group_id'      => $request->getParam('group'),
-                        'creator'    	=> $_SESSION['login']['id'],
-                        'public'        => $request->getParam('public'),
-                    ]
-                ]);
-            } catch (GuzzleException $e) {
-                $result = $e->getResponse();
-            }
+        $group = $request->getParam('group');
+        try {
+            $result = $this->client->request('POST', 'item/create', [
+                'form_params' => [
+                    'name'          => $request->getParam('name'),
+                    'description'   => $request->getParam('description'),
+                    'recurrent'     => $request->getParam('recurrent'),
+                    'start_date'    => $request->getParam('start_date'),
+                    'user_id'    	=> $user_id,
+                    'group_id'      => $request->getParam('group'),
+                    'creator'    	=> $_SESSION['login']['id'],
+                    'privacy'       => $request->getParam('privacy'),
+                ]
+            ]);
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
 
-            $content = $result->getBody()->getContents();
-            $contents = json_decode($content, true);
-            // var_dump($contents); die();
-            if ($contents['code'] == 201) {
-                $this->flash->addMessage('success', $contents['message']);
-                return $response->withRedirect($this->router->pathFor('pic.item.group',['id' => $group ]));
-            } else {
-                // foreach ($contents['message'] as $value ) {
-                // }
-                $_SESSION['errors'] = $contents['message'];
-                $_SESSION['old']    = $request->getParams();
-                // var_dump($_SESSION['errors']); die();
-                return $response->withRedirect($this->router->pathFor('pic.item.group',['id' => $group ]));
-            }
+        $content = $result->getBody()->getContents();
+        $contents = json_decode($content, true);
+        // var_dump($contents); die();
+        if ($contents['code'] == 201) {
+            $this->flash->addMessage('success', $contents['message']);
+            return $response->withRedirect($this->router->pathFor('pic.item.group',['id' => $group ]));
+        } else {
+            // foreach ($contents['message'] as $value ) {
+            // }
+            $_SESSION['errors'] = $contents['message'];
+            $_SESSION['old']    = $request->getParams();
+            // var_dump($_SESSION['errors']); die();
+            return $response->withRedirect($this->router->pathFor('pic.item.group',['id' => $group ]));
+        }
 
 
     }
@@ -201,23 +218,24 @@ class PicController extends BaseController
 
     public function searchUser($request, $response, $args)
     {
+        // var_dump($request->getQueryParams());die;
         $user = new \App\Models\Users\UserModel($this->db);
 
-        $search = $request->getParam('search');
-        $_SESSION['search'] = $search;
+        $_SESSION['search'] = $request->getQueryParam('search');
         // $userId = $_SESSION['login']['id'];
         $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
-        $perpage = $request->getQueryParam('perpage');
-        $result = $user->search($search, $_SESSION['guard'])->setPaginate($page, 8);
+        // $perpage = $request->getQueryParam('perpage');
+        $result = $user->search($_SESSION['search'], $_SESSION['login']['id'])->setPaginate($page, 8);
 
 
-        $data['guard'] = $_SESSION['guard'];
-        $data['users'] = $result['data'];
-        $data['count']    = count($data['users']);
+        // $data['guard']      = $_SESSION['guard'];
+        $data['users']      = $result['data'];
+        $data['count']      = count($data['users']);
         $data['pagination'] = $result['pagination'];
-        $data['search'] = $_SESSION['search'];
-        // var_dump($data['users']); die();
-        if (!empty($search)) {
+        $data['search']     = $_SESSION['search'];
+        $data['group_id']   = $request->getQueryParam('group_id');
+        // var_dump($data); die();
+        if (!empty($_SESSION['search'])) {
 
             return $this->view->render($response, 'pic/search-user.twig', $data);
         }
@@ -241,5 +259,13 @@ class PicController extends BaseController
         // var_dump($content); die();
         return $response->withRedirect($this->router->pathFor('pic.item.group',['id' => $findItem['group_id']]));
 	}
+
+    public function getSearch($request, $response, $args)
+    {
+        // var_dump($args['group']);die;
+        return  $this->view->render($response, 'pic/search-user.twig', [
+            'group_id' => $args['group']
+        ]);
+    }
 
 }

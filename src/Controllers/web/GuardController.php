@@ -13,6 +13,7 @@ class GuardController extends BaseController
     // Function show user by guard_id
     public function getUserByGuard(Request $request, Response $response)
     {
+            $_SESSION['search'] = 1;
         try {
             $result = $this->client->request('GET',
             $this->router->pathFor('api.guard.show.user'), [
@@ -37,12 +38,19 @@ class GuardController extends BaseController
     public function deleteGuardian(Request $request, Response $response, $args)
     {
         try {
-            $result = $this->client->request('GET', $this->router->pathFor('api.guard.delete', ['id' => $args['id']]));
-            $content = json_decode($client->getBody()->getContents());
+            $result = $this->client->request('DELETE', 'guard/delete/'.$args['id']);
+            $content = json_decode($result->getBody()->getContents(), true);
         } catch (GuzzleException $e) {
-            $content = json_decode($e->getResponse()->getBody()->getContents());
+            $content = json_decode($e->getResponse()->getBody()->getContents(), true);
         }
-            var_dump($content);
+        // var_dump($content);
+        if ($content['code'] == 200) {
+            $this->flash->addMessage('success', $content['message']);
+            return $response->withRedirect($this->router->pathFor('user.view.profile'));
+        }else {
+            $this->flash->addMessage('warning', $content['message']);
+            return $response->withRedirect($this->router->pathFor('user.view.profile'));
+        }
     }
 
     // Function Create Guardian
@@ -132,5 +140,59 @@ class GuardController extends BaseController
             'data'          =>  $data['data'] ,
             'pagination'    =>  $data['pagination']
         ]);
+    }
+
+    public function getSearch($request, $response, $args)
+    {
+        $_SESSION['search'] = $args['search'];
+        if ($args['search'] == 1){
+            return $this->view->render($response,'users/guard/search-user.twig');
+        } else {
+            return $this->view->render($response,'users/fellow/search-guard.twig');
+        }
+    }
+
+    public function searchUser($request, $response, $args)
+    {
+        // var_dump(    $_SESSION['search']);die;
+        $user = new \App\Models\Users\UserModel($this->db);
+        $searchParam = $request->getParam('search');
+        $_SESSION['search_param'] = $searchParam;
+        $search = $_SESSION['search'];
+        $userId = $_SESSION['login']['id'];
+        $page = !$request->getQueryParam('page') ? 1 : $request->getQueryParam('page');
+        $perpage = $request->getQueryParam('perpage');
+        $result = $user->search($searchParam, $userId)->setPaginate($page, 8);
+        // var_dump($result); die();
+        $data['users']      = $result['data'];
+        $data['count']      = count($data['users']);
+        $data['pagination'] = $result['pagination'];
+        $data['search']     = $_SESSION['search_param'];
+        // var_dump($search); die();
+        if ($search == 1) {
+            // $data['guard'] = $_SESSION['guard'];
+            return $this->view->render($response, 'users/guard/search-user.twig', $data);
+        }else {
+            // $data['guard'] = $_SESSION['login']['id'];
+            return $this->view->render($response, 'users/fellow/search-guard.twig', $data);
+        }
+    }
+
+    public function deleteUser(Request $request, Response $response, $args)
+    {
+        try {
+            $result = $this->client->request('DELETE', 'guard/delete/user/'.$args['id']);
+            $content = json_decode($result->getBody()->getContents(), true);
+        } catch (GuzzleException $e) {
+            $content = json_decode($e->getResponse()->getBody()->getContents(), true);
+        }
+            // var_dump($content);
+        if ($content['code'] == 200) {
+            $this->flash->addMessage('success', $content['message']);
+            return $response->withRedirect($this->router->pathFor('guard.show.user'));
+        }else {
+            $this->flash->addMessage('warning', $content['message']);
+            return $response->withRedirect($this->router->pathFor('guard.show.user'));
+        }
     }
 }

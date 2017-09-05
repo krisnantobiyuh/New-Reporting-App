@@ -747,9 +747,9 @@ class GroupController extends BaseController
 	public function setMemberGroup($request, $response, $args)
 	{
 		$userGroups = new UserGroupModel($this->db);
+		$userToken = new \App\Models\Users\UserToken($this->db);
 
 		$token = $request->getHeader('Authorization')[0];
-		$userToken = new \App\Models\Users\UserToken($this->db);
 		$user = $userToken->getUserId($token);
 
 		$userId = $request->getParams()['user_id'];
@@ -768,7 +768,7 @@ class GroupController extends BaseController
 				$addMember = $userGroups->createData($data);
 				$findMember = $userGroups->findTwo('user_id', $userId, 'group_id', $groupId);
 
-				return $this->responseDetail(201, false, 'Anda berhasil menambahkan user kedalam group !', [
+				return $this->responseDetail(201, false, 'Anda berhasil menambahkan user kedalam group!', [
 					'data'	=>	$findMember
 				]);
 			} else {

@@ -48,10 +48,10 @@ class ItemController extends BaseController
 	public function createItemUser($request, $response, $args)
 	{
         // $userId = $_SESSION['login']['id'];
-
+// var_dump($request->getParams());die;
 		$query = $request->getQueryParams();
 		try {
-			$result = $this->client->request('POST', 'item/create/'.$args['group'], [
+			$result = $this->client->request('POST', 'item/'.$args['group'], [
 				'form_params' => [
 					'name'          => $request->getParam('name'),
 	                'description'   => $request->getParam('description'),
@@ -60,23 +60,21 @@ class ItemController extends BaseController
 	                'user_id'    	=> $_SESSION['login']['id'],
 	                'group_id'      => $args['group'],
 	                'creator'    	=> $_SESSION['login']['id'],
-	                // 'image'         => $request->getParam('image'),
 	                'privacy'       => $request->getParam('privacy'),
 				]
 			]);
 
-            $this->flash->addMessage('succes', 'Berhasil membuat item');
+            // $this->flash->addMessage('success', 'Berhasil membuat item');
 		} catch (GuzzleException $e) {
 			$result = $e->getResponse();
 		}
 
-		$content = $result->getBody()->getContents();
-        $content = json_decode($content);
-
-        return $response->withRedirect($this->router->pathFor('unreported.item.user.group', [
-            'user' 		=> 	$_SESSION['login']['id'],
-            'group'     =>  $args['group']
-        ]));
+        $content = json_decode($result->getBody()->getContents(), true);
+var_dump($content);die;
+        // return $response->withRedirect($this->router->pathFor('unreported.item.user.group', [
+        //     'user' 		=> 	$_SESSION['login']['id'],
+        //     'group'     =>  $args['group']
+        // ]));
 
         $data = json_decode($content, true);
 

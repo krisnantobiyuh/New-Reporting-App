@@ -42,7 +42,6 @@
                                 <ul class="nav nav-tabs">
                                     <li class="active"><a data-toggle="tab" href="#1">Data diri</a></li>
                                     <li><a data-toggle="tab" href="#2">Wali</a></li>
-                                    <li><a data-toggle="tab" href="#3">Grup</a></li>
                                 </ul>
                             </div>
                             <div style="padding-top:0px;" class="widget-content tab-content">
@@ -58,9 +57,9 @@
                                 <div id="2" class="tab-pane">
                                     <h4>Daftar Wali Anda
                                         <a class="btn btn-mini btn-bitbucket pull-right"
-                                        href="{{ path_for('change.password') }}">
+                                        href="{{ path_for('guard.search', {'search': 2 })}}">
                                         <i class="fa fa-plus"></i>&nbsp; Cari wali</a>
-                                </h4>
+                                    </h4>
                                     <hr style="margin-top:20px;">
                                     {% for guard in guard %}
                                        <a href="#">
@@ -79,19 +78,16 @@
                                                 <i class="fa fa-sort-desc" aria-hidden="true"></i>
                                             </a>
                                             <ul style="left: -140px; top: 13px; " class="dropdown-menu">
-                                                <li><a style="font-size: small" href="#"><i class="icon-fixed-width icon-pencil">
+                                                <!-- <li><a style="font-size: small" href="#"><i class="icon-fixed-width icon-pencil">
                                                      Lihat detail</i></a></li>
                                                 <li><a style="font-size: small" href="{{ path_for('item.archive', {'id': user.id }) }}"><i class="icon-fixed-width icon-pencil">
-                                                     Lihat arsip laporan</i></a></li>
+                                                     Lihat arsip laporan</i></a></li> -->
                                                 <li class="divider"></li>
-                                                <li><a style="font-size: small" href="#"><i class="i"> Hapus anak</i></a></li>
+                                                <li><a style="font-size: small" href="{{ path_for('guard.delete', {'id': guard.id }) }}"><i class="i"> Hapus wali</i></a></li>
                                             </ul>
                                         </div>
                                     </span><br><br>
                                         {% endfor %}
-                                </div>
-                                <div id="3" class="tab-pane">
-                                    3
                                 </div>
                             </div>
                         </div>

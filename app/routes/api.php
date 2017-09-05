@@ -42,7 +42,7 @@ $app->group('/api', function() use ($app, $container) {
         $app->post('/upload/{item}', 'App\Controllers\api\ItemController:postImage')->setname('api.item.upload');
         $app->get('/image/{item}', 'App\Controllers\api\ItemController:getImageItem')->setname('api.item.image');
         $app->delete('/image/{image}', 'App\Controllers\api\ItemController:deleteImageItem')->setname('api.delete.image');
-        $app->post('', 'App\Controllers\api\ItemController:createItem')->setname('api.item.create');
+        $app->post('/create', 'App\Controllers\api\ItemController:createItem')->setname('api.item.create');
         $app->post('/{group}', 'App\Controllers\api\ItemController:createItemUser')->setname('api.item.user.create');
         $app->get('/group/{group}', 'App\Controllers\api\ItemController:getUnreportedGroupItem')->setname('api.group.item');
         $app->get('/group/{group}/all-reported', 'App\Controllers\api\ItemController:getReportedGroupItem')->setname('api.reported.group.item');
@@ -58,7 +58,7 @@ $app->group('/api', function() use ($app, $container) {
     });
     // })->add(new \App\Middlewares\AuthToken($container));
     $app->group('/user', function() use ($app, $container) {
-        $this->get('/all', 'App\Controllers\api\UserController:index');
+        $this->get('/all', 'App\Controllers\api\UserController:index')->setname('api.user.list');
         $this->post('/update/{id}', 'App\Controllers\api\UserController:updateProfile')->setName('api.edit.account');
         $this->post('/password/change', 'App\Controllers\api\UserController:changePassword')->setName('api.change.password');
         $this->get('/detail', 'App\Controllers\api\UserController:detailAccount')->setName('api.detail.account');
@@ -71,7 +71,7 @@ $app->group('/api', function() use ($app, $container) {
     $app->group('/group', function() use ($app, $container) {
         $app->post('/create', 'App\Controllers\api\GroupController:add')->setName('api.group.add');
         $app->put('/edit/{id}', 'App\Controllers\api\GroupController:update');
-        $app->get('/list', 'App\Controllers\api\GroupController:index');
+        $app->get('/list', 'App\Controllers\api\GroupController:index')->setName('api.group.list');
         $app->get('/enter/{id}', 'App\Controllers\api\GroupController:enterGroup')->setName('api.enter.group');
         $app->get('/find/{id}', 'App\Controllers\api\GroupController:findGroup');
         $app->get('/delete/{id}', 'App\Controllers\api\GroupController:delete');
@@ -105,13 +105,15 @@ $app->group('/api', function() use ($app, $container) {
     });
 
     $app->group('/guard', function() use ($app, $container) {
+        $app->get('/all', 'App\Controllers\api\GuardController:getAll')->setName('api.guard');
         $app->post('/create', 'App\Controllers\api\GuardController:createGuardian')->setName('api.guard.add');
-        $app->get('/delete/{id}', 'App\Controllers\api\GuardController:deleteGuardian')->setName('api.guard.delete');
+        // $app->get('/delete/{id}', 'App\Controllers\api\GuardController:deleteGuardian')->setName('api.guard.delete');
         $app->get('/show/user', 'App\Controllers\api\GuardController:getUserByGuard')->setName('api.guard.show.user');
         $app->get('/show/{id}', 'App\Controllers\api\GuardController:getGuardByUser')->setName('api.guard.show');
         $app->get('/user', 'App\Controllers\api\GuardController:getUser')->setName('api.guard.get.user');
         $app->get('/timeline/{id}', 'App\Controllers\api\ItemController:guardTimeline')->setname('api.guard.timeline');
-    });
+        $app->delete('/delete/{id}', 'App\Controllers\api\GuardController:deleteGuardian')->setName('api.guard.delete');
+        $app->delete('/delete/user/{id}', 'App\Controllers\api\GuardController:deleteUser')->setName('api.guard.delete.user');});
 
     // $app->group('/request', function() use ($app, $container) {
     //     $app->post('/guard/{guard}', 'App\Controllers\api\RequestController:createUserToGuard')->setName('api.request.guard');
@@ -129,5 +131,7 @@ $app->group('/api', function() use ($app, $container) {
        $app->get('/group/all', 'App\Controllers\api\RequestController:allGroupRequest')->setName('api.notif.all.group');
        $app->get('/all', 'App\Controllers\api\RequestController:allRequest')->setName('api.notif.all');
        $app->delete('/delete/{id}', 'App\Controllers\api\RequestController:deleteRequest')->setName('api.request.delete');
+       $app->post('/guardian/{guard}', 'App\Controllers\api\RequestController:requestByUser')->setname('api.fellow.request');
+       $app->post('/fellow/{user}', 'App\Controllers\api\RequestController:requestByGuard')->setname('api.guardian.request');
    });
 });

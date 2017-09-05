@@ -23,7 +23,7 @@ class Item extends BaseModel
             $endDate = date('Y-m-d', strtotime($data['start_date']. '+1 year'));
             break;
             default:
-            $endDate = '';
+            $endDate = null;
         }
         $date = date('Y-m-d H:i:s');
         $data = [
@@ -33,10 +33,8 @@ class Item extends BaseModel
             'start_date'  => $data['start_date'],
             'group_id'    => $data['group_id'],
             'user_id'     => $data['user_id'],
-            'image'       => $data['image'],
             'creator'     => $data['creator'],
-            'public'      => $data['public'],
-            'privacy'     => $data['public'],
+            'privacy'     => $data['privacy'],
             'status'      => $data['status'],
             'reported_at' => $data['reported_at'],
             'end_date'    => $endDate,

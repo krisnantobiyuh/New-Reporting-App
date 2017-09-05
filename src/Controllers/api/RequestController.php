@@ -204,4 +204,57 @@ class RequestController extends BaseController
             return $this->responseDetail(404, false, 'Request tidak ditemukan');
         }
     }
+
+    public function requestByUser($request, $response, $args)
+    {
+        $req    = new \App\Models\RequestModel($this->db);
+        $guard     = new \App\Models\GuardModel($this->db);
+        $userToken = new \App\Models\Users\UserToken($this->container->db);
+        $guardian  = $args['guard'];
+        $token     = $request->getHeader('Authorization')[0];
+        $user      = $userToken->getUserId($token);
+        $findGuardian = $guard->findTwo('guard_id', $guardian, 'user_id', $user);
+        $findRequest  = $req->findTwo('guard_id', $guardian, 'user_id', $user);
+
+        if (empty($findGuardian[0]) && empty($findRequest[0]) && $user != $guardian) {
+            $data = [
+                'user_id'  => $user,
+                'group_id' => null,
+                'guard_id' => $guardian,
+                'category' => 2,
+                'status'   => 0,
+            ];
+            $create = $req->createData($data);
+            return $this->responseDetail(200, false, 'Permintaan berhasil dikirim');
+        } else {
+            return $this->responseDetail(400, true, 'Anda sudah menjadi anaknya atau permintaan telah dikirim');
+        }
+    }
+
+    public function requestByGuard($request, $response, $args)
+    {
+        $req    = new \App\Models\RequestModel($this->db);
+        $guard     = new \App\Models\GuardModel($this->db);
+        $userToken = new \App\Models\Users\UserToken($this->container->db);
+        $user      = $args['user'];
+        $token     = $request->getHeader('Authorization')[0];
+        $guardian  = $userToken->getUserId($token);
+        $findGuardian = $guard->findTwo('guard_id', $guardian, 'user_id', $user);
+        $findRequest  = $req->findTwo('guard_id', $guardian, 'user_id', $user);
+        // var_dump($findGuardian); die();
+        if (empty($findGuardian[0]) && empty($findRequest[0]) && $user != $guardian) {
+                $data = [
+                    'user_id'  => $user,
+                    'group_id' => null,
+                    'guard_id' => $guardian,
+                    'category' => 1,
+                    'status'   => 0,
+                ];
+                $create = $req->createData($data);
+                return $this->responseDetail(200, false, 'Permintaan berhasil dikirim');
+        } else {
+            return $this->responseDetail(400, true, 'Anda sudah menjadi walinya atau permintaan telah dikirim');
+        }
+    }
+
 }

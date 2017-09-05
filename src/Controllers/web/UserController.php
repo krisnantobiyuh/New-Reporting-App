@@ -166,8 +166,7 @@ class UserController extends BaseController
 
     public function viewProfile($request, $response)
     {
-        // $base = $request->getUri()->getBaseUrl();
-        // $path = $base.'/assets/images/';
+        $_SESSION['search'] = 2;
         try {
             $result = $this->client->request('GET', 'user/detail'. $request->getUri()->getQuery());
             try {

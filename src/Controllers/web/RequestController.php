@@ -217,4 +217,47 @@ class RequestController extends BaseController
         return $response->withRedirect($this->router->pathFor('notification'));
     }
 
+    public function requestToBeFellow($request, $response, $args)
+    {
+        $guard  = $args['guard'];
+        $search = $_SESSION['search_param'];
+        $base = $request->getUri()->getBaseUrl();
+        try {
+            $result = $this->client->request('POST','request/guardian/'.$guard);
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+        $data = json_decode($result->getBody()->getContents(), true);
+            // var_dump($data);die();
+        if ($data['code'] == 200) {
+            $this->flash->addMessage('success', $data['message']);
+            return $response->withRedirect($base.'/guard/search/user?search='.$search);
+        }else {
+            $this->flash->addMessage('warning', $data['message']);
+            return $response->withRedirect($base.'/guard/search/user?search='.$search);
+        }
+    }
+
+    public function requestToBeGuard($request, $response, $args)
+    {
+        $base = $request->getUri()->getBaseUrl();
+        $fellow = $args['user'];
+        $search = $_SESSION['search_param'];
+        $reques = new \App\Models\RequestModel($this->db);
+        try {
+            $result = $this->client->request('POST','request/fellow/'.$fellow);
+        } catch (GuzzleException $e) {
+            $result = $e->getResponse();
+        }
+        $data = json_decode($result->getBody()->getContents(), true);
+            // var_dump($data);die();
+        if ($data['code'] == 200) {
+            $this->flash->addMessage('success', $data['message']);
+            return $response->withRedirect($base.'/guard/search/user?search='.$search);
+        }else {
+            $this->flash->addMessage('warning', $data['message']);
+            return $response->withRedirect($base.'/guard/search/user?search='.$search);
+        }
+    }
+
 }

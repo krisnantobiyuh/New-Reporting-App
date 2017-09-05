@@ -10,14 +10,14 @@
         <div class="widget-box" style="margin-top:0px;">
             <div style="background:#ffffff" class="">
                 <div style="padding-bottom:0px; padding-top:0px; background:#24272E;" class="panel-heading">
-                    <div class="widget-title span8">
-                        <ul style="text-align:center" class="nav nav-tabs">
-                            <li ><a href="{{ base_url()}}/pic/group/{{group}}/member" class="btn btn-primary">Anggota Group</a></li>
-                            <li ><a href="{{ base_url()}}/pic/items/group/{{group}}" class="btn btn-primary" >Tugas</a></li>
-                            <li class="active" ><a
-                                 >Laporan Anggota</a></li>
-                        </ul>
-                    <span style="float:right; margin-top:5px;">
+                    <div class="widget-title span12">
+                        <div class="btn-group btn-group-justified">
+                          <a href="{{ base_url()}}/pic/group/{{group}}/member" class="btn btn-primary">Anggota Group</a>
+                          <a href="{{ base_url()}}/pic/items/group/{{group}}" class="btn btn-primary">Tugas</a>
+                          <a href="{{ base_url() }}/pic/items/group/{{group}}/reported" class="btn btn-primary active">Laporan</a>
+                        </div>
+
+                    <!-- <span style="float:right; margin-top:5px;">
                         <div class="btn-group span4">
                             <a class="btn btn-primary"><i class="icon-collapse"></i> Lainnya</a>
                             <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
@@ -30,7 +30,7 @@
                                 <li><a href="#"><i class="i"> Lihat semua tugas</i></a></li>
                             </ul>
                         </div>
-                    </span>
+                    </span> -->
                     </div>
                 </div>
                 <div class="panel-body" style="padding-top:0px; margin-top:29px">
@@ -43,7 +43,7 @@
                                     <hr style="height: 30px; border-style:solid; border-color: #8c8b8b;
                                     border-width: 1px 0 0 0; border-radius: 30px; margin:0px;">
 
-                                        <div style="font-size:15px;" class="user-thumb">
+                                        <div style="font-size:15px; margin-right:20px;" class="user-thumb">
                                             {% if item.reported_at == null and item.creator_image != null %}
                                             <img width="60" height="60" alt="User"
                                             src="{{ base_url() }}/assets/images/{{ item.creator_image }}">
@@ -54,6 +54,10 @@
                                             <img width="60" height="60" alt="User"
                                             src="{{ base_url() }}/assets/images/avatar.png">
                                             {% endif %}
+
+                                        </div>
+                                        <span>
+                                            <br>
                                             {% if item.reported_at == null  %}
                                             &nbsp&nbsp&nbsp<b>{{ item.creator }}</b>
                                             <i>melaporkan tugas</i> <b>{{ item.name}}</b>
@@ -61,7 +65,7 @@
                                             &nbsp&nbsp&nbsp <b>{{ item.user }}</b>
                                             <i>melaporkan tugas</i> <b>{{ item.name }}</b>
                                             {% endif %}
-                                        </div>
+                                        </span>
 
 
                                         <div class="article-post">
@@ -81,16 +85,18 @@
                                                 <span class="label label-success">{{ item.group_name }}
                                                 </span></b>
                                             </span>
-                                            {% endif %}
+                                            {% endif %}-->
                                             <br>
 
-                                            <br> -->
+                                            <br>
+                                            <!-- <div style="margin-top:40px" class=""> -->
                                         {% if item.image != null %}
 
                                         <img width="80%" style="max-width: 300px;"alt="Image item"
                                         src="{{ base_url() }}/assets/images/{{ item.image }}">
                                         <br><br>
                                         {% endif %}
+                                    <!-- </div> -->
                                         <p>{{ item.description }}</p>
                                          <p style="font-size: 10pt;"><i class="fa fa-clock-o" aria-hidden="true"></i>
                                          {{ item.updated_at | date('j F Y | H:i')}}</p>

@@ -155,6 +155,7 @@ class GroupController extends BaseController
 	//Set user as member or PIC of group
 	public function setUserGroup($request, $response)
 	{
+		// var_dump($request->getParams());die;
 		try {
 			$client = $this->client->request('POST',
 			$this->router->pathFor('api.user.add.group'), [
@@ -294,6 +295,7 @@ class GroupController extends BaseController
 	//Set user as member of group
 	public function setMemberGroup($request, $response)
 	{
+		// var_dump($request->getParams()); die();
 		try {
 			$client = $this->client->request('POST',
 						'group/pic/addusers', [
@@ -309,9 +311,8 @@ class GroupController extends BaseController
 			// $content = json_decode($e->getResponse()->getBody()->getContents());
 		}
 		$groupId = $request->getParam('group_id');
-		// var_dump(); die();
 		$content = json_decode($client->getBody()->getContents(), true);
-		// var_dump($content); die();
+		var_dump($content); die();
 		if ($content['code'] == 201) {
 			$this->flash->addMessage('success', $content['message']);
 			return $response->withRedirect($this->router->pathFor('pic.group.member', ['id' => $groupId]));
